@@ -4,7 +4,7 @@ import { LoadScript } from "@react-google-maps/api";
 import "./index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
-import "./.env"
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
