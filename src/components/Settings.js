@@ -152,12 +152,12 @@ const Settings = ({ setAuthorized }) => {
             <div className="font-medium text-base mr-2">Competitor Activities</div>
             {notifications.competitorActivities ? (
               <BiToggleRight
-                className="text-gray-900 cursor-pointer text-3xl ml-2"
+                className="text-gray-900 cursor-pointer text-4xl ml-2"
                 onClick={() => toggleNotification('competitorActivities')}
               />
             ) : (
               <BiToggleLeft
-                className="text-gray-900 cursor-pointer text-3xl ml-2"
+                className="text-gray-900 cursor-pointer text-4xl ml-2"
                 onClick={() => toggleNotification('competitorActivities')}
               />
               
@@ -167,12 +167,12 @@ const Settings = ({ setAuthorized }) => {
             <div className="font-medium text-base mr-2">Sharing Current Location</div>
             {notifications.currentLocation ? (
               <BiToggleRight
-                className="text-gray-900 cursor-pointer text-3xl ml-2 "
+                className="text-gray-900 cursor-pointer text-4xl ml-2 "
                 onClick={() => handleSendLocationToggle()}
               />
             ) : (
               <BiToggleLeft
-                className="text-gray-900 cursor-pointer text-3xl ml-2"
+                className="text-gray-900 cursor-pointer text-4xl ml-2"
                 onClick={() => handleSendLocationToggle()}
               />
             )}
