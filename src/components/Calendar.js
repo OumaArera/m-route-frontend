@@ -211,12 +211,14 @@ function Calendar({ userData }) {
           </button>
         </>
       ) : (
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => googleSignIn()}
-        >
-          Sign In With Google
-        </button>
+        <div className="flex items-center justify-center px-4">
+          <button
+            className="bg-gray-900 hover:bg-gray-800 text-white font-bold py-2 px-8 rounded-full"
+            onClick={() => googleSignIn()}
+          >
+            Sign In With Google
+          </button>
+        </div>
       )}
     </div>
   );
