@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-const SIGNUP_URL = 'https://m-route-backend.onrender.com/users/signup'
+const SIGNUP_URL = 'https://m-route-backend.onrender.com/users/signup';
 
 const Modal = ({ message, onClose }) => {
   return (
@@ -49,21 +50,22 @@ const Signup = () => {
   const [emailUsername, setEmailUsername] = useState({
     email: "",
     username: ""
-  })
+  });
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleEmailUsername = e => {
-    let { name, value } = e.target;
-    setEmailUsername(prev =>({
+    const { name, value } = e.target;
+    setEmailUsername(prev => ({
       ...prev,
-      [name] : value.toLowerCase()
-    }))
+      [name]: value.toLowerCase()
+    }));
   };
 
   const handleChange = e => {
-    let { name, value } = e.target;
+    const { name, value } = e.target;
     if ((name === 'national_id_no' || name === 'staff_no') && value < 0) {
       alert('Please enter a positive number.');
       e.target.value = Math.max(0, value);
@@ -84,7 +86,7 @@ const Signup = () => {
       password: formData.password,
       email: emailUsername.email,
       username: emailUsername.username
-    }
+    };
 
     if (formData.middle_name) {
       signupData.middle_name = formData.middle_name;
@@ -101,11 +103,11 @@ const Signup = () => {
 
       const data = await response.json();
 
-      if (data.status_code === 201){
+      if (data.status_code === 201) {
         setMessage(data.message);
-        setTimeout(() =>{
+        setTimeout(() => {
           navigate('/login');
-        }, 3000)
+        }, 3000);
         setFormData({
           first_name: "",
           middle_name: "",
@@ -114,22 +116,22 @@ const Signup = () => {
           staff_no: "",
           password: ""
         });
-      setEmailUsername({
-        email: "",
-        username: ""
-      });
+        setEmailUsername({
+          email: "",
+          username: ""
+        });
 
-      }else if (data.status_code === 400){
+      } else if (data.status_code === 400) {
         setMessage(data.message);
 
-      }else if (data.status_code === 500){
+      } else if (data.status_code === 500) {
         console.log("Error:", data.message);
         setMessage("Signup failed please try again");
       }
 
     } catch (error) {
       console.log("Failed to post", error);
-      setMessage(`Signup failed please try again later`);
+      setMessage("Signup failed please try again later");
     } finally {
       setLoading(false);
     }
@@ -139,10 +141,14 @@ const Signup = () => {
     setMessage(null);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <>
       {loading && (
-        <div className="fixed inset-0 flex items-center justify-center py-36  bg-gray-900 bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center py-36 bg-gray-900 bg-opacity-50 z-50">
           <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
         </div>
       )}
@@ -224,6 +230,21 @@ const Signup = () => {
               />
             </div>
             <div>
+              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                value={emailUsername.email}
+                type="email"
+                autoComplete="email"
+                required
+                onChange={handleEmailUsername}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
+              />
+            </div>
+            <div>
               <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
                 Username
               </label>
@@ -238,47 +259,43 @@ const Signup = () => {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
               />
             </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                value={emailUsername.email}
-                type="email"
-                autoComplete="email"
-                required
-                onChange={handleEmailUsername}
-                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z.]{2,}$"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
-              />
-            </div>
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                Password (At least one number, one capital letter, one symbol, and 6+ characters)
+                Password
               </label>
               <input
                 id="password"
                 name="password"
                 value={formData.password}
-                type="password"
-                autoComplete="current-password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
                 required
                 onChange={handleChange}
-                pattern="(?=.*\d)(?=.*[A-Z])(?=.*\W)(?!.*\s).{6,}"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
               />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
-            <div className="flex items-center justify-between">
+            <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Sign up
               </button>
             </div>
           </form>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Login
+            </Link>
+          </p>
         </div>
       </div>
     </>
@@ -286,6 +303,3 @@ const Signup = () => {
 };
 
 export default Signup;
-
-
-

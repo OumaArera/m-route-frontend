@@ -18,6 +18,8 @@ import MerchCalendar from "./components/MerchCalendar";
 import MerchRoutePlans from "./components/MerchRoutes";
 import CreateRoutes from "./components/CreateRoutes";
 import ManagerRoutes from "./components/ManagerRoutes";
+import './index.css';
+
 
 // import AboutUs from "./components/AboutUs";
 

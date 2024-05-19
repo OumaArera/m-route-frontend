@@ -162,43 +162,53 @@ const ManagerRoutes = () =>{
 
 
     return (
-        <div>
-            {isLoading ? (
-                <p>Loading...</p>
-            ) : errorMessage ? (
-                <p>{errorMessage}</p>
-            ) : (
-                <div>
-                    {routes.map(route => (
-                        <div key={route.id}>
-                            <p>Date Range: {route.date_range.start_date} to {route.date_range.end_date}</p>
-                            <p>Merchandiser: {route.merchandiser_name}</p>
-                            <p>Staff No: {route.staff_no}</p>
-                            <p>Status: {route.status}</p>
-                            <p>Instructions:</p>
-                            {expandedRoutes[route.id] ? (
-                                <div>
-                                    {JSON.parse(route.instructions).map((instruction, index) => (
-                                        <div key={index}>
-                                            <p>DateTime: {instruction.dateTime}</p>
-                                            <p>Instructions: {instruction.instructions}</p>
-                                            <p>Facility: {instruction.facility}</p>
-                                        </div>
-                                    ))}
-                                    <button onClick={() => toggleInstructions(route.id)}>View Less</button>
-                                </div>
-                            ) : (
-                                <button onClick={() => toggleInstructions(route.id)}>View More</button>
-                            )}
-                            <button onClick={() => handleComplete(route.id)}>Complete</button>
-                            <button onClick={() => handleDeleteRoute(route.id)}>Delete</button>
-                            <br />
-                            <br />
-                        </div>
-                    ))}
+<div>
+  {isLoading ? (
+    <p>Loading...</p>
+  ) : errorMessage ? (
+    <p>{errorMessage}</p>
+  ) : (
+    <div className="route-container"> {/* Added container class */}
+      {routes.map((route) => (
+        <div key={route.id} className="route-card">
+          <p>Date Range: {route.date_range.start_date} to {route.date_range.end_date}</p>
+          <p>Merchandiser: {route.merchandiser_name}</p>
+          <p>Staff No: {route.staff_no}</p>
+          <p>Status: {route.status}</p>
+          <p>Instructions:</p>
+          {expandedRoutes[route.id] ? (
+            <div>
+              {JSON.parse(route.instructions).map((instruction, index) => (
+                <div key={index}>
+                  <p>DateTime: {instruction.dateTime}</p>
+                  <p>Instructions: {instruction.instructions}</p>
+                  <p>Facility: {instruction.facility}</p>
                 </div>
-            )}
+              ))}
+              <button className="text-white bg-black hover:bg-blue-600 px-3 py-1 rounded-md m-2" onClick={() => toggleInstructions(route.id)}>
+                View Less
+              </button>
+            </div>
+          ) : (
+            <button className="text-white bg-black hover:bg-blue-600 px-3 py-1 rounded-md m-2" onClick={() => toggleInstructions(route.id)}>
+              View More
+            </button>
+          )}
+          <button className="text-white bg-black hover:bg-green-600 px-3 py-1 rounded-md m-2" onClick={() => handleComplete(route.id)}>
+            Complete
+          </button>
+          <button className="text-white bg-black hover:bg-red-600 px-3 py-1 rounded-md m-2" onClick={() => handleDeleteRoute(route.id)}>
+            Delete
+          </button>
+          <br />
+          <br />
         </div>
+      ))}
+    </div>
+  )}
+</div>
+
+
     )
 }
 

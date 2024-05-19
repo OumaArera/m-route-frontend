@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BiToggleLeft, BiToggleRight } from 'react-icons/bi';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import Location from '../maps/Location';
 import { useNavigate } from "react-router-dom";
 
@@ -16,7 +17,9 @@ const Settings = ({ setAuthorized }) => {
 
   const { setLocateMerchandiser } = Location();
   const [token, setToken] = useState("");
-  const [userId, setUserId] = useState(0)
+  const [userId, setUserId] = useState(0);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -52,7 +55,6 @@ const Settings = ({ setAuthorized }) => {
   }, []);
 
   const logoutUser = async () => {
-      
     try {
       const response = await fetch(LOGOUT_URL, {
         method: "POST",
@@ -63,18 +65,17 @@ const Settings = ({ setAuthorized }) => {
         body: JSON.stringify({ "user_id": userId }),
       });
 
-      if (response.ok){
+      if (response.ok) {
         const data = await response.json();
         setAuthorized(false);
-        navigate("/")
+        navigate("/");
         setToken("");
         localStorage.removeItem("access_token");
         localStorage.removeItem("user_data");
-        console.log(data.message)
+        console.log(data.message);
       }
-
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -99,8 +100,26 @@ const Settings = ({ setAuthorized }) => {
           /> */}
         </div>
         <input type="email" className="input-field" placeholder="Email" />
-        <input type="password" className="input-field" placeholder="Old Password" />
-        <input type="password" className="input-field bg-gray-100" placeholder="New password" />
+        <div className="relative w-full">
+          <input 
+            type={showOldPassword ? "text" : "password"} 
+            className="input-field w-full" 
+            placeholder="Old Password" 
+          />
+          <div className="absolute right-3 top-3 cursor-pointer" onClick={() => setShowOldPassword(!showOldPassword)}>
+            {showOldPassword ? <AiOutlineEyeInvisible className="h-5 w-5" /> : <AiOutlineEye className="h-5 w-5" />}
+          </div>
+        </div>
+        <div className="relative w-full">
+          <input 
+            type={showNewPassword ? "text" : "password"} 
+            className="input-field w-full bg-gray-100" 
+            placeholder="New password" 
+          />
+          <div className="absolute right-3 top-3 cursor-pointer" onClick={() => setShowNewPassword(!showNewPassword)}>
+            {showNewPassword ? <AiOutlineEyeInvisible className="h-5 w-5" /> : <AiOutlineEye className="h-5 w-5" />}
+          </div>
+        </div>
         <button className="text-white bg-gray-900 px-6 py-2 rounded-full">Save changes</button>
       </form>
       <div className="flex flex-col items-center lg:items-start justify-start gap-8 py-6 px-8 text-lg text-black font-poppins shadow-[0px_4px_4px_rgba(0,_0,_0,_0.25)] rounded-xl">
@@ -124,7 +143,7 @@ const Settings = ({ setAuthorized }) => {
             <div className="font-medium text-base">Product Insights</div>
             {notifications.productInsights ? (
               <BiToggleRight
-                className="text-gray-900 cursor-pointer text-3xl ml-2 "
+                className="text-gray-900 cursor-pointer text-3xl ml-2"
                 onClick={() => toggleNotification('productInsights')}
               />
             ) : (
@@ -160,14 +179,13 @@ const Settings = ({ setAuthorized }) => {
                 className="text-gray-900 cursor-pointer text-3xl ml-2"
                 onClick={() => toggleNotification('competitorActivities')}
               />
-              
             )}
           </div>
           <div className="flex items-center justify-between">
             <div className="font-medium text-base">Sharing Current Location</div>
             {notifications.currentLocation ? (
               <BiToggleRight
-                className="text-gray-900 cursor-pointer text-3xl ml-2 "
+                className="text-gray-900 cursor-pointer text-3xl ml-2"
                 onClick={() => handleSendLocationToggle()}
               />
             ) : (
@@ -185,5 +203,3 @@ const Settings = ({ setAuthorized }) => {
 };
 
 export default Settings;
-
-
