@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AiOutlineClose, AiOutlineLock } from "react-icons/ai";
+import { AiOutlineClose, AiOutlineLock, AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { FiMail } from "react-icons/fi";
 import { MdCheckBoxOutlineBlank, MdCheckBox } from "react-icons/md";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -21,6 +21,12 @@ const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
     newPassword: ""
   });
 
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    password: false,
+    oldPassword: false,
+    newPassword: false,
+  });
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,14 +36,19 @@ const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
     const previousRoute = localStorage.getItem("previous_route");
 
     if (accessToken && userData) {
+      const userDataObj = JSON.parse(userData);
       setAuthorized(true);
-      setUserData(JSON.parse(userData));
+      setUserData(userDataObj);
+      if (userDataObj.role === "manager") {
+        setRoleCheck(true);
+      }
       if (previousRoute) {
-        navigate(previousRoute);
+        navigate("/");
       } else {
         navigate('/');
       }
     }
+
   }, [setAuthorized, setUserData, navigate]);
 
   useEffect(() => {
@@ -61,6 +72,13 @@ const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
     setPasswordChange(prev => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setPasswordVisibility((prev) => ({
+      ...prev,
+      [field]: !prev[field],
     }));
   };
 
@@ -243,48 +261,125 @@ const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
           </div>
           <div className="flex flex-col gap-1">
             <div className="text-sm text-gray-700">Password</div>
-            <div className="border border-gray-300 px-3 py-2 rounded-md flex items-center">
+            <div className="border border-gray-300 px-3 py-2 rounded-md flex items-center relative">
               <AiOutlineLock className="h-5 w-5 mr-2" />
               <input
                 className="pl-2 flex-grow focus:outline-none"
                 placeholder="Password"
-                type="password"
+                type={passwordVisibility.password ? "text" : "password"}
                 value={password}
                 onChange={handlePassword}
               />
+              <div className="absolute right-2">
+                {passwordVisibility.password ? (
+                  <AiFillEyeInvisible className="h-5 w-5 cursor-pointer" onClick={() => togglePasswordVisibility('password')} />
+                ) : (
+                  <AiFillEye className="h-5 w-5 cursor-pointer" onClick={() => togglePasswordVisibility('password')} />
+                )}
+              </div>
             </div>
-            <div className="text-sm text-gray-900">Forgot password?</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div
-              className="w-5 h-5 border border-gray-300 flex items-center justify-center rounded-md cursor-pointer"
-              onClick={handleRememberMeChange}
-            >
-              {rememberMe ? (
-                <MdCheckBox className="h-4 w-4" />
-              ) : (
-                <MdCheckBoxOutlineBlank className="h-4 w-4" />
-              )}
-            </div>
-            <div className="text-sm text-gray-700">Remember me</div>
           </div>
         </div>
-        <div className="flex flex-col items-center gap-4 w-full">
-          <p>{error}</p>
-          <button
-            className="bg-gray-900 text-white px-6 py-3 rounded-full uppercase text-sm hover:bg-gray-800 transition duration-300"
-            onClick={handleLogin}
-          >
-            Log In
+        <div className="flex items-center self-start gap-1 text-gray-700 text-sm">
+          <button type="button" onClick={handleRememberMeChange} className="focus:outline-none">
+            {rememberMe ? (
+              <MdCheckBox className="h-5 w-5" />
+            ) : (
+              <MdCheckBoxOutlineBlank className="h-5 w-5" />
+            )}
           </button>
-          <div className="flex items-center gap-1">
-            <div className="text-sm text-gray-700">Don’t have an account?</div>
-            <Link to="/signup" className="text-gray-900 cursor-pointer font-semibold text-lg ml-2">Sign Up</Link>
-          </div>
+          <p>Remember me</p>
         </div>
+        <button
+          className="bg-gray-900 text-white px-4 py-2 rounded-md mt-4 self-stretch"
+          type="submit"
+          onClick={handleLogin}
+        >
+          Login
+        </button>
+        {error && (
+          <div className="text-red-500 mt-2 text-sm text-center">{error}</div>
+        )}
+        <p className="text-gray-900 text-sm mt-2">
+          New here?{" "}
+          <Link to="/signup" className="underline">
+            Create an account
+          </Link>
+        </p>
+        <Link to="/forgot-password" className="text-sm text-gray-900 underline">
+          Forgot password?
+        </Link>
       </form>
     </div>
-    </>
+    {passwordExpire && (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+        <form
+          className="bg-white p-8 rounded-lg shadow-md"
+          onSubmit={changePassword}
+        >
+          <h2 className="text-lg font-medium mb-4">Change Password</h2>
+          <div className="mb-4">
+            <label className="block mb-1">Email</label>
+            <input
+              className="border border-gray-300 px-3 py-2 rounded-md w-full"
+              type="text"
+              name="email"
+              value={passwordChange.email}
+              onChange={handleChangePassword}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">Old Password</label>
+            <div className="border border-gray-300 px-3 py-2 rounded-md flex items-center relative">
+              <AiOutlineLock className="h-5 w-5 mr-2" />
+              <input
+                className="pl-2 flex-grow focus:outline-none"
+                type={passwordVisibility.oldPassword ? "text" : "password"}
+                name="oldPassword"
+                value={passwordChange.oldPassword}
+                onChange={handleChangePassword}
+              />
+              <div className="absolute right-2">
+                {passwordVisibility.oldPassword ? (
+                  <AiFillEyeInvisible className="h-5 w-5 cursor-pointer" onClick={() => togglePasswordVisibility('oldPassword')} />
+                ) : (
+                  <AiFillEye className="h-5 w-5 cursor-pointer" onClick={() => togglePasswordVisibility('oldPassword')} />
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className="block mb-1">New Password</label>
+            <div className="border border-gray-300 px-3 py-2 rounded-md flex items-center relative">
+              <AiOutlineLock className="h-5 w-5 mr-2" />
+              <input
+                className="pl-2 flex-grow focus:outline-none"
+                type={passwordVisibility.newPassword ? "text" : "password"}
+                name="newPassword"
+                value={passwordChange.newPassword}
+                onChange={handleChangePassword}
+              />
+              <div className="absolute right-2">
+                {passwordVisibility.newPassword ? (
+                  <AiFillEyeInvisible className="h-5 w-5 cursor-pointer" onClick={() => togglePasswordVisibility('newPassword')} />
+                ) : (
+                  <AiFillEye className="h-5 w-5 cursor-pointer" onClick={() => togglePasswordVisibility('newPassword')} />
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <button className="bg-gray-900 text-white px-4 py-2 rounded-md" type="submit">
+              Change Password
+            </button>
+          </div>
+          {error && (
+            <div className="text-red-500 mt-2 text-sm text-center">{error}</div>
+          )}
+        </form>
+      </div>
+    )}
+  </>
   );
 };
 

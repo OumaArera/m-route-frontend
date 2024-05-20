@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { AiOutlineLock, AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
-const SIGNUP_URL = 'https://m-route-backend.onrender.com/users/signup'
+const SIGNUP_URL = 'https://m-route-backend.onrender.com/users/signup';
 
 const Modal = ({ message, onClose }) => {
   return (
@@ -10,9 +11,7 @@ const Modal = ({ message, onClose }) => {
         <div className="fixed inset-0 transition-opacity" aria-hidden="true">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
-
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="sm:flex sm:items-start">
@@ -49,18 +48,18 @@ const Signup = () => {
   const [emailUsername, setEmailUsername] = useState({
     email: "",
     username: ""
-  })
+  });
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [passwordVisibility, setPasswordVisibility] = useState(false);
   const navigate = useNavigate();
 
   const handleEmailUsername = e => {
     let { name, value } = e.target;
-    setEmailUsername(prev =>({
+    setEmailUsername(prev => ({
       ...prev,
-      [name] : value.toLowerCase()
-    }))
-    
+      [name]: value.toLowerCase()
+    }));
   };
 
   const handleChange = e => {
@@ -85,7 +84,7 @@ const Signup = () => {
       password: formData.password,
       email: emailUsername.email,
       username: emailUsername.username
-    }
+    };
 
     if (formData.middle_name) {
       signupData.middle_name = formData.middle_name;
@@ -102,11 +101,11 @@ const Signup = () => {
 
       const data = await response.json();
 
-      if (data.status_code === 201){
+      if (data.status_code === 201) {
         setMessage(data.message);
-        setTimeout(() =>{
+        setTimeout(() => {
           navigate('/login');
-        }, 3000)
+        }, 3000);
         setFormData({
           first_name: "",
           middle_name: "",
@@ -115,19 +114,16 @@ const Signup = () => {
           staff_no: "",
           password: ""
         });
-      setEmailUsername({
-        email: "",
-        username: ""
-      });
-
-      }else if (data.status_code === 400){
+        setEmailUsername({
+          email: "",
+          username: ""
+        });
+      } else if (data.status_code === 400) {
         setMessage(data.message);
-
-      }else if (data.status_code === 500){
+      } else if (data.status_code === 500) {
         console.log("Error:", data.message);
         setMessage("Signup failed please try again");
       }
-
     } catch (error) {
       console.log("Failed to post", error);
       setMessage(`Signup failed please try again later`);
@@ -140,10 +136,14 @@ const Signup = () => {
     setMessage(null);
   };
 
+  const togglePasswordVisibility = () => {
+    setPasswordVisibility(!passwordVisibility);
+  };
+
   return (
     <>
       {loading && (
-        <div className="fixed inset-0 flex items-center justify-center py-36  bg-gray-900 bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center py-36 bg-gray-900 bg-opacity-50 z-50">
           <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
         </div>
       )}
@@ -225,14 +225,29 @@ const Signup = () => {
               />
             </div>
             <div>
+              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+                Email address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={emailUsername.email}
+                autoComplete="email"
+                required
+                onChange={handleEmailUsername}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
+              />
+            </div>
+            <div>
               <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
                 Username
               </label>
               <input
                 id="username"
                 name="username"
-                value={emailUsername.username}
                 type="text"
+                value={emailUsername.username}
                 autoComplete="username"
                 required
                 onChange={handleEmailUsername}
@@ -240,46 +255,39 @@ const Signup = () => {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Email address
+              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                Password
               </label>
-              <input
-                id="email"
-                name="email"
-                value={emailUsername.email}
-                type="email"
-                autoComplete="email"
-                required
-                onChange={handleEmailUsername}
-                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z.]{2,}$"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
-              />
+              <div className="relative mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type={passwordVisibility ? "text" : "password"}
+                  value={formData.password}
+                  autoComplete="current-password"
+                  required
+                  onChange={handleChange}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
+                />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
+                  <button type="button" onClick={togglePasswordVisibility} className="focus:outline-none">
+                    {passwordVisibility ? <AiFillEyeInvisible /> : <AiFillEye />}
+                  </button>
+                </div>
+              </div>
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                Password (At least one number, one capital letter, one symbol, and 6+ characters)
-              </label>
-              <input
-                id="password"
-                name="password"
-                value={formData.password}
-                type="password"
-                autoComplete="current-password"
-                required
-                onChange={handleChange}
-                pattern="(?=.*\d)(?=.*[A-Z])(?=.*\W)(?!.*\s).{6,}"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Sign up
+              <button type="submit" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Sign Up
               </button>
             </div>
           </form>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Log in
+            </Link>
+          </p>
         </div>
       </div>
     </>
@@ -287,6 +295,3 @@ const Signup = () => {
 };
 
 export default Signup;
-
-
-

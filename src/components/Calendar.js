@@ -1,6 +1,9 @@
 import { useSession, useSupabaseClient, useSessionContext } from '@supabase/auth-helpers-react';
 import { useState, useEffect } from 'react';
 
+
+const ROUTES_URL = "https://m-route-backend.onrender.com/users/route-plans";
+
 function Calendar({ userData }) {
   const [start, setStart] = useState(new Date());
   const [end, setEnd] = useState(new Date());
@@ -8,6 +11,7 @@ function Calendar({ userData }) {
   const [eventDescription, setEventDescription] = useState("");
   const [staffNo, setStaffNo] = useState("");
   const [status, setStatus] = useState("pending");
+  const [userId, setUserId] = useState(null);
   const [token, setToken] = useState(null);
   const session = useSession();
   const supabase = useSupabaseClient();
@@ -15,7 +19,7 @@ function Calendar({ userData }) {
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
-    setToken(accessToken);
+    setToken(JSON.parse(accessToken));
   }, []);
 
   if (isLoading) {
@@ -97,7 +101,7 @@ function Calendar({ userData }) {
       console.log("Formatted End Date:", formattedEndDate);
   
       const data = {
-        manager_id: userData.id,
+        manager_id: userId,
         date_range: {
           start_date: formattedStartDate,
           end_date: formattedEndDate
@@ -109,7 +113,7 @@ function Calendar({ userData }) {
   
       console.log("Data to be sent to backend:", data);
   
-      const routePlanResponse = await fetch("https://m-route-backend.onrender.com/users/route-plans", {
+      const routePlanResponse = await fetch(ROUTES_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -225,3 +229,7 @@ function Calendar({ userData }) {
 }
 
 export default Calendar;
+
+
+
+

@@ -3,7 +3,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
 
-const ROUTES_URL = "https://m-route-backend.onrender.com/users/route-plans"
+const ROUTES_URL = "https://m-route-backend.onrender.com/users/route-plans";
 
 // Initialize localizer for React Big Calendar with moment.js
 const localizer = momentLocalizer(moment);
@@ -34,16 +34,13 @@ const MerchCalendar = ({ userData }) => {
                     const data = await response.json();
                     if (data.successful) {
                         // Transform fetched data into the format expected by React Big Calendar
-                        const formattedEvents = data.message.map(event => {
-                            // Use moment to parse and format dates
-                            const startDate = moment(event.date_range.start_date, 'DD/MM/YYYY h:mm A').toDate();
-                            const endDate = moment(event.date_range.end_date, 'DD/MM/YYYY h:mm A').toDate();
-
-                            return {
-                                title: event.instructions,
-                                start: startDate,
-                                end: endDate,
-                            };
+                        const formattedEvents = data.message.flatMap(event => {
+                            const instructions = JSON.parse(event.instructions);
+                            return instructions.map(instruction => ({
+                                title: instruction.instructions,
+                                start: moment(instruction.start, 'YYYY-MM-DDTHH:mm').toDate(),
+                                end: moment(instruction.end, 'YYYY-MM-DDTHH:mm').toDate(),
+                            }));
                         });
                         setEvents(formattedEvents);
                     } else {
@@ -58,16 +55,22 @@ const MerchCalendar = ({ userData }) => {
     }, [token, userData.id]); // Depend on token and userData.id
 
     return (
-        <div className="calendar-container">
-            <Calendar
-                localizer={localizer}
-                events={events}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ width: 1500, height: '95%' }}
-            />
+        <div className="calendar-container w-screen h-screen p-4">
+            <div className="max-w-full overflow-auto h-full">
+                <Calendar
+                    localizer={localizer}
+                    events={events}
+                    startAccessor="start"
+                    endAccessor="end"
+                    className="react-big-calendar"
+                    style={{ height: '100%' }}
+                />
+            </div>
         </div>
     );
 };
 
 export default MerchCalendar;
+
+
+

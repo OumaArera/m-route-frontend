@@ -53,8 +53,12 @@ const SideBar = () => {
   const menuText = showMenuText ? 'Menu' : '';
 
   const sidebarItems = [
+
+//     { icon: <RiMapPinLine className="h-6 w-6 text-gray-900" />, label: "My Routes", to: "/routes" },
+
     // { icon: <RiHome2Line className="h-6 w-6 text-gray-900" />, label: "Home", to: "/map" },
     { icon: <RiMapPinLine className="h-6 w-6 text-gray-900" />, label: "My Routes", to: "/myroutes" },
+
     { icon: <FaRegCalendarAlt className="h-6 w-6 text-gray-900" />, label: "MerchCalendar", to: "/merch-calendar" },
     { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" },
     // { icon: <MdOutlineReviews className="h-6 w-6 text-gray-900" />, label: "Reviews", to: "/reviews" },

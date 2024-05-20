@@ -16,6 +16,8 @@ import Calendar from "./components/Calendar";
 import MerchSideBar from "./components/MerchSideBar";
 import MerchCalendar from "./components/MerchCalendar";
 import MerchRoutePlans from "./components/MerchRoutes";
+import CreateRoutes from "./components/CreateRoutes";
+import ManagerRoutes from "./components/ManagerRoutes";
 
 // import AboutUs from "./components/AboutUs";
 
@@ -37,13 +39,13 @@ const routeConfig = {
 function App() {
   const location = useLocation();
   const currentPath = location.pathname;
-
   const [authorized, setAuthorized] = useState(false);
-  const [roleCheck, setRoleCheck] = useState(0);
-
-  const [token, setToken] = useState("");
+  const [roleCheck, setRoleCheck] = useState(false);
   const [userData, setUserData] = useState("");
 
+  // if (userData.role === "manager"){
+  //   setRoleCheck(true);
+  // }
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -82,13 +84,13 @@ function App() {
                   <Route path="/reviews" element={<Reviews />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/map" element={<GetLocations />} />
+                  <Route path="/routes" element={<ManagerRoutes />} />
                   {/* <Route path="/contactus" element={<ContactUs />} /> */}
-                  <Route path="/calendar" element={<Calendar  userData={userData}/>} />
+                  {/* <Route path="/calendar" element={<Calendar  userData={userData}/>} /> */}
+                  <Route path="/calendar" element={<CreateRoutes />} />
                 </>
               ) : (
                 <>
-                  {/* Merchandiser routes */}
-                  {/* <Route path="/" element={<Home authorized={authorized} />} /> */}
                   <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
                   <Route path="/contactus" element={<ContactUs />} />
                   <Route path="/merch-calendar" element={<MerchCalendar  userData={userData} />} />
@@ -117,3 +119,7 @@ function App() {
 }
 
 export default App;
+
+
+
+
