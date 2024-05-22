@@ -7,7 +7,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 const LOGIN_URL = 'https://m-route-backend.onrender.com/users/login';
 const CHANGE_PASSWORD_URL = "https://m-route-backend.onrender.com/users/change-password"
 
-const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
+const Login = ({ setAuthorized, setRoleCheck, setAdmin, setUserData }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -39,8 +39,13 @@ const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
       const userDataObj = JSON.parse(userData);
       setAuthorized(true);
       setUserData(userDataObj);
+
       if (userDataObj.role === "manager") {
         setRoleCheck(true);
+
+      }else if(userDataObj.role === "admin"){
+        setAdmin(true);
+
       }
       if (previousRoute) {
         navigate("/");
@@ -167,13 +172,16 @@ const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
         setPassword("");
         setEmail("");
         setAuthorized(true);
-        navigate('/');
+        navigate('/myroutes');
 
         if (data.message.role === "manager") {
           setRoleCheck(true);
-          setAuthorized(true);
-          
+          navigate('/routes')
+        }else if(data.message.role === "admin"){
+          setAdmin(true);
+          navigate('/manageusers')
         }
+  
 
         const userData = {
           "id": data.message.user_id,
@@ -207,7 +215,6 @@ const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
         setLoading(false);
         setError(data.message);
         setTimeout(() => {
-          navigate('/signup');
         }, 2000);
         setTimeout(() => {
           setError("");

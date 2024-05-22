@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { v4 as uuidv4 } from 'uuid';
 
 const ROUTES_URL = "https://m-route-backend.onrender.com/users/route-plans";
 const USERS_URL = "https://m-route-backend.onrender.com/users"; 
@@ -83,8 +84,16 @@ const CreateRoutes = () => {
         setInstructionSets(updatedInstructionSets);
     };
 
+
     const handleAddInstructionSet = () => {
-        setInstructionSets([...instructionSets, { start: "", end: "", instructions: "", facility: "" }]);
+        setInstructionSets([...instructionSets, { 
+            start: "", 
+            end: "", 
+            instructions: "", 
+            facility: "", 
+            status: "pending", 
+            id: uuidv4() 
+        }]);
     };
 
     const handleSubmitRoutes = async (event) => {
@@ -92,7 +101,7 @@ const CreateRoutes = () => {
 
         const routes = {
             manager_id: userId,
-            merchandiser_id: selectedMerchandiser,
+            staff_no: selectedMerchandiser,
             status: "pending",
             date_range: {
                 start_date: dateRange.startDate,
@@ -100,6 +109,8 @@ const CreateRoutes = () => {
             },
             instructions: instructionSets,
         };
+
+        console.log("Route plans", routes)
 
         try {
             const response = await fetch(ROUTES_URL, {
@@ -229,7 +240,7 @@ const CreateRoutes = () => {
                 <div className="mb-5">
                     <label htmlFor="merchandiser" className="font-bold mb-1 block">Select Merchandiser</label>
                     <select
-                        name="merchandiser"
+                        name="staff_no"
                         value={selectedMerchandiser}
                         onChange={(e) => setSelectedMerchandiser(e.target.value)}
                         required
@@ -251,3 +262,6 @@ const CreateRoutes = () => {
 };
 
 export default CreateRoutes;
+
+
+

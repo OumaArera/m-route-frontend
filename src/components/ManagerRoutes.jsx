@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import RouteModal from "./RouteModal";
+import { AiOutlineCaretRight, AiOutlineCaretLeft } from "react-icons/ai";
+import { HiChevronDoubleRight, HiChevronDoubleLeft } from "react-icons/hi";
 
 const MANAGER_ROUTES_URL = "https://m-route-backend.onrender.com/users/manager-routes";
 const MODIFY_ROUTE = "https://m-route-backend.onrender.com/users/modify-route";
@@ -8,7 +10,6 @@ const DELETE_ROUTE_URL = "https://m-route-backend.onrender.com/users/delete-rout
 
 const ManagerRoutes = () => {
     const [routes, setRoutes] = useState([]);
-    const [filteredRoutes, setFilteredRoutes] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [token, setToken] = useState("");
     const [userId, setUserId] = useState("");
@@ -23,144 +24,120 @@ const ManagerRoutes = () => {
         const accessToken = localStorage.getItem("access_token");
         const userData = localStorage.getItem("user_data");
 
-        if (accessToken) {
-            setToken(JSON.parse(accessToken));
-        }
-        if (userData) {
-            setUserId(JSON.parse(userData).id);
-        }
+        if (accessToken) setToken(JSON.parse(accessToken));
+        if (userData) setUserId(JSON.parse(userData).id);
     }, []);
 
     useEffect(() => {
-        if (token && userId) {
-            getManagerRoutes();
-        }
+        if (token && userId) getManagerRoutes();
     }, [token, userId]);
-
-    useEffect(() => {
-        if (routes.length > 0) {
-            filterRoutesByMerchandiserName(searchTerm);
-        }
-    }, [routes, searchTerm]);
 
     const getManagerRoutes = async () => {
         setIsLoading(true);
         try {
             const response = await fetch(`${MANAGER_ROUTES_URL}/${userId}`, {
                 method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await response.json();
 
             if (data.status_code === 200) {
                 setRoutes(data.message);
-                setIsLoading(false);
-                setTimeout(() => {
-                    setErrorMessage("");
-                }, 5000);
-            } else if (data.status_code === 404) {
+            } else {
                 setErrorMessage(data.message);
-                setIsLoading(false);
-                setTimeout(() => {
-                    setErrorMessage("");
-                }, 5000);
             }
         } catch (error) {
-            console.log("Error", error);
             setErrorMessage("Failed to get routes, please try again.");
+        } finally {
             setIsLoading(false);
-            setTimeout(() => {
-                setErrorMessage("");
-            }, 5000);
+            setTimeout(() => setErrorMessage(""), 5000);
         }
     };
 
-    const filterRoutesByMerchandiserName = (searchTerm) => {
-        const filtered = routes.filter((route) =>
-            route.merchandiser_name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredRoutes(filtered);
+    const updateRoute = (routeId, updatedInstructions) => {
+        setRoutes(prevRoutes => prevRoutes.map(route => {
+            if (route.id === routeId) {
+                return { ...route, instructions: JSON.stringify(updatedInstructions) };
+            }
+            return route;
+        }));
     };
 
-    const filteredRoutesByStatus = routes.filter((route) => {
-        if (filter === 'all') return true;
-        return filter === 'complete' ? route.status.toLowerCase() === 'complete' : route.status.toLowerCase() !== 'complete';
-    });
+    const filterRoutesByMerchandiserName = (searchTerm) => {
+        const filtered = routes.filter(route => route.merchandiser_name.toLowerCase().includes(searchTerm.toLowerCase()));
+        return filtered;
+    };
 
-    const filteredAndSearchedRoutes = searchTerm ? filteredRoutesByStatus.filter(route => route.merchandiser_name.toLowerCase().includes(searchTerm.toLowerCase())) : filteredRoutesByStatus;
+    const filteredRoutesByStatus = (routes) => {
+        return routes.filter(route => {
+            if (filter === 'all') return true;
+            return filter === 'complete' ? route.status.toLowerCase() === 'complete' : route.status.toLowerCase() !== 'complete';
+        });
+    };
 
-    const totalPages = Math.ceil(filteredAndSearchedRoutes.length / routesPerPage);
-    const displayedRoutes = filteredAndSearchedRoutes.slice((currentPage - 1) * routesPerPage, currentPage * routesPerPage);
+    const getDisplayedRoutes = () => {
+        const searchedRoutes = filterRoutesByMerchandiserName(searchTerm);
+        const statusFilteredRoutes = filteredRoutesByStatus(searchedRoutes);
 
-    const handleComplete = async routeId => {
+        const totalPages = Math.ceil(statusFilteredRoutes.length / routesPerPage);
+        const displayedRoutes = statusFilteredRoutes.slice((currentPage - 1) * routesPerPage, currentPage * routesPerPage);
+
+        return { displayedRoutes, totalPages, totalFilteredRoutes: statusFilteredRoutes.length };
+    };
+
+    const { displayedRoutes, totalPages, totalFilteredRoutes } = getDisplayedRoutes();
+
+    const handleComplete = async (routeId) => {
         try {
             const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
                 method: "PUT",
                 headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json" // Add this line to specify the content type
+                },
+                body: JSON.stringify({ status: 'complete' }) // Send the new status as JSON
             });
-
             const data = await response.json();
-
-            if (data.status_code === 201) {
-                setErrorMessage(data.message);
-                setTimeout(() => {
-                    setErrorMessage("")
-                }, 5000);
-                getManagerRoutes();
-            } else if (data.status_code === 500) {
-                console.log(data.message);
-                setErrorMessage("Failed to complete the route");
-                setTimeout(() => {
-                    setErrorMessage("");
-                }, 5000);
-            }
+    
+            setErrorMessage(data.message);
+            if (data.status_code === 200) getManagerRoutes();
         } catch (error) {
-            console.log(error);
             setErrorMessage("There was an error completing the task");
-            setTimeout(() => {
-                setErrorMessage("");
-            }, 5000);
+        } finally {
+            setTimeout(() => setErrorMessage(""), 5000);
         }
     };
+    
 
-    const handleDeleteRoute = async routeId => {
+    const handleDeleteRoute = async (routeId) => {
         try {
             const response = await fetch(`${DELETE_ROUTE_URL}/${routeId}`, {
                 method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                headers: { "Authorization": `Bearer ${token}` }
             });
 
-            const data = await response.json();
-
             if (response.ok) {
-                setErrorMessage(data.message);
-                getManagerRoutes();
-                setTimeout(() => {
-                    setErrorMessage("");
-                }, 5000);
+                setRoutes(prevRoutes => prevRoutes.filter(route => route.id !== routeId));
+                setErrorMessage("Route deleted successfully.");
             } else {
-                setErrorMessage(data.message);
-                setTimeout(() => {
-                    setErrorMessage("");
-                }, 5000);
+                const data = await response.json();
+                setErrorMessage(data.message || "Failed to delete the route.");
             }
         } catch (error) {
-            console.log(error);
             setErrorMessage("There was an issue deleting the route plan");
-            setTimeout(() => {
-                setErrorMessage("");
-            }, 5000);
+        } finally {
+            setTimeout(() => setErrorMessage(""), 5000);
         }
     };
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
+        setCurrentPage(1); // Reset to first page on search
+    };
+
+    const handleFilterChange = (event) => {
+        setFilter(event.target.value);
+        setCurrentPage(1); // Reset to first page on filter change
     };
 
     const toggleModal = (route) => {
@@ -168,35 +145,37 @@ const ManagerRoutes = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto mt-5 p-5 rounded-lg shadow-lg bg-white">
+        <div className="max-w-7xl mx-auto mt-5 p-5 rounded-lg shadow-lg bg-white flex flex-col min-h-screen">
             <div className="flex justify-between items-center mb-4">
-                <div className="mb-4 flex items-center border border-gray-300 rounded px-3 py-1 w-2/3">
-                    <FaSearch className="text-gray-900 mr-2" />
+                <FaSearch className="text-gray-900 mr-2" />
+                <div className="relative w-full">
                     <input
                         type="text"
                         placeholder="Search by merchandiser name..."
                         value={searchTerm}
                         onChange={handleSearch}
-                        className="flex-grow outline-none"
+                        className="border border-gray-300 rounded pl-10 pr-3 py-1 w-full"
                     />
-                    <select
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                        className="ml-4 border border-gray-300 rounded px-3 py-1"
-                    >
-                        <option value="all">All</option>
-                        <option value="complete">Complete</option>
-                        <option value="pending">Pending</option>
-                    </select>
+                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                 </div>
-                <p className="text-gray-600 mb-4">Showing {displayedRoutes.length} of {filteredAndSearchedRoutes.length} routes</p>
+                <select
+                    value={filter}
+                    onChange={handleFilterChange}
+                    className="ml-4 border border-gray-300 rounded px-3 py-1"
+                >
+                    <option value="all">All</option>
+                    <option value="complete">Complete</option>
+                    <option value="pending">Pending</option>
+                </select>
             </div>
+            <p className="text-gray-600 mb-4">Showing {displayedRoutes.length} of {totalFilteredRoutes} routes</p>
+
             {isLoading ? (
-                <p className="text-center text-gray-600">Loading...</p>
+                <p className="text-center text-gray-600 flex-grow">Loading...</p>
             ) : errorMessage ? (
-                <p className="text-center text-red-600">{errorMessage}</p>
+                <p className="text-center text-red-600 flex-grow">{errorMessage}</p>
             ) : (
-                <div>
+                <div className="flex-grow">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                         {displayedRoutes.map((route) => (
                             <div key={route.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
@@ -217,28 +196,58 @@ const ManagerRoutes = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-between items-center mt-4">
-                        <button
-                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            className={`p-2 ${currentPage === 1 ? 'bg-gray-400' : 'bg-gray-800 hover:bg-blue-700'} text-white rounded`}
-                        >
-                            Previous
-                        </button>
-                        <span>Page {currentPage} of {totalPages}</span>
-                        <button
-                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            className={`p-2 ${currentPage === totalPages ? 'bg-gray-400' : 'bg-gray-800 hover:bg-blue-700'} text-white rounded`}
-                        >
-                            Next
-                        </button>
-                    </div>
                 </div>
             )}
-            {modalData && <RouteModal route={modalData} onClose={() => setModalData(null)} />}
+
+            <div className="flex justify-between items-center mt-4">
+                <div className="flex space-x-2">
+                    {totalPages > 2 && (
+                        <button
+                            onClick={() => setCurrentPage(1)}
+                            className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded flex items-center"
+                        >
+                            <HiChevronDoubleLeft />
+                        </button>
+                    )}
+                    <button
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`p-2 ${currentPage === 1 ? 'bg-gray-400' : 'bg-gray-800 hover:bg-blue-700'} text-white rounded flex items-center`}
+                    >
+                        <AiOutlineCaretLeft />
+                    </button>
+                </div>
+                <span>Page {currentPage} of {totalPages}</span>
+                <div className="flex space-x-2">
+                    <button
+                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className={`p-2 ${currentPage === totalPages ? 'bg-gray-400' : 'bg-gray-800 hover:bg-blue-700'} text-white rounded flex items-center`}
+                    >
+                        <AiOutlineCaretRight />
+                    </button>
+                    {totalPages > 2 && (
+                        <button
+                            onClick={() => setCurrentPage(totalPages)}
+                            className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded flex items-center"
+                        >
+                            <HiChevronDoubleRight />
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {modalData && (
+                <RouteModal
+                    route={modalData}
+                    onClose={() => setModalData(null)}
+                    token={token}
+                    updateRoute={updateRoute}
+                />
+            )}
         </div>
     );
-}
+};
 
 export default ManagerRoutes;
+
