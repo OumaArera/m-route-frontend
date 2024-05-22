@@ -70,6 +70,7 @@ const Signup = () => {
   });
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleEmailUsername = e => {
@@ -101,8 +102,10 @@ const Signup = () => {
       staff_no: formData.staff_no,
       email: emailUsername.email,
       username: emailUsername.username,
+
       password: generatePassword(),
       role: formData.user_type
+
     };
 
     if (formData.middle_name) {
@@ -155,6 +158,7 @@ const Signup = () => {
   const closeModal = () => {
     setMessage(null);
   };
+
 
 
   return (
@@ -271,6 +275,7 @@ const Signup = () => {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 px-3 py-2"
               />
             </div>
+
             <div>
               <label htmlFor="user_type" className="block text-sm font-medium leading-6 text-gray-900">
                 User Type
