@@ -94,7 +94,7 @@ const Login = ({ setAuthorized, setRoleCheck, setUserData }) => {
     try {
       setLoading(true);
       const response = await fetch(CHANGE_PASSWORD_URL, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
