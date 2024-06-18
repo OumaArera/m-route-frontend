@@ -73,7 +73,12 @@ const CreateRoutes = () => {
             const data = await response.json();
 
             if (data.status_code === 200) {
-                setMerchandisers(data.message);
+                // Remove duplicates by merchandiser_id
+                const uniqueMerchandisers = Array.from(new Set(data.message.map(m => m.merchandiser_id)))
+                    .map(id => {
+                        return data.message.find(m => m.merchandiser_id === id);
+                    });
+                setMerchandisers(uniqueMerchandisers);
             } else if(data.status_code === 404) {
                 setMessage(data.message);
                 setTimeout(() => setMessage(""), 5000);
