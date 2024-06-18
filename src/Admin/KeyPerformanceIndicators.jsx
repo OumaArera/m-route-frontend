@@ -43,6 +43,8 @@ const KeyPerformanceIndicators = () => {
                 return acc;
             }, {})
         };
+        console.table(kpiData);
+        console.log(kpiData);
 
         try {
             const response = await fetch(CREATE_KPI_URL, {
