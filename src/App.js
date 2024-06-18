@@ -19,6 +19,7 @@ import ManagerRoutes from "./components/ManagerRoutes";
 import ManageUsers from "./components/ManageUsers";
 import AdminSideBar from "./components/AdminSideBar";
 import CreateOutlet from "./Manager/CreateOutlet";
+import AssignMerchandiser from "./Admin/AssignMerchandiser";
 
 
 const routeConfig = {
@@ -83,7 +84,7 @@ function App() {
                   <Route path="/routes" element={<ManagerRoutes />} />
                   <Route path="/calendar" element={<CreateRoutes />} />
                   <Route path="/outlet" element={<CreateOutlet />} />
-                  {/* <Route path="/outlet" element={<CreateOutlet />} /> */}
+                  <Route path="/assign/merchandisers" element={<CreateOutlet />} />
                   
                 </>
               ) : (
@@ -101,6 +102,7 @@ function App() {
                 <Route path="/manageusers" element={<ManageUsers />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/resetuser" element={<ResetUser />} />
+                <Route path="/assign/merchandisers" element={<AssignMerchandiser />} />
                 </>
               ): null}
             </Routes>
