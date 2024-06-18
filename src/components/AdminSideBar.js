@@ -6,6 +6,7 @@ import { MdAssignmentInd } from "react-icons/md";
 import { FaUserCheck } from "react-icons/fa";
 import { FaUserPlus } from "react-icons/fa";
 import { RiTaskLine } from "react-icons/ri";
+import { GrDocumentPerformance } from "react-icons/gr";
 
 const SidebarItem = ({ icon, label, to }) => {
   const [showLabel, setShowLabel] = useState(true);
@@ -58,8 +59,8 @@ const AdminSideBar = () => {
     { icon: <RiTaskLine className="h-6 w-6 text-gray-900" />, label: "Reset User", to: "/resetuser" },
     { icon: <FaUserCheck className="h-6 w-6 text-gray-900" />, label: "Manage users", to: "/manageusers" },
     { icon: <MdAssignmentInd className="h-6 w-6 text-gray-900" />, label: "Assign Merchandisers", to: "/assign/merchandisers" },
-    { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" },
-    
+    { icon: <GrDocumentPerformance className="h-6 w-6 text-gray-900" />, label: "New KPIs", to: "/new/kpi" },
+    { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" }
   ];
 
   return (

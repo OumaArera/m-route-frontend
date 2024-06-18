@@ -20,6 +20,7 @@ import ManageUsers from "./components/ManageUsers";
 import AdminSideBar from "./components/AdminSideBar";
 import CreateOutlet from "./Manager/CreateOutlet";
 import AssignMerchandiser from "./Admin/AssignMerchandiser";
+import KeyPerformanceIndicators from "./Admin/KeyPerformanceIndicators";
 
 
 const routeConfig = {
@@ -103,6 +104,7 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/resetuser" element={<ResetUser />} />
                 <Route path="/assign/merchandisers" element={<AssignMerchandiser />} />
+                <Route path="/new/kpi" element={<KeyPerformanceIndicators />} />
                 </>
               ): null}
             </Routes>

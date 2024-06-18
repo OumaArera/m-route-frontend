@@ -106,7 +106,7 @@ const AssignMerchandiser = () => {
                         type="datetime-local"
                         value={dateTime}
                         onChange={(e) => setDateTime(e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                        className="w-full p-2 mt-1 border border-gray-300 rounded"
                         required
                     />
                 </label>
