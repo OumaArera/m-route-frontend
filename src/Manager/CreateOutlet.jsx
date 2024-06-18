@@ -23,7 +23,7 @@ const CreateOutlet = () =>{
 
     const handleSubmit = async event => {
         event.preventDefault();
-        setLoading(true);  // Set loading to true at the start of the request
+        setLoading(true);  
         const newOutlet = {
             "manager_id": userId,
             "location": location,
@@ -61,7 +61,7 @@ const CreateOutlet = () =>{
             console.error(error);
             setTimeout(() => setError(""), 5000);
         } finally {
-            setLoading(false);  // Set loading to false after the request is complete
+            setLoading(false);  
         }
     };
 
@@ -73,6 +73,7 @@ const CreateOutlet = () =>{
                     <input
                         type="text"
                         id="name"
+                        required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -83,6 +84,7 @@ const CreateOutlet = () =>{
                     <input
                         type="text"
                         id="location"
+                        required
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -93,6 +95,7 @@ const CreateOutlet = () =>{
                     <input
                         type="text"
                         id="type"
+                        required
                         value={type}
                         onChange={(e) => setType(e.target.value)}
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
