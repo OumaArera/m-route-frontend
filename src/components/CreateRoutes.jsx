@@ -120,9 +120,6 @@ const CreateRoutes = () => {
         ))
     ), [facilities]);
 
-    const keyPerformanceIndicators = useMemo(() => (
-
-    ))
 
     const handleDateRange = (event) => {
         const { name, value } = event.target;
