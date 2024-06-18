@@ -47,7 +47,9 @@ const CreateRoutes = () => {
 
         const data = await response.json();
         if (data.status_code === 200){
-            setPerformanceMetrics(data.message.performance_metric)
+            if (data.message.length > 0) {
+                setPerformanceMetrics(data.message.performance_metric);
+            }
         }
     }
 
@@ -278,11 +280,11 @@ const CreateRoutes = () => {
                             <div className="mt-4">
                                 <label htmlFor="instructions" className="font-bold mb-1 block">Instructions</label>
                                 <div>
-                                    {performanceMetrics && Object.keys(performanceMetrics).map(metric => (
+                                    {Object.keys(performanceMetrics).map(metric => (
                                         <div key={metric}>
                                             <input
                                                 type="checkbox"
-                                                name="instructions"
+                                                name={`${index}-${metric}`} 
                                                 value={metric}
                                                 checked={set.instructions.includes(metric)}
                                                 onChange={() => handleMetricChange(index, metric)}
