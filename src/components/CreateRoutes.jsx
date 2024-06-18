@@ -47,7 +47,8 @@ const CreateRoutes = () => {
 
         const data = await response.json();
         if (data.status_code === 200){
-            setPerformanceMetrics(data.message.performance_metric)
+            setPerformanceMetrics(data.message.performance_metric);
+            console.log(data.message.performance_metric);
         }else{
             setMessage(data.message);
             setTimeout(() => setMessage(""), 5000)
@@ -280,7 +281,7 @@ const CreateRoutes = () => {
                                 </select>
                             </div>
                             <div className="mt-4">
-                                <label htmlFor="instructions" className="font-bold mb-1 block">Instructions</label>
+                                <label htmlFor="instructions" className="font-bold mb-1 block">Response Requirements</label>
                                 <div>
                                     {performanceMetrics && Object.keys(performanceMetrics).map(metric => (
                                         <div key={metric}>
