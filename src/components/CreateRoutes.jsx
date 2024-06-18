@@ -19,7 +19,7 @@ const CreateRoutes = () => {
     const [merchandisers, setMerchandisers] = useState([]);
     const [facilities, setFacilities] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [performanceMetrics, setPerformanceMetrics] = useState([]);
+    const [performanceMetrics, setPerformanceMetrics] = useState({});
     
 
     useEffect(() => {
