@@ -82,7 +82,8 @@ function App() {
                   <Route path="/map" element={<GetLocations />} />
                   <Route path="/routes" element={<ManagerRoutes />} />
                   <Route path="/calendar" element={<CreateRoutes />} />
-                  <Route pathe="/outlet" element={<CreateOutlet />} />
+                  <Route path="/outlet" element={<CreateOutlet />} />
+                  {/* <Route path="/outlet" element={<CreateOutlet />} /> */}
                   
                 </>
               ) : (
