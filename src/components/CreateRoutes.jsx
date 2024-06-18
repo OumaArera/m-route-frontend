@@ -47,8 +47,8 @@ const CreateRoutes = () => {
 
         const data = await response.json();
         if (data.status_code === 200){
-            setPerformanceMetrics(data.message.performance_metric);
-            console.log(data.message.performance_metric);
+            setPerformanceMetrics(data.message["performance_metric"]);
+            console.log("KPIS" + data.message["performance_metric"]);
         }else{
             setMessage(data.message);
             setTimeout(() => setMessage(""), 5000)
