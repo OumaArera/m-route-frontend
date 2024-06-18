@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { RiHome2Line, RiMapPinLine, RiSettings2Line } from "react-icons/ri";
+import { RiHome2Line, RiMapPinLine, RiSettings2Line, MdOutlineAddLocation } from "react-icons/ri";
 import { FaRegMessage } from "react-icons/fa6";
 import { MdOutlineReviews } from "react-icons/md";
 import { FaInfoCircle } from "react-icons/fa";
@@ -31,6 +31,7 @@ const SidebarItem = ({ icon, label, to }) => {
   );
 };
 
+
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showMenuText, setShowMenuText] = useState(true);
@@ -58,10 +59,7 @@ const SideBar = () => {
     { icon: <RiMapPinLine className="h-6 w-6 text-gray-900" />, label: "Routes", to: "/routes" },
     { icon: <FaRegCalendarAlt className="h-6 w-6 text-gray-900" />, label: "Calendar", to: "/calendar" },
     { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" },
-    // { icon: <FaUserCheck className="h-6 w-6 text-gray-900" />, label: "Manage users", to: "/manageusers" },
-    // { icon: <MdOutlineReviews className="h-6 w-6 text-gray-900" />, label: "Reviews", to: "/reviews" },
-    // { icon: <FaInfoCircle className="h-6 w-6 text-gray-900" />, label: "About us", to: "/aboutus" },
-    // { icon: <FaRegMessage className="h-6 w-6 text-gray-900" />, label: "Contact Us", to: "/contactus" },
+    { icon: <MdOutlineAddLocation className="h-6 w-6 text-gray-900" />, label: "Create Outlet", to: "/outlet" },
   ];
 
   return (
@@ -80,3 +78,5 @@ const SideBar = () => {
 };
 
 export default SideBar;
+
+
