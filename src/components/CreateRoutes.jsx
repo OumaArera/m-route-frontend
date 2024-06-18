@@ -47,9 +47,10 @@ const CreateRoutes = () => {
 
         const data = await response.json();
         if (data.status_code === 200){
-            if (data.message.length > 0) {
-                setPerformanceMetrics(data.message.performance_metric);
-            }
+            setPerformanceMetrics(data.message.performance_metric)
+        }else{
+            setMessage(data.message);
+            setTimeout(() => setMessage(""), 5000)
         }
     }
 
@@ -118,6 +119,7 @@ const CreateRoutes = () => {
             </option>
         ))
     ), [facilities]);
+
 
     const handleDateRange = (event) => {
         const { name, value } = event.target;
@@ -280,11 +282,11 @@ const CreateRoutes = () => {
                             <div className="mt-4">
                                 <label htmlFor="instructions" className="font-bold mb-1 block">Instructions</label>
                                 <div>
-                                    {Object.keys(performanceMetrics).map(metric => (
+                                    {performanceMetrics && Object.keys(performanceMetrics).map(metric => (
                                         <div key={metric}>
                                             <input
                                                 type="checkbox"
-                                                name={`${index}-${metric}`} 
+                                                name="instructions"
                                                 value={metric}
                                                 checked={set.instructions.includes(metric)}
                                                 onChange={() => handleMetricChange(index, metric)}
@@ -324,7 +326,7 @@ const CreateRoutes = () => {
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
                     <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
                 </div>
-                )}
+            )}
         </div>
     );
 };
