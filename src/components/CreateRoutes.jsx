@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
-const ROUTES_URL = "https://m-route-backend.onrender.com/users/route-plans";
+const ROUTES_URL = "https://m-route-backend.onrender.com/users/route-plan";
 const ASSIGNED_MERCHANDISERS_URL = "https://m-route-backend.onrender.com/users/get/merchandisers";
 const KPI_URL = "https://m-route-backend.onrender.com/users/get/kpis";
 const FACILITIES_URL = "https://m-route-backend.onrender.com/users/get-facilities";
@@ -185,6 +185,7 @@ const CreateRoutes = () => {
             },
             instructions: instructionSets,
         };
+        console.log("Instructions " + instructionSets)
 
         try {
             const response = await fetch(ROUTES_URL, {
