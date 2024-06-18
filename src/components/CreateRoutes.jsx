@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 const ROUTES_URL = "https://m-route-backend.onrender.com/users/route-plans";
-const USERS_URL = "https://m-route-backend.onrender.com/users"; 
+const ASSIGNED_MERCHANDISERS_URL = "https://m-route-backend.onrender.com/users/get/merchandisers";
 
 const CreateRoutes = () => {
     const [dateRange, setDateRange] = useState({
@@ -15,25 +15,24 @@ const CreateRoutes = () => {
     const [token, setToken] = useState("");
     const [message, setMessage] = useState("");
     const [merchandisers, setMerchandisers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
         const userData = localStorage.getItem("user_data");
-        setToken(JSON.parse(accessToken));
-        if (userData) {
-            setUserId(JSON.parse(userData).id);
-        }
+        if (accessToken) setToken(JSON.parse(accessToken));
+        if (userData) setUserId(JSON.parse(userData).id);
     }, []);
 
     useEffect(() => {
-        if (token) {
-            fetchUsers();
-        }
+        if (token) fetchUsers();
+        
     }, [token]);
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch(USERS_URL, {
+            const response = await fetch(`${ASSIGNED_MERCHANDISERS_URL}/${userId}`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -44,26 +43,22 @@ const CreateRoutes = () => {
             const data = await response.json();
 
             if (data.status_code === 200) {
-                setMerchandisers(data.message.filter(user => user.role === 'merchandiser' && user.status === 'active'));
+                setMerchandisers(data.message);
             } else if(data.status_code === 404) {
                 setMessage(data.message);
-                setTimeout(() => {
-                    setMessage("");
-                }, 5000);
+                setTimeout(() => setMessage(""), 5000);
             }
         } catch (error) {
             console.log("Error fetching users:", error);
             setMessage("Failed to fetch users, please try again.");
-            setTimeout(() => {
-                setMessage("");
-            }, 5000);
+            setTimeout(() => setMessage(""), 5000);
         }
     };
 
     const merchandiserOptions = useMemo(() => (
         merchandisers.map(merchandiser => (
-            <option key={merchandiser.id} value={merchandiser.staff_no}>
-                {merchandiser.first_name} {merchandiser.last_name}
+            <option key={merchandiser.merchandiser_id} value={merchandiser.staff_no}>
+                {merchandiser.merchandiser_name}
             </option>
         ))
     ), [merchandisers]);
@@ -98,6 +93,7 @@ const CreateRoutes = () => {
 
     const handleSubmitRoutes = async (event) => {
         event.preventDefault();
+        setLoading(true);
 
         const routes = {
             manager_id: userId,
@@ -109,8 +105,6 @@ const CreateRoutes = () => {
             },
             instructions: instructionSets,
         };
-
-        // console.log("Route plans", routes)
 
         try {
             const response = await fetch(ROUTES_URL, {
@@ -133,21 +127,17 @@ const CreateRoutes = () => {
                     endDate: "",
                 });
 
-                setTimeout(() => {
-                    setMessage("");
-                }, 5000);
+                setTimeout(() => setMessage(""), 5000);
             } else {
                 setMessage(data.message);
-                setTimeout(() => {
-                    setMessage("");
-                }, 5000);
+                setTimeout(() => setMessage(""), 5000);
             }
         } catch (error) {
             console.log(error);
             setMessage("There was a problem creating the route plans");
-            setTimeout(() => {
-                setMessage("");
-            }, 5000);
+            setTimeout(() => setMessage(""), 5000);
+        }finally{
+            setLoading(false);
         }
     };
 
@@ -257,6 +247,11 @@ const CreateRoutes = () => {
                     Submit
                 </button>
             </form>
+            {loading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                    <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                </div>
+                )}
         </div>
     );
 };
