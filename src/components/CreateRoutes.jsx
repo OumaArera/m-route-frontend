@@ -19,8 +19,8 @@ const CreateRoutes = () => {
     const [merchandisers, setMerchandisers] = useState([]);
     const [facilities, setFacilities] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [performanceMetrics, setPerformanceMetrics] = useState({});
-    
+    const [performanceMetrics, setPerformanceMetrics] = useState([]);
+
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
         const userData = localStorage.getItem("user_data");
@@ -47,13 +47,18 @@ const CreateRoutes = () => {
 
         const data = await response.json();
         if (data.status_code === 200){
-            setPerformanceMetrics(data.message["performance_metric"]);
-            console.log("KPIS" + data.message["performance_metric"]);
-        }else{
+            const metricsSet = new Set();
+            data.message.forEach(item => {
+                Object.keys(item.performance_metric).forEach(key => {
+                    metricsSet.add(key);
+                });
+            });
+            setPerformanceMetrics(Array.from(metricsSet));
+        } else {
             setMessage(data.message);
-            setTimeout(() => setMessage(""), 5000)
+            setTimeout(() => setMessage(""), 5000);
         }
-    }
+    };
 
     const fetchUsers = async () => {
         try {
@@ -120,7 +125,6 @@ const CreateRoutes = () => {
             </option>
         ))
     ), [facilities]);
-
 
     const handleDateRange = (event) => {
         const { name, value } = event.target;
@@ -283,7 +287,7 @@ const CreateRoutes = () => {
                             <div className="mt-4">
                                 <label htmlFor="instructions" className="font-bold mb-1 block">Response Requirements</label>
                                 <div>
-                                    {performanceMetrics && Object.keys(performanceMetrics).map(metric => (
+                                    {performanceMetrics.map(metric => (
                                         <div key={metric}>
                                             <input
                                                 type="checkbox"
