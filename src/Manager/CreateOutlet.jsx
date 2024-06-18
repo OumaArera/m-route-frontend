@@ -10,6 +10,8 @@ const CreateOutlet = () =>{
     const [token, setToken] = useState("");
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -19,8 +21,9 @@ const CreateOutlet = () =>{
         if (userData) setUserId(JSON.parse(userData).id);
     }, []);
 
-    const handleSubmit =  async event => {
+    const handleSubmit = async event => {
         event.preventDefault();
+        setLoading(true);  // Set loading to true at the start of the request
         const newOutlet = {
             "manager_id": userId,
             "location": location,
@@ -45,10 +48,10 @@ const CreateOutlet = () =>{
                 setType("");
                 setMessage("Outlet created successfully.");
                 setTimeout(() => setMessage(""), 5000);
-            }else if (data.status_code === 400){
+            } else if (data.status_code === 400){
                 setError(data.message);
                 setTimeout(() => setError(""), 5000);
-            }else{
+            } else {
                 setError("There was an error creating the outlet.");
                 console.log(data.message);
                 setTimeout(() => setError(""), 5000);
@@ -57,12 +60,14 @@ const CreateOutlet = () =>{
             setError("There was an error creating the outlet.");
             console.error(error);
             setTimeout(() => setError(""), 5000);
+        } finally {
+            setLoading(false);  // Set loading to false after the request is complete
         }
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10">
-            <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div className="container mx-auto mt-10">
+            <form onSubmit={handleSubmit} className="w-full max-w-lg bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
                 <div className="mb-4">
                     <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Outlet Name:</label>
                     <input
@@ -98,14 +103,22 @@ const CreateOutlet = () =>{
                 <div className="flex items-center justify-between">
                     <button
                         type="submit"
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="bg-gray-900 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                         Create Outlet
                     </button>
                 </div>
             </form>
+            {loading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                    <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                </div>
+            )}
         </div>
     );
+    
 }
 
 export default CreateOutlet;
+
+
