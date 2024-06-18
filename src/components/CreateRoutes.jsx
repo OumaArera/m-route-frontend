@@ -174,7 +174,7 @@ const CreateRoutes = () => {
     const handleSubmitRoutes = async (event) => {
         event.preventDefault();
         setLoading(true);
-
+    
         const routes = {
             manager_id: userId,
             staff_no: selectedMerchandiser,
@@ -185,8 +185,11 @@ const CreateRoutes = () => {
             },
             instructions: instructionSets,
         };
-        console.log("Instructions " + instructionSets)
-
+    
+        // Print the instructionSets to the console
+        console.log("Instructions:", instructionSets);
+        console.log(routes);
+    
         try {
             const response = await fetch(ROUTES_URL, {
                 method: "POST",
@@ -196,9 +199,15 @@ const CreateRoutes = () => {
                 },
                 body: JSON.stringify(routes),
             });
-
+    
+            // Handle potential non-JSON responses
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+    
             const data = await response.json();
-
+    
             if (data.status_code === 201) {
                 setMessage(data.message);
                 setSelectedMerchandiser("");
@@ -207,7 +216,7 @@ const CreateRoutes = () => {
                     startDate: "",
                     endDate: "",
                 });
-
+    
                 setTimeout(() => setMessage(""), 5000);
             } else {
                 setMessage(data.message);
@@ -215,12 +224,13 @@ const CreateRoutes = () => {
             }
         } catch (error) {
             console.log(error);
-            setMessage("There was a problem creating the route plans");
+            setMessage("There was a problem creating the route plans: " + error.message);
             setTimeout(() => setMessage(""), 5000);
         } finally {
             setLoading(false);
         }
     };
+    
 
     return (
         <div className="w-full max-w-4xl mx-auto mt-5 p-5 rounded-lg shadow-lg bg-white lg:w-1/3">
