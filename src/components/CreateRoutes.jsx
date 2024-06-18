@@ -21,7 +21,6 @@ const CreateRoutes = () => {
     const [loading, setLoading] = useState(false);
     const [performanceMetrics, setPerformanceMetrics] = useState({});
     
-
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
         const userData = localStorage.getItem("user_data");
@@ -35,7 +34,6 @@ const CreateRoutes = () => {
             fetchKPIs();
             fetchFacilities();
         }
-        
     }, [token]);
 
     const fetchKPIs = async () => {
@@ -280,7 +278,7 @@ const CreateRoutes = () => {
                             <div className="mt-4">
                                 <label htmlFor="instructions" className="font-bold mb-1 block">Instructions</label>
                                 <div>
-                                    {Object.keys(performanceMetrics).map(metric => (
+                                    {performanceMetrics && Object.keys(performanceMetrics).map(metric => (
                                         <div key={metric}>
                                             <input
                                                 type="checkbox"
