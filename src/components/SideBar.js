@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { RiHome2Line, RiMapPinLine, RiSettings2Line, MdOutlineAddLocation } from "react-icons/ri";
+import { RiHome2Line, RiMapPinLine, RiSettings2Line } from "react-icons/ri";
+import { MdOutlineAddLocation } from "react-icons/md";
 import { FaRegMessage } from "react-icons/fa6";
 import { MdOutlineReviews } from "react-icons/md";
 import { FaInfoCircle } from "react-icons/fa";
