@@ -18,6 +18,7 @@ import CreateRoutes from "./components/CreateRoutes";
 import ManagerRoutes from "./components/ManagerRoutes";
 import ManageUsers from "./components/ManageUsers";
 import AdminSideBar from "./components/AdminSideBar";
+import CreateOutlet from "./Manager/CreateOutlet";
 
 
 const routeConfig = {
@@ -81,6 +82,7 @@ function App() {
                   <Route path="/map" element={<GetLocations />} />
                   <Route path="/routes" element={<ManagerRoutes />} />
                   <Route path="/calendar" element={<CreateRoutes />} />
+                  <Route pathe="/outlet" element={<CreateOutlet />} />
                   
                 </>
               ) : (
