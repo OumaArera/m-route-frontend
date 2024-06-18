@@ -2,12 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { RiHome2Line, RiMapPinLine, RiSettings2Line } from "react-icons/ri";
 import { MdOutlineAddLocation } from "react-icons/md";
-import { FaRegMessage } from "react-icons/fa6";
-import { MdOutlineReviews } from "react-icons/md";
-import { FaInfoCircle } from "react-icons/fa";
 import { IoMenu } from "react-icons/io5";
 import { FaRegCalendarAlt } from "react-icons/fa";
-import { FaUserCheck } from "react-icons/fa";
+
 
 const SidebarItem = ({ icon, label, to }) => {
   const [showLabel, setShowLabel] = useState(true);
@@ -59,8 +56,9 @@ const SideBar = () => {
     { icon: <RiHome2Line className="h-6 w-6 text-gray-900" />, label: "Home", to: "/map" },
     { icon: <RiMapPinLine className="h-6 w-6 text-gray-900" />, label: "Routes", to: "/routes" },
     { icon: <FaRegCalendarAlt className="h-6 w-6 text-gray-900" />, label: "Calendar", to: "/calendar" },
-    { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" },
     { icon: <MdOutlineAddLocation className="h-6 w-6 text-gray-900" />, label: "Create Outlet", to: "/outlet" },
+    { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" },
+    
   ];
 
   return (
