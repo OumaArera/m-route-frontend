@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const CREATE_KPI_URL = "https://m-route-backend.onrender.com/users/create/kp";
+const CREATE_KPI_URL = "https://m-route-backend.onrender.com/users/create/kpi";
 
 const KeyPerformanceIndicators = () => {
     const [sectorName, setSectorName] = useState("");
