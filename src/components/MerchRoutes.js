@@ -141,8 +141,7 @@ const MerchRoutePlans = () => {
                             </thead>
                             <tbody>
                                 {routePlans.flatMap(plan => {
-                                    const instructions = JSON.parse(plan.instructions);
-                                    return instructions.filter(instruction => !instruction.responded).map(instruction => (
+                                    return plan.instructions.filter(instruction => !instruction.responded).map(instruction => (
                                         <tr key={`${plan.id}-${instruction.id}`} className="even:bg-gray-100">
                                             <td className="py-2 px-4 border-b">{instruction.facility_name}</td>
                                             <td className="py-2 px-4 border-b">
@@ -152,8 +151,8 @@ const MerchRoutePlans = () => {
                                                     ))}
                                                 </ul>
                                             </td>
-                                            <td className="py-2 px-4 border-b">{moment(plan.start_date).format('YYYY-MM-DD')}</td>
-                                            <td className="py-2 px-4 border-b">{moment(plan.end_date).format('YYYY-MM-DD')}</td>
+                                            <td className="py-2 px-4 border-b">{moment(plan.date_range.start_date).format('YYYY-MM-DD')}</td>
+                                            <td className="py-2 px-4 border-b">{moment(plan.date_range.end_date).format('YYYY-MM-DD')}</td>
                                             <td className="py-2 px-4 border-b">{instruction.status}</td>
                                             <td className="py-2 px-4 border-b">
                                                 <button
