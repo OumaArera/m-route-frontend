@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import moment from 'moment';
 
 const ROUTES_URL = "https://m-route-backend.onrender.com/users/merchandisers/routes";
@@ -14,6 +14,7 @@ const MerchRoutePlans = () => {
     const [selectedPlan, setSelectedPlan] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [responses, setResponses] = useState({}); 
+    const formRef = useRef(null);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -131,6 +132,12 @@ const MerchRoutePlans = () => {
         }));
     };
 
+    const handleBackdropClick = (event) => {
+        if (formRef.current && !formRef.current.contains(event.target)) {
+            setShowForm(false);
+        }
+    };
+
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6 md:mb-8">Route Plans</h1>
@@ -182,8 +189,8 @@ const MerchRoutePlans = () => {
                         </table>
                     </div>
                     {showForm && (
-                        <div className="fixed inset-0 flex items-center justify-center z-50">
-                            <div className="bg-white p-8 border border-gray-200 rounded shadow-lg">
+                        <div className="fixed inset-0 flex items-center justify-center z-50" onClick={handleBackdropClick}>
+                            <div ref={formRef} className="bg-white p-8 border border-gray-200 rounded shadow-lg max-h-full overflow-y-auto">
                                 <h2 className="text-xl mb-4">Respond to Instruction</h2>
                                 <form onSubmit={handleFormSubmit}>
                                     {/* Render form fields for each instruction */}
