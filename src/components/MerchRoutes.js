@@ -81,28 +81,34 @@ const MerchRoutePlans = () => {
 
     const handleSubmitResponse = async (responses) => {
         setLoading(true);
+    
+        // Create a new FormData object
+        const formData = new FormData();
+        formData.append("merchandiser_id", userId);
+        formData.append("manager_id", selectedPlan.managerId);
+        formData.append("date_time", new Date());
+        formData.append("status", "pending");
+    
+        // Loop through responses and append them to the FormData object
+        Object.keys(responses).forEach((key) => {
+            formData.append(`response[${key}][text]`, responses[key].text);
+            if (responses[key].image) {
+                formData.append(`response[${key}][image]`, responses[key].image);
+            }
+        });
+    
         try {
+            console.log("Data being sent to backend:", formData);
             const response = await fetch(RESPONSE_URL, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    response: responses,
-                    merchandiser_id: userId,
-                    manager_id: selectedPlan.managerId,
-                    date_time: new Date(),
-                    status: "pending",
-                })
+                body: formData, 
             });
-            console.log(`Responses: ${JSON.stringify(responses, null, 2)}`);
-            console.log(`Merchandiser ID: ${userId}`);
-            console.log(`Manager ID: ${selectedPlan.managerId}`);
-            console.log(new Date());
-
+    
             const data = await response.json();
-
+    
             if (data.successful) {
                 setNotification(data.message);
                 setTimeout(() => setNotification(""), 5000);
@@ -117,10 +123,11 @@ const MerchRoutePlans = () => {
             console.error('Error sending response:', error);
             setError("There was an error sending the response.");
             setTimeout(() => setError(""), 5000);
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
+    
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
@@ -130,7 +137,7 @@ const MerchRoutePlans = () => {
     const handleResponseChange = (event) => {
         const { name, value, files } = event.target;
         const [key, type] = name.split('.');
-
+    
         setResponses(prevResponses => ({
             ...prevResponses,
             [key]: {
@@ -139,7 +146,7 @@ const MerchRoutePlans = () => {
             }
         }));
     };
-
+    
     const handleBackdropClick = (event) => {
         if (formRef.current && !formRef.current.contains(event.target)) {
             setShowForm(false);
