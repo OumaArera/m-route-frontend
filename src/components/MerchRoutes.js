@@ -90,19 +90,22 @@ const MerchRoutePlans = () => {
         formData.append("manager_id", selectedPlan.managerId);
         formData.append("date_time", formattedDateTime);
         formData.append("status", "pending");
-
+    
         // Loop through responses and append them to the FormData object
         Object.keys(responses).forEach((key) => {
             formData.append(`response[${key}][text]`, responses[key].text);
             if (responses[key].image) {
                 formData.append(`response[${key}][image]`, responses[key].image);
+            } else {
+                formData.append(`response[${key}][image]`, null);
             }
         });
-
+    
+        // Log FormData content for debugging
         for (let pair of formData.entries()) {
             console.log(pair[0] + ': ' + pair[1]);
         }
-
+    
         try {
             const response = await fetch(RESPONSE_URL, {
                 method: "POST",
@@ -111,9 +114,9 @@ const MerchRoutePlans = () => {
                 },
                 body: formData, 
             });
-
+    
             const data = await response.json();
-
+    
             if (data.successful) {
                 setNotification(data.message);
                 setTimeout(() => setNotification(""), 5000);
@@ -132,6 +135,7 @@ const MerchRoutePlans = () => {
             setLoading(false);
         }
     };
+    
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
@@ -141,7 +145,7 @@ const MerchRoutePlans = () => {
     const handleResponseChange = (event) => {
         const { name, value, files } = event.target;
         const [key, type] = name.split('.');
-
+    
         setResponses(prevResponses => ({
             ...prevResponses,
             [key]: {
@@ -150,6 +154,7 @@ const MerchRoutePlans = () => {
             }
         }));
     };
+    
 
     const handleBackdropClick = (event) => {
         if (formRef.current && !formRef.current.contains(event.target)) {
@@ -211,7 +216,6 @@ const MerchRoutePlans = () => {
                             <div ref={formRef} className="bg-white p-8 border border-gray-200 rounded shadow-lg max-h-full overflow-y-auto">
                                 <h2 className="text-xl mb-4">Respond to Instruction</h2>
                                 <form onSubmit={handleFormSubmit}>
-                                    {/* Render form fields for each instruction */}
                                     {selectedPlan.instructions && selectedPlan.instructions.map((instruction, index) => (
                                         <div key={index}>
                                             <label className="block font-medium">{instruction}</label>
@@ -251,6 +255,7 @@ const MerchRoutePlans = () => {
                                         </button>
                                     </div>
                                 </form>
+
                             </div>
                         </div>
                     )}
