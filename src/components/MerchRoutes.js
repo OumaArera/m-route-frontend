@@ -103,6 +103,17 @@ const MerchRoutePlans = () => {
           formData.append('date_time', currentDate);
       
           formData.append('status', 'pending');
+
+          console.log('FormData to be sent:');
+          for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+          }
+
+          console.log('Responses:');
+          console.log(responses);
+          console.log(`Merchandiser ID: ${userId}`);
+          console.log(`Manager ID: ${selectedPlan.managerId}`);
+          console.log(`Date: ${new Date().toString()}`);
       
           const response = await fetch(RESPONSE_URL, {
             method: "POST",
