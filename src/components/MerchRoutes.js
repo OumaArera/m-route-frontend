@@ -55,15 +55,29 @@ const MerchRoutePlans = () => {
             console.error('Error fetching route plans:', error);
             setError("There was an error retrieving your routes.");
             setTimeout(() => setError(""), 5000);
-            setIsLoading(false); // Also set loading to false on error
+            setIsLoading(false);
         }
     };
     
-
     const handleStatusChange = (planId, instructionId, status, facility, managerId) => {
+        const selectedPlan = routePlans.find(plan => plan.id === planId);
+        const selectedInstruction = selectedPlan.instructions.find(instruction => instruction.id === instructionId);
+    
         setSelectedPlan({ planId, instructionId, status, facility, managerId });
+        
+        const initialResponses = {};
+        selectedInstruction.instructions.forEach((instruction, index) => {
+            initialResponses[`instruction_${index}`] = {
+                text: '',
+                image: null
+            };
+        });
+    
+        setResponses(initialResponses);
         setShowForm(true);
     };
+    
+    
 
     const handleSubmitResponse = async (responses) => {
         try {
@@ -109,6 +123,7 @@ const MerchRoutePlans = () => {
         event.preventDefault();
         await handleSubmitResponse(responses);
     };
+    
 
     const handleResponseChange = (event) => {
         const { name, value, files } = event.target;
@@ -174,25 +189,29 @@ const MerchRoutePlans = () => {
                                 <h2 className="text-xl mb-4">Respond to Instruction</h2>
                                 <form onSubmit={handleFormSubmit}>
                                     {/* Render form fields for each instruction */}
-                                    {Object.keys(selectedPlan).map((key, index) => (
-                                        <div key={index}>
-                                            <label className="block font-medium">{key}:</label>
-                                            <input
-                                                type="text"
-                                                name={`${key}.text`}
-                                                value={responses[key]?.text || ''}
-                                                onChange={handleResponseChange}
-                                                className="border border-gray-300 rounded py-2 px-4 w-full"
-                                            />
-                                            <input
-                                                type="file"
-                                                name={`${key}.image`}
-                                                accept="image/*"
-                                                onChange={handleResponseChange}
-                                                className="border border-gray-300 rounded py-2 px-4 w-full"
-                                            />
-                                        </div>
-                                    ))}
+                                    {Object.keys(responses).map((key, index) => {
+                                        const instructionLabel = selectedPlan.instructions[index]; // Define selectedInstruction here
+                                        return (
+                                            <div key={index}>
+                                                <label className="block font-medium">{instructionLabel}</label>
+                                                <input
+                                                    type="text"
+                                                    name={`${key}.text`}
+                                                    value={responses[key]?.text || ''}
+                                                    onChange={handleResponseChange}
+                                                    className="border border-gray-300 rounded py-2 px-4 w-full mb-2"
+                                                    required
+                                                />
+                                                <input
+                                                    type="file"
+                                                    name={`${key}.image`}
+                                                    accept="image/*"
+                                                    onChange={handleResponseChange}
+                                                    className="border border-gray-300 rounded py-2 px-4 w-full mb-4"
+                                                />
+                                            </div>
+                                        );
+                                    })}
                                     <div className="flex justify-end space-x-4 mt-4">
                                         <button
                                             type="button"
@@ -212,6 +231,7 @@ const MerchRoutePlans = () => {
                             </div>
                         </div>
                     )}
+
                 </>
             )}
         </div>
