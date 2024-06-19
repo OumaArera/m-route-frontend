@@ -98,7 +98,7 @@ const handleSubmitResponse = async (responses) => {
                 status: "pending",
             })
         });
-        console.log(`Responses: ${responses}`);
+        console.log(`Responses: ${JSON.stringify(responses, null, 2)}`);
         console.log(`Merchandiser ID: ${userId}`);
         console.log(`Manager ID: ${selectedPlan.managerId}`);
         console.log(new Date());
