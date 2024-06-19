@@ -81,12 +81,14 @@ const MerchRoutePlans = () => {
 
     const handleSubmitResponse = async (responses) => {
         setLoading(true);
-    
+        
+        const formattedDateTime = moment().format("YYYY-MM-DD HH:mm:ss");
+        
         // Create a new FormData object
         const formData = new FormData();
         formData.append("merchandiser_id", userId);
         formData.append("manager_id", selectedPlan.managerId);
-        formData.append("date_time", new Date());
+        formData.append("date_time", formattedDateTime);
         formData.append("status", "pending");
     
         // Loop through responses and append them to the FormData object
