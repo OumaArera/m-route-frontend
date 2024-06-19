@@ -15,6 +15,7 @@ const MerchRoutePlans = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [responses, setResponses] = useState({}); 
     const formRef = useRef(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -79,6 +80,7 @@ const MerchRoutePlans = () => {
     };
 
     const handleSubmitResponse = async (responses) => {
+        setLoading(true);
         try {
             const response = await fetch(RESPONSE_URL, {
                 method: "POST",
@@ -115,6 +117,8 @@ const MerchRoutePlans = () => {
             console.error('Error sending response:', error);
             setError("There was an error sending the response.");
             setTimeout(() => setError(""), 5000);
+        }finally{
+            setLoading(false);
         }
     };
 
@@ -236,6 +240,11 @@ const MerchRoutePlans = () => {
                                     </div>
                                 </form>
                             </div>
+                            {loading && (
+                                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                                    <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </>
