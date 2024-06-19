@@ -17,7 +17,7 @@ const Navbar = ({userData}) => {
         <RiNotification2Line className="h-6 w-6 text-white"
          onClick={() => setShowModal(true)}
         />
-        <Link to="/profile">
+        <Link to="/settings">
           {userData.avatar ? (
             <img src={userData.avatar} className="h-8 w-8" alt="profile" />
           ) : (
