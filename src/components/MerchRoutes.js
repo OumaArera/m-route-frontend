@@ -94,6 +94,10 @@ const MerchRoutePlans = () => {
                     status: "pending",
                 })
             });
+            console.log(`Responses: ${responses}`);
+            console.log(`Merchandiser ID: ${userId}`);
+            console.log(`Manager ID: ${selectedPlan.managerId}`);
+            console.log(new Date());
 
             const data = await response.json();
 
@@ -141,8 +145,7 @@ const MerchRoutePlans = () => {
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6 md:mb-8">Route Plans</h1>
-            {error && <div className="text-red-500 mb-4">{error}</div>}
-            {notification && <div className="text-green-500 mb-4">{notification}</div>}
+            
             {isLoading ? (
                 <div className="text-center text-xl">Loading...</div>
             ) : (
@@ -215,6 +218,8 @@ const MerchRoutePlans = () => {
                                         </div>
                                     ))}
                                     <div className="flex justify-end space-x-4 mt-4">
+                                    {error && <div className="text-red-500 mb-4">{error}</div>}
+                                    {notification && <div className="text-green-500 mb-4">{notification}</div>}
                                         <button
                                             type="button"
                                             className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
