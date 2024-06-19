@@ -86,24 +86,38 @@ const MerchRoutePlans = () => {
         try {
             const formData = new FormData();
     
-            // Append text responses
+            // Append responses to formData
             Object.keys(responses).forEach(key => {
-                formData.append(`${key}.text`, responses[key].text);
-            });
-    
-            
-            Object.keys(responses).forEach(key => {
-                const imageFile = responses[key].image;
-                if (imageFile) {
-                    formData.append(`${key}.image`, imageFile);
+                const response = responses[key];
+                formData.append(`response[${key}][text]`, response.text);
+                if (response.image) {
+                    formData.append(`response[${key}][image]`, response.image);
+                } else {
+                    formData.append(`response[${key}][image]`, ''); // Ensure image is sent as an empty string if null
                 }
             });
     
-            // Append other required fields
+            // Append other required fields to formData
             formData.append('merchandiser_id', userId);
             formData.append('manager_id', selectedPlan.managerId);
-            formData.append('date_time', new Date());
+            
+            // Format date as string in YYYY-MM-DD format
+            const currentDate = new Date().toISOString().split('T')[0];
+            formData.append('date_time', currentDate);
+    
             formData.append('status', 'pending');
+    
+            // Log detailed data before sending
+            console.log('FormData to be sent:');
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+    
+            console.log('Responses:');
+            console.log(responses);
+            console.log(`Merchandiser ID: ${userId}`);
+            console.log(`Manager ID: ${selectedPlan.managerId}`);
+            console.log(`Date: ${new Date().toString()}`); // Display current date/time in a readable format
     
             const response = await fetch(RESPONSE_URL, {
                 method: "POST",
@@ -112,11 +126,6 @@ const MerchRoutePlans = () => {
                 },
                 body: formData
             });
-    
-            console.log(`Responses: ${JSON.stringify(responses, null, 2)}`);
-            console.log(`Merchandiser ID: ${userId}`);
-            console.log(`Manager ID: ${selectedPlan.managerId}`);
-            console.log(new Date());
     
             const data = await response.json();
     
@@ -138,7 +147,7 @@ const MerchRoutePlans = () => {
             setLoading(false);
         }
     };
-    
+        
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
@@ -155,7 +164,7 @@ const MerchRoutePlans = () => {
                 ...prevResponses,
                 [key]: {
                     ...prevResponses[key],
-                    [type]: file // Assign the file directly
+                    [type]: file // Store file object directly
                 }
             }));
         } else {
@@ -168,9 +177,6 @@ const MerchRoutePlans = () => {
             }));
         }
     };
-    
-
-
 
     const handleBackdropClick = (event) => {
         if (formRef.current && !formRef.current.contains(event.target)) {
