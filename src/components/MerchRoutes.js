@@ -76,6 +76,11 @@ const MerchRoutePlans = () => {
                     status: "pending",
                 })
             });
+            console.log(`Responses: ${responses}`)
+            console.log(`Merchandiser ID: ${merchandiser_id}`)
+            console.log(`Manager ID: ${manager_id}`)
+            console.log(`Response time: ${date_time}`)
+            console.log(`Status: ${status}`)
 
             const data = await response.json();
 
