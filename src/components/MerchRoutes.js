@@ -32,7 +32,7 @@ const MerchRoutePlans = () => {
 
     const fetchData = async () => {
         setIsLoading(true);
-
+    
         try {
             const response = await fetch(`${ROUTES_URL}/${userId}`, {
                 method: 'GET',
@@ -42,24 +42,23 @@ const MerchRoutePlans = () => {
                 },
             });
             const data = await response.json();
-
+    
             if (data.successful) {
                 setRoutePlans(data.message);
                 setIsLoading(false);
             } else {
                 setError(data.message);
-                setTimeout(() => {
-                    setError("");
-                }, 5000);
+                setTimeout(() => setError(""),  5000);
+                setIsLoading(false); 
             }
         } catch (error) {
             console.error('Error fetching route plans:', error);
             setError("There was an error retrieving your routes.");
-            setTimeout(() => {
-                setError("");
-            }, 5000);
+            setTimeout(() => setError(""), 5000);
+            setIsLoading(false); // Also set loading to false on error
         }
     };
+    
 
     const handleStatusChange = (planId, instructionId, status, facility, managerId) => {
         setSelectedPlan({ planId, instructionId, status, facility, managerId });
@@ -91,24 +90,18 @@ const MerchRoutePlans = () => {
 
             if (data.successful) {
                 setNotification(data.message);
-                setTimeout(() => {
-                    setNotification("");
-                }, 5000);
+                setTimeout(() => setNotification(""), 5000);
                 setShowForm(false);
                 setSelectedPlan({});
                 await fetchData();
             } else {
                 setError(data.message);
-                setTimeout(() => {
-                    setError("");
-                }, 5000);
+                setTimeout(() => setError(""), 5000);
             }
         } catch (error) {
             console.error('Error sending response:', error);
             setError("There was an error sending the response.");
-            setTimeout(() => {
-                setError("");
-            }, 5000);
+            setTimeout(() => setError(""), 5000);
         }
     };
 
