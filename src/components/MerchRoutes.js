@@ -1,9 +1,3 @@
-import React, { useEffect, useState } from "react";
-import moment from 'moment';
-
-const ROUTES_URL = "https://m-route-backend.onrender.com/users/merchandisers/routes";
-const RESPONSE_URL = "https://m-route-backend.onrender.com/users/post/response";
-
 const MerchRoutePlans = () => {
     const [routePlans, setRoutePlans] = useState([]);
     const [token, setToken] = useState(null);
@@ -13,6 +7,7 @@ const MerchRoutePlans = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [responses, setResponses] = useState({}); // Define responses state
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -110,6 +105,14 @@ const MerchRoutePlans = () => {
     const handleFormSubmit = async (event, responses) => {
         event.preventDefault();
         await handleSubmitResponse(responses);
+    };
+
+    const handleResponseChange = (event) => {
+        const { name, value } = event.target;
+        setResponses(prevResponses => ({
+            ...prevResponses,
+            [name]: value
+        }));
     };
 
     return (
