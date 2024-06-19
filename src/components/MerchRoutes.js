@@ -65,18 +65,23 @@ const MerchRoutePlans = () => {
     //     setShowForm(true);
     // };
     const handleStatusChange = (planId, instructionId, status, facility, managerId) => {
-        // Find the selected plan and instruction based on planId and instructionId
-        const selected = routePlans.find(plan => plan.id === planId).instructions.find(instruction => instruction.id === instructionId);
-        
+        const selectedPlan = routePlans.find(plan => plan.id === planId);
+        const selectedInstruction = selectedPlan.instructions.find(instruction => instruction.id === instructionId);
+    
         setSelectedPlan({ planId, instructionId, status, facility, managerId });
-        setResponses({
-            ...selected.instructions.reduce((acc, inst, index) => ({
-                ...acc,
-                [`instruction_${index}`]: { text: '', files: null } 
-            }), {})
+        
+        const initialResponses = {};
+        selectedInstruction.instructions.forEach((instruction, index) => {
+            initialResponses[`instruction_${index}`] = {
+                text: '',
+                image: null
+            };
         });
+    
+        setResponses(initialResponses);
         setShowForm(true);
     };
+    
     
 
     const handleSubmitResponse = async (responses) => {
@@ -123,6 +128,7 @@ const MerchRoutePlans = () => {
         event.preventDefault();
         await handleSubmitResponse(responses);
     };
+    
 
     const handleResponseChange = (event) => {
         const { name, value, files } = event.target;
@@ -190,20 +196,21 @@ const MerchRoutePlans = () => {
                                     {/* Render form fields for each instruction */}
                                     {Object.keys(responses).map((key, index) => (
                                         <div key={index}>
-                                            <label className="block font-medium">{key}:</label>
+                                            <label className="block font-medium">{selectedInstruction.instructions[index]}</label>
                                             <input
                                                 type="text"
                                                 name={`${key}.text`}
                                                 value={responses[key]?.text || ''}
                                                 onChange={handleResponseChange}
-                                                className="border border-gray-300 rounded py-2 px-4 w-full"
+                                                className="border border-gray-300 rounded py-2 px-4 w-full mb-2"
+                                                required
                                             />
                                             <input
                                                 type="file"
                                                 name={`${key}.image`}
                                                 accept="image/*"
                                                 onChange={handleResponseChange}
-                                                className="border border-gray-300 rounded py-2 px-4 w-full"
+                                                className="border border-gray-300 rounded py-2 px-4 w-full mb-4"
                                             />
                                         </div>
                                     ))}
@@ -226,6 +233,7 @@ const MerchRoutePlans = () => {
                             </div>
                         </div>
                     )}
+
                 </>
             )}
         </div>
