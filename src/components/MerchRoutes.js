@@ -60,10 +60,24 @@ const MerchRoutePlans = () => {
     };
     
 
+    // const handleStatusChange = (planId, instructionId, status, facility, managerId) => {
+    //     setSelectedPlan({ planId, instructionId, status, facility, managerId });
+    //     setShowForm(true);
+    // };
     const handleStatusChange = (planId, instructionId, status, facility, managerId) => {
+        // Find the selected plan and instruction based on planId and instructionId
+        const selected = routePlans.find(plan => plan.id === planId).instructions.find(instruction => instruction.id === instructionId);
+        
         setSelectedPlan({ planId, instructionId, status, facility, managerId });
+        setResponses({
+            ...selected.instructions.reduce((acc, inst, index) => ({
+                ...acc,
+                [`instruction_${index}`]: { text: '', files: null } 
+            }), {})
+        });
         setShowForm(true);
     };
+    
 
     const handleSubmitResponse = async (responses) => {
         try {
@@ -174,7 +188,7 @@ const MerchRoutePlans = () => {
                                 <h2 className="text-xl mb-4">Respond to Instruction</h2>
                                 <form onSubmit={handleFormSubmit}>
                                     {/* Render form fields for each instruction */}
-                                    {Object.keys(selectedPlan).map((key, index) => (
+                                    {Object.keys(responses).map((key, index) => (
                                         <div key={index}>
                                             <label className="block font-medium">{key}:</label>
                                             <input
