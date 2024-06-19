@@ -189,8 +189,8 @@ const MerchRoutePlans = () => {
                                 <h2 className="text-xl mb-4">Respond to Instruction</h2>
                                 <form onSubmit={handleFormSubmit}>
                                     {/* Render form fields for each instruction */}
-                                    {Object.keys(responses).map((key, index) => {
-                                        const instructionLabel = selectedPlan.instructions[index]; // Define selectedInstruction here
+                                    {selectedPlan.instructions && Object.keys(responses).map((key, index) => {
+                                        const instructionLabel = selectedPlan.instructions[index];
                                         return (
                                             <div key={index}>
                                                 <label className="block font-medium">{instructionLabel}</label>
@@ -231,7 +231,6 @@ const MerchRoutePlans = () => {
                             </div>
                         </div>
                     )}
-
                 </>
             )}
         </div>
