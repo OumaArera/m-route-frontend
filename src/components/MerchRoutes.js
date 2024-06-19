@@ -17,8 +17,7 @@ const [responses, setResponses] = useState({});
 const formRef = useRef(null);
 const [loading, setLoading] = useState(false);
 
-typescript
-Copy code
+
 useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
     const userData = localStorage.getItem("user_data");
