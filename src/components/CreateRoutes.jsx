@@ -2,7 +2,9 @@ import { useEffect, useState, useMemo } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 const ROUTES_URL = "https://m-route-backend.onrender.com/users/route-plans";
-const USERS_URL = "https://m-route-backend.onrender.com/users"; 
+const ASSIGNED_MERCHANDISERS_URL = "https://m-route-backend.onrender.com/users/get/merchandisers";
+const KPI_URL = "https://m-route-backend.onrender.com/users/get/kpis";
+const FACILITIES_URL = "https://m-route-backend.onrender.com/users/get-facilities";
 
 const CreateRoutes = () => {
     const [dateRange, setDateRange] = useState({
@@ -15,25 +17,52 @@ const CreateRoutes = () => {
     const [token, setToken] = useState("");
     const [message, setMessage] = useState("");
     const [merchandisers, setMerchandisers] = useState([]);
+    const [facilities, setFacilities] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [performanceMetrics, setPerformanceMetrics] = useState([]);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
         const userData = localStorage.getItem("user_data");
-        setToken(JSON.parse(accessToken));
-        if (userData) {
-            setUserId(JSON.parse(userData).id);
-        }
+        if (accessToken) setToken(JSON.parse(accessToken));
+        if (userData) setUserId(JSON.parse(userData).id);
     }, []);
 
     useEffect(() => {
         if (token) {
             fetchUsers();
+            fetchKPIs();
+            fetchFacilities();
         }
     }, [token]);
 
+    const fetchKPIs = async () => {
+        const response = await fetch(KPI_URL, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await response.json();
+        if (data.status_code === 200){
+            const metricsSet = new Set();
+            data.message.forEach(item => {
+                Object.keys(item.performance_metric).forEach(key => {
+                    metricsSet.add(key);
+                });
+            });
+            setPerformanceMetrics(Array.from(metricsSet));
+        } else {
+            setMessage(data.message);
+            setTimeout(() => setMessage(""), 5000);
+        }
+    };
+
     const fetchUsers = async () => {
         try {
-            const response = await fetch(USERS_URL, {
+            const response = await fetch(`${ASSIGNED_MERCHANDISERS_URL}/${userId}`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -44,29 +73,63 @@ const CreateRoutes = () => {
             const data = await response.json();
 
             if (data.status_code === 200) {
-                setMerchandisers(data.message.filter(user => user.role === 'merchandiser' && user.status === 'active'));
+                // Remove duplicates by merchandiser_id
+                const uniqueMerchandisers = Array.from(new Set(data.message.map(m => m.merchandiser_id)))
+                    .map(id => {
+                        return data.message.find(m => m.merchandiser_id === id);
+                    });
+                setMerchandisers(uniqueMerchandisers);
             } else if(data.status_code === 404) {
                 setMessage(data.message);
-                setTimeout(() => {
-                    setMessage("");
-                }, 5000);
+                setTimeout(() => setMessage(""), 5000);
             }
         } catch (error) {
             console.log("Error fetching users:", error);
             setMessage("Failed to fetch users, please try again.");
-            setTimeout(() => {
-                setMessage("");
-            }, 5000);
+            setTimeout(() => setMessage(""), 5000);
+        }
+    };
+
+    const fetchFacilities = async () => {
+        try {
+            const response = await fetch(`${FACILITIES_URL}/${userId}`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.status_code === 200) {
+                setFacilities(data.message);
+            } else if(data.status_code === 404) {
+                setMessage(data.message);
+                setTimeout(() => setMessage(""), 5000);
+            }
+        } catch (error) {
+            console.log("Error fetching facilities:", error);
+            setMessage("Failed to fetch facilities, please try again.");
+            setTimeout(() => setMessage(""), 5000);
         }
     };
 
     const merchandiserOptions = useMemo(() => (
         merchandisers.map(merchandiser => (
-            <option key={merchandiser.id} value={merchandiser.staff_no}>
-                {merchandiser.first_name} {merchandiser.last_name}
+            <option key={merchandiser.merchandiser_id} value={merchandiser.staff_no}>
+                {merchandiser.merchandiser_name}
             </option>
         ))
     ), [merchandisers]);
+
+    const facilityOptions = useMemo(() => (
+        facilities.map(facility => (
+            <option key={facility.id} value={facility.id}>
+                {facility.name}
+            </option>
+        ))
+    ), [facilities]);
 
     const handleDateRange = (event) => {
         const { name, value } = event.target;
@@ -84,21 +147,34 @@ const CreateRoutes = () => {
         setInstructionSets(updatedInstructionSets);
     };
 
-
     const handleAddInstructionSet = () => {
         setInstructionSets([...instructionSets, { 
             start: "", 
             end: "", 
-            instructions: "", 
+            instructions: [], 
             facility: "", 
             status: "pending", 
             id: uuidv4() 
         }]);
     };
 
+    const handleMetricChange = (index, metricName) => {
+        const updatedInstructionSets = instructionSets.map((set, i) => {
+            if (i === index) {
+                const updatedMetrics = set.instructions.includes(metricName)
+                    ? set.instructions.filter(metric => metric !== metricName)
+                    : [...set.instructions, metricName];
+                return { ...set, instructions: updatedMetrics };
+            }
+            return set;
+        });
+        setInstructionSets(updatedInstructionSets);
+    };
+
     const handleSubmitRoutes = async (event) => {
         event.preventDefault();
-
+        setLoading(true);
+    
         const routes = {
             manager_id: userId,
             staff_no: selectedMerchandiser,
@@ -109,9 +185,11 @@ const CreateRoutes = () => {
             },
             instructions: instructionSets,
         };
-
-        console.log("Route plans", routes)
-
+    
+        // Print the instructionSets to the console
+        console.log("Instructions:", instructionSets);
+        console.log(routes);
+    
         try {
             const response = await fetch(ROUTES_URL, {
                 method: "POST",
@@ -121,9 +199,15 @@ const CreateRoutes = () => {
                 },
                 body: JSON.stringify(routes),
             });
-
+    
+            // Handle potential non-JSON responses
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+    
             const data = await response.json();
-
+    
             if (data.status_code === 201) {
                 setMessage(data.message);
                 setSelectedMerchandiser("");
@@ -132,24 +216,21 @@ const CreateRoutes = () => {
                     startDate: "",
                     endDate: "",
                 });
-
-                setTimeout(() => {
-                    setMessage("");
-                }, 5000);
+    
+                setTimeout(() => setMessage(""), 5000);
             } else {
                 setMessage(data.message);
-                setTimeout(() => {
-                    setMessage("");
-                }, 5000);
+                setTimeout(() => setMessage(""), 5000);
             }
         } catch (error) {
             console.log(error);
-            setMessage("There was a problem creating the route plans");
-            setTimeout(() => {
-                setMessage("");
-            }, 5000);
+            setMessage("There was a problem creating the route plans: " + error.message);
+            setTimeout(() => setMessage(""), 5000);
+        } finally {
+            setLoading(false);
         }
     };
+    
 
     return (
         <div className="w-full max-w-4xl mx-auto mt-5 p-5 rounded-lg shadow-lg bg-white lg:w-1/3">
@@ -208,28 +289,33 @@ const CreateRoutes = () => {
                             <br />
                             <div className="mt-4">
                                 <label htmlFor="facility" className="font-bold mb-1 block">Facility Name</label>
-                                <input
-                                    type="text"
+                                <select
                                     name="facility"
-                                    placeholder="Facility name"
                                     value={set.facility}
                                     onChange={(e) => handleInstructionsChange(index, e)}
                                     required
                                     className="w-full p-2 mt-1 border border-gray-300 rounded"
-                                />
+                                >
+                                    <option value="">Select a facility</option>
+                                    {facilityOptions}
+                                </select>
                             </div>
                             <div className="mt-4">
-                                <label htmlFor="instructions" className="font-bold mb-1 block">Instructions</label>
-                                <textarea
-                                    name="instructions"
-                                    id="message"
-                                    rows={4}
-                                    placeholder="Instructions"
-                                    value={set.instructions}
-                                    onChange={(e) => handleInstructionsChange(index, e)}
-                                    required
-                                    className="w-full p-2 mt-1 border border-gray-300 rounded"
-                                />
+                                <label htmlFor="instructions" className="font-bold mb-1 block">Response Requirements</label>
+                                <div>
+                                    {performanceMetrics.map(metric => (
+                                        <div key={metric}>
+                                            <input
+                                                type="checkbox"
+                                                name="instructions"
+                                                value={metric}
+                                                checked={set.instructions.includes(metric)}
+                                                onChange={() => handleMetricChange(index, metric)}
+                                            />
+                                            <label className="ml-2">{metric}</label>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -257,11 +343,13 @@ const CreateRoutes = () => {
                     Submit
                 </button>
             </form>
+            {loading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                    <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                </div>
+            )}
         </div>
     );
 };
 
 export default CreateRoutes;
-
-
-

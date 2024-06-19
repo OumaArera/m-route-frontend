@@ -385,6 +385,3 @@ const Login = ({ setAuthorized, setRoleCheck, setAdmin, setUserData }) => {
 };
 
 export default Login;
-
-
-
