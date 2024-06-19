@@ -99,7 +99,7 @@ const Login = ({ setAuthorized, setRoleCheck, setAdmin, setUserData }) => {
     try {
       setLoading(true);
       const response = await fetch(CHANGE_PASSWORD_URL, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
@@ -385,6 +385,3 @@ const Login = ({ setAuthorized, setRoleCheck, setAdmin, setUserData }) => {
 };
 
 export default Login;
-
-
-
