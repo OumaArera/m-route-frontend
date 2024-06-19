@@ -82,72 +82,57 @@ const MerchRoutePlans = () => {
 
     const handleSubmitResponse = async (responses) => {
         setLoading(true);
-    
+      
         try {
-            const formData = new FormData();
-    
-            // Append responses to formData
-            Object.keys(responses).forEach(key => {
-                const response = responses[key];
-                formData.append(`response[${key}][text]`, response.text);
-                if (response.image) {
-                    formData.append(`response[${key}][image]`, response.image);
-                } else {
-                    formData.append(`response[${key}][image]`, ''); // Ensure image is sent as an empty string if null
-                }
-            });
-    
-            // Append other required fields to formData
-            formData.append('merchandiser_id', userId);
-            formData.append('manager_id', selectedPlan.managerId);
-            
-            // Format date as string in YYYY-MM-DD format
-            const currentDate = new Date().toISOString().split('T')[0];
-            formData.append('date_time', currentDate);
-    
-            formData.append('status', 'pending');
-    
-            // Log detailed data before sending
-            console.log('FormData to be sent:');
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
+          const formData = new FormData();
+      
+          // Append responses to formData
+          Object.entries(responses).forEach(([category, { text, image }]) => {
+            formData.append(`response[${category}][text]`, text);
+            if (image instanceof File) {
+              formData.append(`response[${category}][image]`, image);
             }
-    
-            console.log('Responses:');
-            console.log(responses);
-            console.log(`Merchandiser ID: ${userId}`);
-            console.log(`Manager ID: ${selectedPlan.managerId}`);
-            console.log(`Date: ${new Date().toString()}`); // Display current date/time in a readable format
-    
-            const response = await fetch(RESPONSE_URL, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                },
-                body: formData
-            });
-    
-            const data = await response.json();
-    
-            if (data.successful) {
-                setNotification(data.message);
-                setTimeout(() => setNotification(""), 5000);
-                setShowForm(false);
-                setSelectedPlan({});
-                await fetchData();
-            } else {
-                setError(data.message);
-                setTimeout(() => setError(""), 5000);
-            }
-        } catch (error) {
-            console.error('Error sending response:', error);
-            setError("There was an error sending the response.");
+          });
+      
+          // Append other required fields to formData
+          formData.append('merchandiser_id', userId);
+          formData.append('manager_id', selectedPlan.managerId);
+      
+          // Format date as string in YYYY-MM-DD format
+          const currentDate = new Date().toISOString().split('T')[0];
+          formData.append('date_time', currentDate);
+      
+          formData.append('status', 'pending');
+      
+          const response = await fetch(RESPONSE_URL, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+            body: formData
+          });
+      
+          const data = await response.json();
+      
+          if (data.successful) {
+            setNotification(data.message);
+            setTimeout(() => setNotification(""), 5000);
+            setShowForm(false);
+            setSelectedPlan({});
+            await fetchData();
+          } else {
+            setError(data.message);
             setTimeout(() => setError(""), 5000);
+          }
+        } catch (error) {
+          console.error('Error sending response:', error);
+          setError("There was an error sending the response.");
+          setTimeout(() => setError(""), 5000);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
-        
+      };
+      
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
