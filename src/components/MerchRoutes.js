@@ -1,3 +1,9 @@
+import React, { useEffect, useState } from "react";
+import moment from 'moment';
+
+const ROUTES_URL = "https://m-route-backend.onrender.com/users/merchandisers/routes";
+const RESPONSE_URL = "https://m-route-backend.onrender.com/users/post/response";
+
 const MerchRoutePlans = () => {
     const [routePlans, setRoutePlans] = useState([]);
     const [token, setToken] = useState(null);
@@ -7,7 +13,7 @@ const MerchRoutePlans = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const [responses, setResponses] = useState({}); // Define responses state
+    const [responses, setResponses] = useState({}); // State to manage form responses
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -76,11 +82,6 @@ const MerchRoutePlans = () => {
                     status: "pending",
                 })
             });
-            console.log(`Responses: ${responses}`)
-            console.log(`Merchandiser ID: ${merchandiser_id}`)
-            console.log(`Manager ID: ${manager_id}`)
-            console.log(`Response time: ${date_time}`)
-            console.log(`Status: ${status}`)
 
             const data = await response.json();
 
@@ -107,16 +108,16 @@ const MerchRoutePlans = () => {
         }
     };
 
-    const handleFormSubmit = async (event, responses) => {
+    const handleFormSubmit = async (event) => {
         event.preventDefault();
         await handleSubmitResponse(responses);
     };
 
     const handleResponseChange = (event) => {
-        const { name, value } = event.target;
+        const { name, value, files } = event.target;
         setResponses(prevResponses => ({
             ...prevResponses,
-            [name]: value
+            [name]: files ? { file: files[0], text: value } : { text: value }
         }));
     };
 
@@ -175,21 +176,21 @@ const MerchRoutePlans = () => {
                         <div className="fixed inset-0 flex items-center justify-center z-50">
                             <div className="bg-white p-8 border border-gray-200 rounded shadow-lg">
                                 <h2 className="text-xl mb-4">Respond to Instruction</h2>
-                                <form onSubmit={e => handleFormSubmit(e, responses)}>
+                                <form onSubmit={handleFormSubmit}>
                                     {/* Render form fields for each instruction */}
                                     {Object.keys(selectedPlan).map((key, index) => (
                                         <div key={index}>
                                             <label className="block font-medium">{key}:</label>
                                             <input
                                                 type="text"
-                                                name={`responses.${key}.text`}
+                                                name={`${key}.text`}
                                                 value={responses[key]?.text || ''}
                                                 onChange={handleResponseChange}
                                                 className="border border-gray-300 rounded py-2 px-4 w-full"
                                             />
                                             <input
                                                 type="file"
-                                                name={`responses.${key}.image`}
+                                                name={`${key}.image`}
                                                 accept="image/*"
                                                 onChange={handleResponseChange}
                                                 className="border border-gray-300 rounded py-2 px-4 w-full"
