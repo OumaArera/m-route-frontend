@@ -13,7 +13,7 @@ const MerchRoutePlans = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const [responses, setResponses] = useState({}); 
+    const [responses, setResponses] = useState({});
     const formRef = useRef(null);
     const [loading, setLoading] = useState(false);
 
@@ -34,7 +34,7 @@ const MerchRoutePlans = () => {
 
     const fetchData = async () => {
         setIsLoading(true);
-    
+
         try {
             const response = await fetch(`${ROUTES_URL}/${userId}`, {
                 method: 'GET',
@@ -44,13 +44,13 @@ const MerchRoutePlans = () => {
                 },
             });
             const data = await response.json();
-    
+
             if (data.successful) {
                 setRoutePlans(data.message);
                 setIsLoading(false);
             } else {
                 setError(data.message);
-                setTimeout(() => setError(""),  5000);
+                setTimeout(() => setError(""), 5000);
                 setIsLoading(false); 
             }
         } catch (error) {
@@ -64,7 +64,7 @@ const MerchRoutePlans = () => {
     const handleStatusChange = (planId, instructionId, status, facility, managerId) => {
         const selectedPlan = routePlans.find(plan => plan.id === planId);
         const selectedInstruction = selectedPlan.instructions.find(instruction => instruction.id === instructionId);
-    
+
         setSelectedPlan({ planId, instructionId, status, facility, managerId, instructions: selectedInstruction.instructions });
         
         const initialResponses = {};
@@ -74,7 +74,7 @@ const MerchRoutePlans = () => {
                 image: null
             };
         });
-    
+
         setResponses(initialResponses);
         setShowForm(true);
     };
@@ -90,7 +90,7 @@ const MerchRoutePlans = () => {
         formData.append("manager_id", selectedPlan.managerId);
         formData.append("date_time", formattedDateTime);
         formData.append("status", "pending");
-    
+
         // Loop through responses and append them to the FormData object
         Object.keys(responses).forEach((key) => {
             formData.append(`response[${key}][text]`, responses[key].text);
@@ -98,9 +98,12 @@ const MerchRoutePlans = () => {
                 formData.append(`response[${key}][image]`, responses[key].image);
             }
         });
-    
+
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+
         try {
-            console.log("Data being sent to backend:", formData);
             const response = await fetch(RESPONSE_URL, {
                 method: "POST",
                 headers: {
@@ -108,9 +111,9 @@ const MerchRoutePlans = () => {
                 },
                 body: formData, 
             });
-    
+
             const data = await response.json();
-    
+
             if (data.successful) {
                 setNotification(data.message);
                 setTimeout(() => setNotification(""), 5000);
@@ -129,7 +132,6 @@ const MerchRoutePlans = () => {
             setLoading(false);
         }
     };
-    
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
@@ -139,7 +141,7 @@ const MerchRoutePlans = () => {
     const handleResponseChange = (event) => {
         const { name, value, files } = event.target;
         const [key, type] = name.split('.');
-    
+
         setResponses(prevResponses => ({
             ...prevResponses,
             [key]: {
@@ -148,7 +150,7 @@ const MerchRoutePlans = () => {
             }
         }));
     };
-    
+
     const handleBackdropClick = (event) => {
         if (formRef.current && !formRef.current.contains(event.target)) {
             setShowForm(false);
@@ -231,11 +233,11 @@ const MerchRoutePlans = () => {
                                         </div>
                                     ))}
                                     <div className="flex justify-end space-x-4 mt-4">
-                                    {error && <div className="text-red-500 mb-4">{error}</div>}
-                                    {notification && <div className="text-green-500 mb-4">{notification}</div>}
+                                        {error && <div className="text-red-500 mb-4">{error}</div>}
+                                        {notification && <div className="text-green-500 mb-4">{notification}</div>}
                                         <button
                                             type="button"
-                                            className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+                                            className="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
                                             onClick={() => setShowForm(false)}
                                         >
                                             Cancel
@@ -243,17 +245,13 @@ const MerchRoutePlans = () => {
                                         <button
                                             type="submit"
                                             className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                                            disabled={loading}
                                         >
-                                            Submit
+                                            {loading ? 'Submitting...' : 'Submit'}
                                         </button>
                                     </div>
                                 </form>
                             </div>
-                            {loading && (
-                                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-                                    <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
-                                </div>
-                            )}
                         </div>
                     )}
                 </>
