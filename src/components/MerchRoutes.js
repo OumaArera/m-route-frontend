@@ -84,7 +84,7 @@ const MerchRoutePlans = () => {
             });
             console.log(`Responses: ${responses}`);
             console.log(`Merchandiser ID: ${userId}`);
-            console.log(`Manager ID: ${manager_id}`);
+            console.log(`Manager ID: ${selectedPlan.managerId}`);
             console.log(`Current Time: ${new Date()}`);
 
             const data = await response.json();
