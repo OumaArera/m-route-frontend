@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import moment from 'moment';
 
 const ROUTES_URL = "https://m-route-backend.onrender.com/users/merchandisers/routes";
@@ -13,7 +13,8 @@ const MerchRoutePlans = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const [responses, setResponses] = useState({}); // State to manage form responses
+    const [responses, setResponses] = useState({}); 
+    const formRef = useRef(null);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -58,16 +59,16 @@ const MerchRoutePlans = () => {
             setIsLoading(false);
         }
     };
-    
+
     const handleStatusChange = (planId, instructionId, status, facility, managerId) => {
         const selectedPlan = routePlans.find(plan => plan.id === planId);
         const selectedInstruction = selectedPlan.instructions.find(instruction => instruction.id === instructionId);
     
-        setSelectedPlan({ planId, instructionId, status, facility, managerId });
+        setSelectedPlan({ planId, instructionId, status, facility, managerId, instructions: selectedInstruction.instructions });
         
         const initialResponses = {};
         selectedInstruction.instructions.forEach((instruction, index) => {
-            initialResponses[`instruction_${index}`] = {
+            initialResponses[instruction] = {
                 text: '',
                 image: null
             };
@@ -76,8 +77,6 @@ const MerchRoutePlans = () => {
         setResponses(initialResponses);
         setShowForm(true);
     };
-    
-    
 
     const handleSubmitResponse = async (responses) => {
         try {
@@ -95,10 +94,6 @@ const MerchRoutePlans = () => {
                     status: "pending",
                 })
             });
-            console.log(`Responses: ${responses}`);
-            console.log(`Merchandiser ID: ${userId}`);
-            console.log(`Manager ID: ${selectedPlan.managerId}`);
-            console.log(`Current Time: ${new Date()}`);
 
             const data = await response.json();
 
@@ -123,14 +118,24 @@ const MerchRoutePlans = () => {
         event.preventDefault();
         await handleSubmitResponse(responses);
     };
-    
 
     const handleResponseChange = (event) => {
         const { name, value, files } = event.target;
+        const [key, type] = name.split('.');
+
         setResponses(prevResponses => ({
             ...prevResponses,
-            [name]: files ? { file: files[0], text: value } : { text: value }
+            [key]: {
+                ...prevResponses[key],
+                [type]: type === 'image' ? files[0] : value
+            }
         }));
+    };
+
+    const handleBackdropClick = (event) => {
+        if (formRef.current && !formRef.current.contains(event.target)) {
+            setShowForm(false);
+        }
     };
 
     return (
@@ -184,34 +189,31 @@ const MerchRoutePlans = () => {
                         </table>
                     </div>
                     {showForm && (
-                        <div className="fixed inset-0 flex items-center justify-center z-50">
-                            <div className="bg-white p-8 border border-gray-200 rounded shadow-lg">
+                        <div className="fixed inset-0 flex items-center justify-center z-50" onClick={handleBackdropClick}>
+                            <div ref={formRef} className="bg-white p-8 border border-gray-200 rounded shadow-lg max-h-full overflow-y-auto">
                                 <h2 className="text-xl mb-4">Respond to Instruction</h2>
                                 <form onSubmit={handleFormSubmit}>
                                     {/* Render form fields for each instruction */}
-                                    {selectedPlan.instructions && Object.keys(responses).map((key, index) => {
-                                        const instructionLabel = selectedPlan.instructions[index];
-                                        return (
-                                            <div key={index}>
-                                                <label className="block font-medium">{instructionLabel}</label>
-                                                <input
-                                                    type="text"
-                                                    name={`${key}.text`}
-                                                    value={responses[key]?.text || ''}
-                                                    onChange={handleResponseChange}
-                                                    className="border border-gray-300 rounded py-2 px-4 w-full mb-2"
-                                                    required
-                                                />
-                                                <input
-                                                    type="file"
-                                                    name={`${key}.image`}
-                                                    accept="image/*"
-                                                    onChange={handleResponseChange}
-                                                    className="border border-gray-300 rounded py-2 px-4 w-full mb-4"
-                                                />
-                                            </div>
-                                        );
-                                    })}
+                                    {selectedPlan.instructions && selectedPlan.instructions.map((instruction, index) => (
+                                        <div key={index}>
+                                            <label className="block font-medium">{instruction}</label>
+                                            <input
+                                                type="text"
+                                                name={`${instruction}.text`}
+                                                value={responses[instruction]?.text || ''}
+                                                onChange={handleResponseChange}
+                                                className="border border-gray-300 rounded py-2 px-4 w-full mb-2"
+                                                required
+                                            />
+                                            <input
+                                                type="file"
+                                                name={`${instruction}.image`}
+                                                accept="image/*"
+                                                onChange={handleResponseChange}
+                                                className="border border-gray-300 rounded py-2 px-4 w-full mb-4"
+                                            />
+                                        </div>
+                                    ))}
                                     <div className="flex justify-end space-x-4 mt-4">
                                         <button
                                             type="button"
