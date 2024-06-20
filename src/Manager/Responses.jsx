@@ -89,30 +89,54 @@ const Responses = () => {
     };
 
     return (
-        <div className="responses-container">
+        <div className="container mx-auto p-4">
             {loading && <div>Loading...</div>}
-            {error && <div className="error-message">{error}</div>}
-            {responses.map((response) => (
-                <div key={response.id} className="response-card">
-                    <p><strong>Date:</strong> {response.date_time}</p>
-                    <p><strong>Merchandiser:</strong> {response.merchandiser}</p>
-                    <div className="response-details">
-                        {Object.entries(response.response).map(([kpi, details], index) => (
-                            <div key={index} className="response-detail">
-                                <h4>{kpi}</h4>
-                                <p>{details.text}</p>
-                                {details.image && <img src={details.image} alt={`${kpi} image`} />}
-                            </div>
-                        ))}
+            {error && <div className="text-red-500">{error}</div>}
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {responses.map((response) => (
+                    <div key={response.id} className="bg-white p-4 border border-gray-200 rounded shadow-md">
+                        <p><strong>Date:</strong> {response.date_time}</p>
+                        <p><strong>Merchandiser:</strong> {response.merchandiser}</p>
+                        <div className="response-details">
+                            {Object.entries(response.response).map(([kpi, details], index) => (
+                                <div key={index} className="mb-4">
+                                    <h4 className="font-bold">{kpi}</h4>
+                                    <p>{details.text}</p>
+                                    {details.image && (
+                                        <img
+                                            src={details.image}
+                                            alt={`${kpi} image`}
+                                            className="mt-2 max-w-full h-auto rounded"
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                onClick={() => handleApprove(response.id)}
+                                className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600"
+                            >
+                                Approve
+                            </button>
+                            <button
+                                onClick={() => handleReject(response.id, response.instruction_id, response.route_plan_id)}
+                                className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+                            >
+                                Reject
+                            </button>
+                        </div>
                     </div>
-                    <div className="response-actions">
-                        <button onClick={() => handleApprove(response.id)}>Approve</button>
-                        <button onClick={() => handleReject(response.id, response.instruction_id, response.route_plan_id)}>Reject</button>
-                    </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 };
 
 export default Responses;
+
+
+
+
+
+
