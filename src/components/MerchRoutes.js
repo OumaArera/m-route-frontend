@@ -204,29 +204,31 @@ const MerchRoutePlans = () => {
                             </thead>
                             <tbody>
                                 {routePlans.flatMap(plan => {
-                                    return plan.instructions.filter(instruction => !instruction.responded).map(instruction => (
-                                        <tr key={`${plan.id}-${instruction.id}`} className="even:bg-gray-100">
-                                            <td className="py-2 px-4 border-b">{instruction.facility_name}</td>
-                                            <td className="py-2 px-4 border-b">
-                                                <ul>
-                                                    {instruction.instructions.map((inst, index) => (
-                                                        <li key={index}>{inst}</li>
-                                                    ))}
-                                                </ul>
-                                            </td>
-                                            <td className="py-2 px-4 border-b">{moment(plan.date_range.start_date).format('YYYY-MM-DD')}</td>
-                                            <td className="py-2 px-4 border-b">{moment(plan.date_range.end_date).format('YYYY-MM-DD')}</td>
-                                            <td className="py-2 px-4 border-b">{instruction.status}</td>
-                                            <td className="py-2 px-4 border-b">
-                                                <button
-                                                    className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
-                                                    onClick={() => handleStatusChange(plan.id, instruction.id, instruction.status, instruction.facility_name, plan.manager_id)}
-                                                >
-                                                    Respond
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ));
+                                    return plan.instructions
+                                        .filter(instruction => instruction.status === 'pending')
+                                        .map(instruction => (
+                                            <tr key={`${plan.id}-${instruction.id}`} className="even:bg-gray-100">
+                                                <td className="py-2 px-4 border-b">{instruction.facility_name}</td>
+                                                <td className="py-2 px-4 border-b">
+                                                    <ul>
+                                                        {instruction.instructions.map((inst, index) => (
+                                                            <li key={index}>{inst}</li>
+                                                        ))}
+                                                    </ul>
+                                                </td>
+                                                <td className="py-2 px-4 border-b">{moment(plan.date_range.start_date).format('YYYY-MM-DD')}</td>
+                                                <td className="py-2 px-4 border-b">{moment(plan.date_range.end_date).format('YYYY-MM-DD')}</td>
+                                                <td className="py-2 px-4 border-b">{instruction.status}</td>
+                                                <td className="py-2 px-4 border-b">
+                                                    <button
+                                                        className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
+                                                        onClick={() => handleStatusChange(plan.id, instruction.id, instruction.status, instruction.facility_name, plan.manager_id)}
+                                                    >
+                                                        Respond
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ));
                                 })}
                             </tbody>
                         </table>
