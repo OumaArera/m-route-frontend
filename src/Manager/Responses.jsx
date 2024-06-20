@@ -9,6 +9,8 @@ const Responses = () => {
     const [token, setToken] = useState("");
     const [userId, setUserId] = useState("");
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -57,11 +59,12 @@ const Responses = () => {
 
     const handleReject = async (id, instruction_id, route_plan_id) => {
         setLoading(true);
+        setIsLoading(true);
 
-        const rejectData ={
+        const rejectData = {
             "instruction_id": instruction_id,
             "route_plan_id": route_plan_id
-        }
+        };
 
         try {
             const response = await fetch(`${REJECT_URL}/${id}`, {
@@ -75,7 +78,9 @@ const Responses = () => {
             const data = await response.json();
 
             if (data.successful) {
-                setResponses(responses.filter(response => response.id !== id));
+                setMessage(data.message);
+                setTimeout(() => setMessage(""), 5000);
+                getResponses();
             } else {
                 setError(data.message);
                 setTimeout(() => setError(""), 5000);
@@ -85,6 +90,7 @@ const Responses = () => {
             setTimeout(() => setError(""), 5000);
         } finally {
             setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -102,9 +108,9 @@ const Responses = () => {
                                 <div key={index} className="mb-4">
                                     <h4 className="font-bold">{kpi}</h4>
                                     <p>{details.text}</p>
-                                    {details.image && (
+                                    {details.image && details.image !== "null" && (
                                         <img
-                                            src={details.image}
+                                            src={details.image}  
                                             alt={`${kpi} image`}
                                             className="mt-2 max-w-full h-auto rounded"
                                         />
@@ -113,6 +119,7 @@ const Responses = () => {
                             ))}
                         </div>
                         <div className="flex justify-end space-x-4">
+                        {message && <p className="text-green-500 text-xs italic mb-4">{message}</p>}
                             <button
                                 onClick={() => handleApprove(response.id)}
                                 className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600"
@@ -129,14 +136,13 @@ const Responses = () => {
                     </div>
                 ))}
             </div>
+            {isLoading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                    <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                </div>
+            )}
         </div>
     );
 };
 
 export default Responses;
-
-
-
-
-
-
