@@ -21,6 +21,7 @@ import AdminSideBar from "./components/AdminSideBar";
 import CreateOutlet from "./Manager/CreateOutlet";
 import AssignMerchandiser from "./Admin/AssignMerchandiser";
 import KeyPerformanceIndicators from "./Admin/KeyPerformanceIndicators";
+import Responses from "./Manager/Responses";
 
 
 const routeConfig = {
@@ -85,6 +86,7 @@ function App() {
                   <Route path="/routes" element={<ManagerRoutes />} />
                   <Route path="/calendar" element={<CreateRoutes />} />
                   <Route path="/outlet" element={<CreateOutlet />} />
+                  <Route path="/response" element={<Responses />} />
                   <Route path="/assign/merchandisers" element={<CreateOutlet />} />
                   
                 </>
