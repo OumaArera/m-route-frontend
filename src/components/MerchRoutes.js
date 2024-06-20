@@ -17,7 +17,6 @@ const MerchRoutePlans = () => {
     const formRef = useRef(null);
     const [loading, setLoading] = useState(false);
 
-
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
         const userData = localStorage.getItem("user_data");
@@ -97,6 +96,8 @@ const MerchRoutePlans = () => {
           // Append other required fields to formData
           formData.append('merchandiser_id', userId);
           formData.append('manager_id', selectedPlan.managerId);
+          formData.append('route_plan_id', selectedPlan.planId); // Add route_plan_id
+          formData.append('instruction_id', selectedPlan.instructionId); // Add instruction_id
       
           // Format date as string in YYYY-MM-DD format
           const currentDate = new Date().toISOString().split('T')[0];
@@ -113,6 +114,8 @@ const MerchRoutePlans = () => {
           console.log(responses);
           console.log(`Merchandiser ID: ${userId}`);
           console.log(`Manager ID: ${selectedPlan.managerId}`);
+          console.log(`Route Plan ID: ${selectedPlan.planId}`);
+          console.log(`Instruction ID: ${selectedPlan.instructionId}`);
           console.log(`Date: ${new Date().toString()}`);
       
           const response = await fetch(RESPONSE_URL, {
@@ -143,7 +146,6 @@ const MerchRoutePlans = () => {
           setLoading(false);
         }
       };
-      
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
@@ -288,4 +290,3 @@ const MerchRoutePlans = () => {
 };
 
 export default MerchRoutePlans;
-
