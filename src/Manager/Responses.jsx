@@ -78,6 +78,7 @@ const Responses = () => {
 
             if (data.successful) {
                 setMessage(data.message);
+                setResponses((prevResponses) => prevResponses.filter((response) => response.id !== id));
                 setTimeout(() => setMessage(""), 5000);
                 getResponses();
             } else {
