@@ -58,24 +58,27 @@ const Responses = () => {
     const handleReject = async (id, instruction_id, route_plan_id) => {
         setLoading(true);
 
-        const rejectData ={
-            "instruction_id": instruction_id,
-            "route_plan_id": route_plan_id
-        }
-
         try {
-            const response = await fetch(`${REJECT_URL}/${id}`, {
-                method: "PUT",
+            const response = await fetch(REJECT_URL, {
+                method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(rejectData)
+                body: JSON.stringify({
+                    response_id: id,
+                    route_plan_id,
+                    instruction_id,
+                    status: "rejected"
+                })
             });
+
             const data = await response.json();
 
             if (data.successful) {
-                setResponses(responses.filter(response => response.id !== id));
+                setResponses((prevResponses) =>
+                    prevResponses.filter((response) => response.id !== id)
+                );
             } else {
                 setError(data.message);
                 setTimeout(() => setError(""), 5000);
@@ -89,54 +92,93 @@ const Responses = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            {loading && <div>Loading...</div>}
-            {error && <div className="text-red-500">{error}</div>}
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {responses.map((response) => (
-                    <div key={response.id} className="bg-white p-4 border border-gray-200 rounded shadow-md">
-                        <p><strong>Date:</strong> {response.date_time}</p>
-                        <p><strong>Merchandiser:</strong> {response.merchandiser}</p>
-                        <div className="response-details">
-                            {Object.entries(response.response).map(([kpi, details], index) => (
-                                <div key={index} className="mb-4">
-                                    <h4 className="font-bold">{kpi}</h4>
-                                    <p>{details.text}</p>
-                                    {details.image && (
-                                        <img
-                                            src={details.image}
-                                            alt={`${kpi} image`}
-                                            className="mt-2 max-w-full h-auto rounded"
-                                        />
+        <>
+            {error && (
+                <div className="text-white text-center text-xl mb-4 py-4 bg-red-500">
+                    {error}
+                </div>
+            )}
+            <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
+                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" className="py-3 px-6">
+                                Merchandiser
+                            </th>
+                            <th scope="col" className="py-3 px-6">
+                                Response
+                            </th>
+                            <th scope="col" className="py-3 px-6">
+                                Status
+                            </th>
+                            <th scope="col" className="py-3 px-6">
+                                Action
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading && (
+                            <tr>
+                                <td colSpan="4" className="py-4 px-6 text-center">
+                                    Loading responses...
+                                </td>
+                            </tr>
+                        )}
+                        {responses.map((response) => (
+                            <tr
+                                key={response.id}
+                                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                            >
+                                <td className="py-4 px-6">
+                                    {response.merchandiser}
+                                </td>
+                                <td className="py-4 px-6">
+                                    {Object.entries(response.response).map(
+                                        ([category, data]) => (
+                                            <div key={category}>
+                                                <p>
+                                                    <strong>{category}</strong>:{" "}
+                                                    {data.text}
+                                                </p>
+                                                {data.image && (
+                                                    <img
+                                                        src={data.image}
+                                                        alt={category}
+                                                        className="mt-2 h-32 w-32"
+                                                    />
+                                                )}
+                                            </div>
+                                        )
                                     )}
-                                </div>
-                            ))}
-                        </div>
-                        <div className="flex justify-end space-x-4">
-                            <button
-                                onClick={() => handleApprove(response.id)}
-                                className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600"
-                            >
-                                Approve
-                            </button>
-                            <button
-                                onClick={() => handleReject(response.id, response.instruction_id, response.route_plan_id)}
-                                className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
-                            >
-                                Reject
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                                </td>
+                                <td className="py-4 px-6">{response.status}</td>
+                                <td className="py-4 px-6">
+                                    <button
+                                        onClick={() => handleApprove(response.id)}
+                                        className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                                    >
+                                        Approve
+                                    </button>
+                                    <button
+                                        onClick={() =>
+                                            handleReject(
+                                                response.id,
+                                                response.instruction_id,
+                                                response.route_plan_id
+                                            )
+                                        }
+                                        className="bg-red-500 text-white px-4 py-2 rounded"
+                                    >
+                                        Reject
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
-        </div>
+        </>
     );
 };
 
 export default Responses;
-
-
-
-
-
-
