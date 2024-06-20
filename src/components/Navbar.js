@@ -12,6 +12,7 @@ const Navbar = ({userData}) => {
     <header className="bg-gray-900 shadow-md flex items-center justify-between px-6 py-4">
       <div className="flex items-center gap-4">
         <Link to="/" className="text-lg font-bold text-white">Merch Mate</Link>
+        <Link to="/graph" className="text-lg font-bold text-white">Graph</Link>
       </div>
       <div className="flex items-center gap-8">
         <RiNotification2Line className="h-6 w-6 text-white"
