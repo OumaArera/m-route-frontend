@@ -13,7 +13,7 @@ const MerchRoutePlans = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const [responses, setResponses] = useState({}); 
+    const [responses, setResponses] = useState({});
     const formRef = useRef(null);
     const [loading, setLoading] = useState(false);
 
@@ -34,7 +34,7 @@ const MerchRoutePlans = () => {
 
     const fetchData = async () => {
         setIsLoading(true);
-    
+
         try {
             const response = await fetch(`${ROUTES_URL}/${userId}`, {
                 method: 'GET',
@@ -44,7 +44,7 @@ const MerchRoutePlans = () => {
                 },
             });
             const data = await response.json();
-    
+
             if (data.successful) {
                 setRoutePlans(data.message);
                 setIsLoading(false);
@@ -64,7 +64,7 @@ const MerchRoutePlans = () => {
     const handleStatusChange = (planId, instructionId, status, facility, managerId) => {
         const selectedPlan = routePlans.find(plan => plan.id === planId);
         const selectedInstruction = selectedPlan.instructions.find(instruction => instruction.id === instructionId);
-    
+
         setSelectedPlan({ planId, instructionId, status, facility, managerId, instructions: selectedInstruction.instructions });
         
         const initialResponses = {};
@@ -74,53 +74,78 @@ const MerchRoutePlans = () => {
                 image: null
             };
         });
-    
+
         setResponses(initialResponses);
         setShowForm(true);
     };
 
     const handleSubmitResponse = async (responses) => {
         setLoading(true);
+      
         try {
-            const response = await fetch(RESPONSE_URL, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    response: responses,
-                    merchandiser_id: userId,
-                    manager_id: selectedPlan.managerId,
-                    date_time: new Date(),
-                    status: "pending",
-                })
-            });
-            console.log(`Responses: ${JSON.stringify(responses, null, 2)}`);
-            console.log(`Merchandiser ID: ${userId}`);
-            console.log(`Manager ID: ${selectedPlan.managerId}`);
-            console.log(new Date());
-
-            const data = await response.json();
-
-            if (data.successful) {
-                setNotification(data.message);
-                setTimeout(() => setNotification(""), 5000);
-                setShowForm(false);
-                setSelectedPlan({});
-                await fetchData();
-            } else {
-                setError(data.message);
-                setTimeout(() => setError(""), 5000);
+          const formData = new FormData();
+      
+          // Append responses to formData
+          Object.entries(responses).forEach(([category, { text, image }]) => {
+            formData.append(`response[${category}][text]`, text);
+            if (image instanceof File) {
+              formData.append(`response[${category}][image]`, image);
             }
-        } catch (error) {
-            console.error('Error sending response:', error);
-            setError("There was an error sending the response.");
+          });
+      
+          // Append other required fields to formData
+          formData.append('merchandiser_id', userId);
+          formData.append('manager_id', selectedPlan.managerId);
+          formData.append('route_plan_id', selectedPlan.planId); // Add route_plan_id
+          formData.append('instruction_id', selectedPlan.instructionId); // Add instruction_id
+      
+          // Format date as string in YYYY-MM-DD format
+          const currentDate = new Date().toISOString().split('T')[0];
+          formData.append('date_time', currentDate);
+      
+          formData.append('status', 'pending');
+
+          console.log('FormData to be sent:');
+          for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+          }
+
+          console.log('Responses:');
+          console.log(responses);
+          console.log(`Merchandiser ID: ${userId}`);
+          console.log(`Manager ID: ${selectedPlan.managerId}`);
+          console.log(`Route Plan ID: ${selectedPlan.planId}`);
+          console.log(`Instruction ID: ${selectedPlan.instructionId}`);
+          console.log(`Date: ${new Date().toString()}`);
+      
+          const response = await fetch(RESPONSE_URL, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+            body: formData
+          });
+      
+          const data = await response.json();
+      
+          if (data.successful) {
+            setNotification(data.message);
+            setTimeout(() => setNotification(""), 5000);
+            setShowForm(false);
+            setSelectedPlan({});
+            await fetchData();
+          } else {
+            setError(data.message);
             setTimeout(() => setError(""), 5000);
-        }finally{
-            setLoading(false);
+          }
+        } catch (error) {
+          console.error('Error sending response:', error);
+          setError("There was an error sending the response.");
+          setTimeout(() => setError(""), 5000);
+        } finally {
+          setLoading(false);
         }
-    };
+      };
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
@@ -130,14 +155,25 @@ const MerchRoutePlans = () => {
     const handleResponseChange = (event) => {
         const { name, value, files } = event.target;
         const [key, type] = name.split('.');
-
-        setResponses(prevResponses => ({
-            ...prevResponses,
-            [key]: {
-                ...prevResponses[key],
-                [type]: type === 'image' ? files[0] : value
-            }
-        }));
+    
+        if (type === 'image') {
+            const file = files[0];
+            setResponses(prevResponses => ({
+                ...prevResponses,
+                [key]: {
+                    ...prevResponses[key],
+                    [type]: file // Store file object directly
+                }
+            }));
+        } else {
+            setResponses(prevResponses => ({
+                ...prevResponses,
+                [key]: {
+                    ...prevResponses[key],
+                    [type]: value
+                }
+            }));
+        }
     };
 
     const handleBackdropClick = (event) => {
@@ -168,29 +204,31 @@ const MerchRoutePlans = () => {
                             </thead>
                             <tbody>
                                 {routePlans.flatMap(plan => {
-                                    return plan.instructions.filter(instruction => !instruction.responded).map(instruction => (
-                                        <tr key={`${plan.id}-${instruction.id}`} className="even:bg-gray-100">
-                                            <td className="py-2 px-4 border-b">{instruction.facility_name}</td>
-                                            <td className="py-2 px-4 border-b">
-                                                <ul>
-                                                    {instruction.instructions.map((inst, index) => (
-                                                        <li key={index}>{inst}</li>
-                                                    ))}
-                                                </ul>
-                                            </td>
-                                            <td className="py-2 px-4 border-b">{moment(plan.date_range.start_date).format('YYYY-MM-DD')}</td>
-                                            <td className="py-2 px-4 border-b">{moment(plan.date_range.end_date).format('YYYY-MM-DD')}</td>
-                                            <td className="py-2 px-4 border-b">{instruction.status}</td>
-                                            <td className="py-2 px-4 border-b">
-                                                <button
-                                                    className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
-                                                    onClick={() => handleStatusChange(plan.id, instruction.id, instruction.status, instruction.facility_name, plan.manager_id)}
-                                                >
-                                                    Respond
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ));
+                                    return plan.instructions
+                                        .filter(instruction => instruction.status === 'pending')
+                                        .map(instruction => (
+                                            <tr key={`${plan.id}-${instruction.id}`} className="even:bg-gray-100">
+                                                <td className="py-2 px-4 border-b">{instruction.facility_name}</td>
+                                                <td className="py-2 px-4 border-b">
+                                                    <ul>
+                                                        {instruction.instructions.map((inst, index) => (
+                                                            <li key={index}>{inst}</li>
+                                                        ))}
+                                                    </ul>
+                                                </td>
+                                                <td className="py-2 px-4 border-b">{moment(plan.date_range.start_date).format('YYYY-MM-DD')}</td>
+                                                <td className="py-2 px-4 border-b">{moment(plan.date_range.end_date).format('YYYY-MM-DD')}</td>
+                                                <td className="py-2 px-4 border-b">{instruction.status}</td>
+                                                <td className="py-2 px-4 border-b">
+                                                    <button
+                                                        className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
+                                                        onClick={() => handleStatusChange(plan.id, instruction.id, instruction.status, instruction.facility_name, plan.manager_id)}
+                                                    >
+                                                        Respond
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ));
                                 })}
                             </tbody>
                         </table>
