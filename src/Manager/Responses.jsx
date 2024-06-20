@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 
 const RESPONSES_URL = "https://m-route-backend.onrender.com/users/get-responses";
 const REJECT_URL = "https://m-route-backend.onrender.com/users/reject/response";
-const IMAGE_BASE_URL = "https://m-route-backend.onrender.com/images";  // Base URL for your images
 
 const Responses = () => {
     const [responses, setResponses] = useState([]);
@@ -10,6 +9,7 @@ const Responses = () => {
     const [token, setToken] = useState("");
     const [userId, setUserId] = useState("");
     const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -76,7 +76,9 @@ const Responses = () => {
             const data = await response.json();
 
             if (data.successful) {
-                setResponses(responses.filter(response => response.id !== id));
+                setMessage("Rejected successfully.");
+                setTimeout(() => setMessage(""), 5000);
+                getResponses();
             } else {
                 setError(data.message);
                 setTimeout(() => setError(""), 5000);
@@ -103,9 +105,9 @@ const Responses = () => {
                                 <div key={index} className="mb-4">
                                     <h4 className="font-bold">{kpi}</h4>
                                     <p>{details.text}</p>
-                                    {details.image && (
+                                    {details.image && details.image !== "null" && (
                                         <img
-                                            src={`${IMAGE_BASE_URL}/${details.image}`}  // Use the base URL for images
+                                            src={details.image}  
                                             alt={`${kpi} image`}
                                             className="mt-2 max-w-full h-auto rounded"
                                         />
@@ -126,6 +128,7 @@ const Responses = () => {
                             >
                                 Reject
                             </button>
+                            {message && <p className="text-green-500 text-xs italic mb-4">{message}</p>}
                         </div>
                     </div>
                 ))}
