@@ -56,7 +56,7 @@ const SideBar = () => {
   const sidebarItems = [
     { icon: <RiHome2Line className="h-6 w-6 text-gray-900" />, label: "Home", to: "/map" },
     { icon: <RiMapPinLine className="h-6 w-6 text-gray-900" />, label: "Routes", to: "/routes" },
-    { icon: <FaRegCalendarAlt className="h-6 w-6 text-gray-900" />, label: "Calendar", to: "/Create Routes" },
+    { icon: <FaRegCalendarAlt className="h-6 w-6 text-gray-900" />, label: "Create Routes", to: "/calendar" },
     { icon: <MdOutlineAddLocation className="h-6 w-6 text-gray-900" />, label: "Create Outlet", to: "/outlet" },
     { icon: <GrDocumentPerformance className="h-6 w-6 text-gray-900" />, label: "Response", to: "/response" },
     { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" },
