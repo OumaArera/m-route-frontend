@@ -62,7 +62,11 @@ const Responses = () => {
             route_plan_id: route_plan_id
         };
         console.log(`Response body: ${approveResponse}`)
-        for (let i of approveResponse) console.log("Response" + i)
+        for (let key in approveResponse) {
+            if (approveResponse.hasOwnProperty(key)) {
+                console.log(`${key}: ${approveResponse[key]}`);
+            }
+        }
         
         try {
             const response = await fetch(APPROVE_RESPONSE_URL, {
