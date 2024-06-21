@@ -96,6 +96,7 @@ function App() {
               ) : (
                 <>
                   <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
+                  <Route path="/graph" element={<SimpleLineChart />} />
                   <Route path="/contactus" element={<ContactUs />} />
                   <Route path="/merch-calendar" element={<MerchCalendar  userData={userData} />} />
                   <Route path="/myroutes" element={<MerchRoutePlans userData={userData} />} />
@@ -105,6 +106,7 @@ function App() {
               {admin ? (
                 <>
                 <Route path="/map" element={<GetLocations />} />
+                <Route path="/graph" element={<SimpleLineChart />} />
                 <Route path="/manageusers" element={<ManageUsers />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/resetuser" element={<ResetUser />} />
