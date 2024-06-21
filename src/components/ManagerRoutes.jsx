@@ -153,7 +153,7 @@ const ManagerRoutes = () => {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ start: newStart, end: newEnd, instruction_id: instructionId })
+                body: JSON.stringify({ start: newStart.toISOString(), end: newEnd.toISOString(), instruction_id: instructionId })
             });
             const data = await response.json();
             if (data.status_code === 200) {
@@ -162,7 +162,7 @@ const ManagerRoutes = () => {
                     if (route.id === routeId) {
                         const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
                             if (instruction.id === instructionId) {
-                                return { ...instruction, start: newStart, end: newEnd };
+                                return { ...instruction, start: newStart.toISOString(), end: newEnd.toISOString() };
                             }
                             return instruction;
                         });
@@ -179,6 +179,7 @@ const ManagerRoutes = () => {
             setTimeout(() => setErrorMessage(""), 5000);
         }
     };
+    
 
     return (
         <div className="max-w-7xl mx-auto mt-5 p-5 rounded-lg shadow-lg bg-white flex flex-col min-h-screen">
@@ -212,58 +213,58 @@ const ManagerRoutes = () => {
                 <p className="text-center text-red-600 flex-grow">{errorMessage}</p>
             ) : (
                 <div className="flex-grow">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-                    {displayedRoutes.map((route) => (
-                        <div key={route.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                            <p><span className="font-bold">Date Range:</span> {route.date_range.start_date} to {route.date_range.end_date}</p>
-                            <p><span className="font-bold">Merchandiser:</span> {route.merchandiser_name}</p>
-                            <p><span className="font-bold">Staff No:</span> {route.staff_no}</p>
-                            <p><span className="font-bold">Status:</span> {route.status}</p>
-                            <button onClick={() => toggleModal(route)} className="mt-2 w-full p-2 bg-gray-800 text-white rounded hover:bg-blue-700">View More</button>
-                            <div className="flex mt-4 space-x-2">
-                                {route.status.toLowerCase() !== 'complete' && (
-                                    <button onClick={() => handleComplete(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-green-500">Complete</button>
-                                )}
-                                {route.status.toLowerCase() === 'complete' && (
-                                    <button className="flex-1 p-2 bg-gray-400 text-white rounded cursor-not-allowed opacity-50">Complete</button>
-                                )}
-                                <button onClick={() => handleDeleteRoute(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-red-500">Delete</button>
-                            </div>
-                            {modalData && modalData.id === route.id && (
-                                <div className="mt-4">
-                                    {JSON.parse(route.instructions).map((instruction) => (
-                                        <div key={instruction.id} className="p-4 border border-gray-300 rounded mb-4 bg-white shadow-md">
-                                            <div className="flex justify-between items-center">
-                                                <span className="font-bold">Facility: {instruction.facility}</span>
-                                                <button onClick={() => setModalData(null)} className="text-red-500">X</button>
-                                            </div>
-                                            <p><span className="font-bold">Status:</span> {instruction.status}</p>
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex flex-col">
-                                                    <label className="font-bold">Start:</label>
-                                                    <DatePicker
-                                                        selected={new Date(instruction.start)}
-                                                        onChange={(date) => handleDateChange(route.id, instruction.id, date, new Date(instruction.end))}
-                                                        showTimeSelect
-                                                        timeFormat="HH:mm"
-                                                        timeIntervals={15}
-                                                        dateFormat="yyyy-MM-dd HH:mm"
-                                                        className="border border-gray-300 rounded px-2 py-1"
-                                                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+                        {displayedRoutes.map((route) => (
+                            <div key={route.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                                <p><span className="font-bold">Date Range:</span> {route.date_range.start_date} to {route.date_range.end_date}</p>
+                                <p><span className="font-bold">Merchandiser:</span> {route.merchandiser_name}</p>
+                                <p><span className="font-bold">Staff No:</span> {route.staff_no}</p>
+                                <p><span className="font-bold">Status:</span> {route.status}</p>
+                                <button onClick={() => toggleModal(route)} className="mt-2 w-full p-2 bg-gray-800 text-white rounded hover:bg-blue-700">View More</button>
+                                <div className="flex mt-4 space-x-2">
+                                    {route.status.toLowerCase() !== 'complete' && (
+                                        <button onClick={() => handleComplete(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-green-500">Complete</button>
+                                    )}
+                                    {route.status.toLowerCase() === 'complete' && (
+                                        <button className="flex-1 p-2 bg-gray-400 text-white rounded cursor-not-allowed opacity-50">Complete</button>
+                                    )}
+                                    <button onClick={() => handleDeleteRoute(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-red-500">Delete</button>
+                                </div>
+                                {modalData && modalData.id === route.id && (
+                                    <div className="mt-4">
+                                        {JSON.parse(route.instructions).map((instruction) => (
+                                            <div key={instruction.id} className="p-4 border border-gray-300 rounded mb-4 bg-white shadow-md">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="font-bold">Facility: {instruction.facility}</span>
+                                                    <button onClick={() => setModalData(null)} className="text-red-500">X</button>
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <label className="font-bold">End:</label>
-                                                    <DatePicker
-                                                        selected={new Date(instruction.end)}
-                                                        onChange={(date) => handleDateChange(route.id, instruction.id, new Date(instruction.start), date)}
-                                                        showTimeSelect
-                                                        timeFormat="HH:mm"
-                                                        timeIntervals={15}
-                                                        dateFormat="yyyy-MM-dd HH:mm"
-                                                        className="border border-gray-300 rounded px-2 py-1"
-                                                    />
+                                                <p><span className="font-bold">Status:</span> {instruction.status}</p>
+                                                <div className="flex justify-between items-center">
+                                                    <div className="flex flex-col">
+                                                        <label className="font-bold">Start:</label>
+                                                        <DatePicker
+                                                            selected={new Date(instruction.start)}
+                                                            onChange={(date) => handleDateChange(route.id, instruction.id, date, new Date(instruction.end))}
+                                                            showTimeSelect
+                                                            timeFormat="HH:mm"
+                                                            timeIntervals={15}
+                                                            dateFormat="yyyy-MM-dd HH:mm"
+                                                            className="border border-gray-300 rounded px-2 py-1"
+                                                        />
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <label className="font-bold">End:</label>
+                                                        <DatePicker
+                                                            selected={new Date(instruction.end)}
+                                                            onChange={(date) => handleDateChange(route.id, instruction.id, new Date(instruction.start), date)}
+                                                            showTimeSelect
+                                                            timeFormat="HH:mm"
+                                                            timeIntervals={15}
+                                                            dateFormat="yyyy-MM-dd HH:mm"
+                                                            className="border border-gray-300 rounded px-2 py-1"
+                                                        />
+                                                    </div>
                                                 </div>
-                                            </div>
                                             <div>
                                                 <p className="font-bold">Instructions:</p>
                                                 <ul className="list-disc list-inside">
