@@ -61,6 +61,7 @@ const Responses = () => {
             instruction_id: instruction_id,
             route_plan_id: route_plan_id
         };
+        console.log(`Response body: ${approveResponse}`)
         
         try {
             const response = await fetch(APPROVE_RESPONSE_URL, {
