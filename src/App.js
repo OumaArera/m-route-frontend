@@ -21,6 +21,9 @@ import AdminSideBar from "./components/AdminSideBar";
 import CreateOutlet from "./Manager/CreateOutlet";
 import AssignMerchandiser from "./Admin/AssignMerchandiser";
 import KeyPerformanceIndicators from "./Admin/KeyPerformanceIndicators";
+import SimpleLineChart from "./components/Graph";
+import Responses from "./Manager/Responses";
+
 
 
 const routeConfig = {
@@ -81,10 +84,12 @@ function App() {
                   <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
                   <Route path="/reviews" element={<Reviews />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/graph" element={<SimpleLineChart />} />
                   <Route path="/map" element={<GetLocations />} />
                   <Route path="/routes" element={<ManagerRoutes />} />
                   <Route path="/calendar" element={<CreateRoutes />} />
                   <Route path="/outlet" element={<CreateOutlet />} />
+                  <Route path="/response" element={<Responses />} />
                   <Route path="/assign/merchandisers" element={<CreateOutlet />} />
                   
                 </>
