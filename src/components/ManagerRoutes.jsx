@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { AiOutlineCaretRight, AiOutlineCaretLeft } from "react-icons/ai";
 import { HiChevronDoubleRight, HiChevronDoubleLeft } from "react-icons/hi";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import RouteModal from "./RouteModal";
 
 const MANAGER_ROUTES_URL = "https://m-route-backend.onrender.com/users/manager-routes";
 const MODIFY_ROUTE = "https://m-route-backend.onrender.com/users/modify-route";
@@ -133,86 +130,16 @@ const ManagerRoutes = () => {
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
-        setCurrentPage(1); // Reset to first page on search
+        setCurrentPage(1);
     };
 
     const handleFilterChange = (event) => {
         setFilter(event.target.value);
-        setCurrentPage(1); // Reset to first page on filter change
+        setCurrentPage(1);
     };
 
     const toggleModal = (route) => {
         setModalData(route);
-    };
-
-    const handleDateChange = async (routeId, instructionId, newStart, newEnd) => {
-        try {
-            const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
-                method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ start: newStart.toISOString(), end: newEnd.toISOString(), instruction_id: instructionId })
-            });
-            const data = await response.json();
-            if (data.status_code === 200) {
-                // Update the local state with the new dates
-                setRoutes(prevRoutes => prevRoutes.map(route => {
-                    if (route.id === routeId) {
-                        const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
-                            if (instruction.id === instructionId) {
-                                return { ...instruction, start: newStart.toISOString(), end: newEnd.toISOString() };
-                            }
-                            return instruction;
-                        });
-                        return { ...route, instructions: JSON.stringify(updatedInstructions) };
-                    }
-                    return route;
-                }));
-            } else {
-                setErrorMessage(data.message);
-            }
-        } catch (error) {
-            setErrorMessage("Failed to update the dates, please try again.");
-        } finally {
-            setTimeout(() => setErrorMessage(""), 5000);
-        }
-    };
-
-    const handleEditInstruction = async (routeId, instructionId, newStart, newEnd) => {
-        try {
-            const response = await fetch(`${MODIFY_ROUTE}/${routeId}/instructions/${instructionId}`, {
-                method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ start: newStart.toISOString(), end: newEnd.toISOString() })
-            });
-            const data = await response.json();
-            if (data.status_code === 200) {
-                // Update the local state with the new dates
-                setRoutes(prevRoutes => prevRoutes.map(route => {
-                    if (route.id === routeId) {
-                        const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
-                            if (instruction.id === instructionId) {
-                                return { ...instruction, start: newStart.toISOString(), end: newEnd.toISOString() };
-                            }
-                            return instruction;
-                        });
-                        return { ...route, instructions: JSON.stringify(updatedInstructions) };
-                    }
-                    return route;
-                }));
-            } else {
-                setErrorMessage(data.message);
-            }
-        } catch (error) {
-            setErrorMessage("Failed to update the instruction dates, please try again.");
-        } finally {
-            setTimeout(() => setErrorMessage(""), 5000);
-        }
     };
 
     return (
@@ -244,79 +171,153 @@ const ManagerRoutes = () => {
             {isLoading ? (
                 <p className="text-center text-gray-600 flex-grow">Loading...</p>
             ) : errorMessage ? (
-                <p className="text-red-500">{errorMessage}</p>
-            ) : displayedRoutes.length === 0 ? (
-                <p className="text-gray-600 flex-grow">No routes found.</p>
+                <p className="text-center text-red-600 flex-grow">{errorMessage}</p>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {displayedRoutes.map((route) => (
-                        <div key={route.id} className="border rounded-lg p-4 shadow-sm bg-white">
-                            <h2 className="text-lg font-semibold text-gray-900 mb-2">{route.merchandiser_name}</h2>
-                            <p className="text-gray-600 mb-2">{route.status}</p>
-                            <div className="mb-4">
-                                <button
-                                    onClick={() => toggleModal(route)}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-lg mr-2"
-                                >
-                                    View Details
-                                </button>
-                                <button
-                                    onClick={() => handleComplete(route.id)}
-                                    className="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-lg"
-                                >
-                                    Complete
-                                </button>
-                                <button
-                                    onClick={() => handleDeleteRoute(route.id)}
-                                    className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg ml-2"
-                                >
-                                    Delete
-                                </button>
+                <div className="flex-grow">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+                        {displayedRoutes.map((route) => (
+                            <div key={route.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                                <p><span className="font-bold">Date Range:</span> {route.date_range.start_date} to {route.date_range.end_date}</p>
+                                <p><span className="font-bold">Merchandiser:</span> {route.merchandiser_name}</p>
+                                <p><span className="font-bold">Staff No:</span> {route.staff_no}</p>
+                                <p><span className="font-bold">Status:</span> {route.status}</p>
+                                <button onClick={() => toggleModal(route)} className="mt-2 w-full p-2 bg-gray-800 text-white rounded hover:bg-blue-700">View More</button>
+                                <div className="flex mt-4 space-x-2">
+                                    {route.status.toLowerCase() !== 'complete' && (
+                                        <button onClick={() => handleComplete(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-green-500">Complete</button>
+                                    )}
+                                    {route.status.toLowerCase() === 'complete' && (
+                                        <button className="flex-1 p-2 bg-gray-400 text-white rounded cursor-not-allowed opacity-50">Complete</button>
+                                    )}
+                                    <button onClick={() => handleDeleteRoute(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-red-500">Delete</button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             )}
 
-            {totalPages > 1 && (
-                <div className="flex justify-end mt-4">
+            <div className="flex justify-between items-center mt-4">
+                <div className="flex space-x-2">
+                    {totalPages > 2 && (
+                        <button
+                            onClick={() => setCurrentPage(1)}
+                            className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
+                        >
+                            <HiChevronDoubleLeft />
+                        </button>
+                    )}
                     <button
-                        onClick={() => setCurrentPage(1)}
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-lg mr-2"
-                    >
-                        <HiChevronDoubleLeft className="inline-block align-middle" /> First
-                    </button>
-                    <button
-                        onClick={() => setCurrentPage(prevPage => prevPage - 1)}
+                        onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                        className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
                         disabled={currentPage === 1}
-                        className={`bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-lg mr-2 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        <AiOutlineCaretLeft className="inline-block align-middle" /> Prev
-                    </button>
-                    <button
-                        onClick={() => setCurrentPage(prevPage => prevPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className={`bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-lg mr-2 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                        Next <AiOutlineCaretRight className="inline-block align-middle" />
-                    </button>
-                    <button
-                        onClick={() => setCurrentPage(totalPages)}
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-lg"
-                    >
-                        Last <HiChevronDoubleRight className="inline-block align-middle" />
+                        <AiOutlineCaretLeft />
                     </button>
                 </div>
-            )}
+                <div className="flex items-center">
+                    <span className="font-bold">{currentPage}</span>
+                    <span className="mx-1">of</span>
+                    <span className="font-bold">{totalPages}</span>
+                </div>
+                <div className="flex space-x-2">
+                    <button
+                        onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                        className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
+                        disabled={currentPage === totalPages}
+                    >
+                        <AiOutlineCaretRight />
+                    </button>
+                    {totalPages > 2 && (
+                        <button
+                            onClick={() => setCurrentPage(totalPages)}
+                            className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
+                        >
+                            <HiChevronDoubleRight />
+                        </button>
+                    )}
+                </div>
+            </div>
 
             {modalData && (
-                <RouteModal
+                <Modal
                     route={modalData}
                     onClose={() => setModalData(null)}
-                    onUpdateRoute={updateRoute}
-                    onEditInstruction={handleEditInstruction}
+                    updateRoute={updateRoute}
+                    token={token}
                 />
             )}
+        </div>
+    );
+};
+
+const Modal = ({ route, onClose, updateRoute, token }) => {
+    const [updatedInstructions, setUpdatedInstructions] = useState(() => JSON.parse(route.instructions));
+
+    const handleChange = (index, field, value) => {
+        const updated = [...updatedInstructions];
+        updated[index][field] = value;
+        setUpdatedInstructions(updated);
+    };
+
+    const handleSave = async () => {
+        try {
+            const response = await fetch(`https://m-route-backend.onrender.com/users/modify-route/${route.id}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ instructions: updatedInstructions })
+            });
+            const data = await response.json();
+
+            if (data.status_code === 200) {
+                updateRoute(route.id, updatedInstructions);
+                onClose();
+            } else {
+                console.error("Failed to update route instructions");
+            }
+        } catch (error) {
+            console.error("Error updating route instructions", error);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-6 w-3/4 max-w-2xl">
+                <h2 className="text-xl font-bold mb-4">Route Details</h2>
+                <p><strong>Date Range:</strong> {route.date_range.start_date} to {route.date_range.end_date}</p>
+                <p><strong>Merchandiser:</strong> {route.merchandiser_name}</p>
+                <p><strong>Staff No:</strong> {route.staff_no}</p>
+                <p><strong>Status:</strong> {route.status}</p>
+                <h3 className="text-lg font-bold mt-4 mb-2">Instructions</h3>
+                <ul className="list-disc pl-5 space-y-2">
+                    {updatedInstructions.map((instruction, index) => (
+                        <li key={index} className="flex flex-col mb-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center">
+                                <p className="flex-1">{instruction.details}</p>
+                                <input
+                                    type="time"
+                                    value={instruction.start_time}
+                                    onChange={(e) => handleChange(index, 'start_time', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1 ml-2 w-full sm:w-auto"
+                                />
+                                <input
+                                    type="time"
+                                    value={instruction.end_time}
+                                    onChange={(e) => handleChange(index, 'end_time', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1 ml-2 w-full sm:w-auto"
+                                />
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+                <div className="flex justify-end mt-4">
+                    <button onClick={onClose} className="mr-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-800">Cancel</button>
+                    <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-800">Save</button>
+                </div>
+            </div>
         </div>
     );
 };
