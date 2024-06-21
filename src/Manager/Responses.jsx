@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 const RESPONSES_URL = "https://m-route-backend.onrender.com/users/get-responses";
 const REJECT_URL = "https://m-route-backend.onrender.com/users/reject/response";
+const APPROVE_RESPONSE_URL = "https://m-route-backend.onrender.com/users/approve/response";
 
 const Responses = () => {
     const [responses, setResponses] = useState([]);
@@ -53,9 +54,48 @@ const Responses = () => {
         }
     };
 
-    const handleApprove = (id) => {
-        console.log(id);
+    const handleApprove = async (id, instruction_id, route_plan_id) => {
+        setIsLoading(true);
+        const approveResponse = {
+            response_id: id,
+            instruction_id: instruction_id,
+            route_plan_id: route_plan_id
+        };
+        console.log(`Response body: ${approveResponse}`)
+        for (let key in approveResponse) {
+            if (approveResponse.hasOwnProperty(key)) {
+                console.log(`${key}: ${approveResponse[key]}`);
+            }
+        }
+        
+        try {
+            const response = await fetch(APPROVE_RESPONSE_URL, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(approveResponse)
+            });
+    
+            const data = await response.json();
+    
+            if (data.successful) {
+                setMessage(data.message);
+                setTimeout(() => setMessage(""), 5000);
+                getResponses();
+            } else {
+                setError(data.message);
+                setTimeout(() => setError(""), 5000);
+            }
+        } catch (error) {
+            setError(`There was an error: ${error}`);
+            setTimeout(() => setError(""), 5000);
+        } finally {
+            setIsLoading(false);
+        }
     };
+        
 
     const handleReject = async (id, instruction_id, route_plan_id) => {
         setIsLoading(true);
@@ -123,7 +163,7 @@ const Responses = () => {
                                 </div>
                                 <div className="flex justify-end space-x-4">
                                     <button
-                                        onClick={() => handleApprove(response.id)}
+                                        onClick={() => handleApprove(response.id, response.instruction_id, response.route_plan_id)}
                                         className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600"
                                     >
                                         Approve
