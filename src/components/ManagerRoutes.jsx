@@ -335,4 +335,3 @@ const ManagerRoutes = () => {
 export default ManagerRoutes;
 
 
-}
