@@ -15,8 +15,10 @@ const ManageKPI = () => {
         if (accessToken) setToken(JSON.parse(accessToken));
         if (userData) setUserId(JSON.parse(userData).id);
 
-        fetchKPIs(); // Fetch KPIs when component mounts
+         
     }, []);
+
+    useEffect(() => fetchKPIs(), [])
 
     const fetchKPIs = async () => {
         try {
