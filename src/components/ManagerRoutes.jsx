@@ -305,21 +305,19 @@ const ManagerRoutes = () => {
                                     <p><span className="font-bold">Facility:</span> {instruction.facility}</p>
                                     <p><span className="font-bold">Status:</span> {instruction.status}</p>
                                 </div>
-                                <div className="flex items-center space-x-2 mb-2">
-                                    <label htmlFor={`start-date-${instruction.id}`} className="font-bold">Start Date and Time:</label>
+                                <div className="mb-2">
+                                    <p><span className="font-bold">Start Date and Time:</span> {instruction.start}</p>
                                     <input
                                         type="datetime-local"
-                                        id={`start-date-${instruction.id}`}
                                         value={instruction.start}
                                         onChange={e => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
                                         className="border border-gray-300 rounded p-1"
                                     />
                                 </div>
-                                <div className="flex items-center space-x-2 mb-4">
-                                    <label htmlFor={`end-date-${instruction.id}`} className="font-bold">End Date and Time:</label>
+                                <div className="mb-4">
+                                    <p><span className="font-bold">End Date and Time:</span> {instruction.end}</p>
                                     <input
                                         type="datetime-local"
-                                        id={`end-date-${instruction.id}`}
                                         value={instruction.end}
                                         onChange={e => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
                                         className="border border-gray-300 rounded p-1"
@@ -340,7 +338,8 @@ const ManagerRoutes = () => {
                             Close
                         </button>
                     </div>
-                </div>
+            </div>
+            
             )}
 
         </div>
