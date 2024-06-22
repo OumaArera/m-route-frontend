@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Modal from "react-modal";
 
 const KPIs_URL = "https://m-route-backend.onrender.com/users/all/kpis";
 const UPDATE_KPI_URL = "https://m-route-backend.onrender.com/users/update/kpi";
-
-Modal.setAppElement("#root");
 
 const ManageKPI = () => {
     const [token, setToken] = useState("");
     const [performance, setPerformance] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedKPI, setSelectedKPI] = useState(null);
     const [metricState, setMetricState] = useState({});
 
@@ -52,7 +48,6 @@ const ManageKPI = () => {
     const handleManageKPI = (kpi) => {
         setSelectedKPI(kpi);
         setMetricState(kpi.performance_metric);
-        setIsModalOpen(true);
     };
 
     const handleCheckboxChange = (metric, key) => {
@@ -85,8 +80,8 @@ const ManageKPI = () => {
                         kpi.id === selectedKPI.id ? { ...kpi, performance_metric: metricState } : kpi
                     )
                 );
-                setIsModalOpen(false);
-                fetchKPIs(); 
+                setSelectedKPI(null);
+                fetchKPIs();
             } else {
                 console.error("Failed to update KPI:", data.message);
             }
@@ -102,7 +97,7 @@ const ManageKPI = () => {
 
     const closeModal = (e) => {
         if (e.target === e.currentTarget) {
-            setIsModalOpen(false);
+            setSelectedKPI(null);
         }
     };
 
@@ -168,63 +163,54 @@ const ManageKPI = () => {
             </div>
 
             {selectedKPI && (
-                <Modal
-                    isOpen={isModalOpen}
-                    onRequestClose={() => setIsModalOpen(false)}
-                    contentLabel="Manage KPI"
-                    className="modal-container"
-                    overlayClassName="modal-overlay"
-                    shouldCloseOnOverlayClick={true}
-                >
-                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto" onClick={closeModal}>
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <h2 className="text-xl font-bold mb-4">Manage KPI</h2>
-                            {Object.keys(metricState).map((metric) => (
-                                <div key={metric} className="mb-4">
-                                    <h3 className="font-semibold">{metric}</h3>
-                                    <label className="inline-flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            className="form-checkbox"
-                                            checked={metricState[metric].text}
-                                            onChange={() => handleCheckboxChange(metric, "text")}
-                                        />
-                                        <span className="ml-2">Text</span>
-                                    </label>
-                                    <label className="inline-flex items-center ml-4">
-                                        <input
-                                            type="checkbox"
-                                            className="form-checkbox"
-                                            checked={metricState[metric].image}
-                                            onChange={() => handleCheckboxChange(metric, "image")}
-                                        />
-                                        <span className="ml-2">Image</span>
-                                    </label>
-                                </div>
-                            ))}
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={handleSave}
-                                    className="bg-gray-800 hover:bg-blue-800 text-white px-4 py-2 rounded mr-2"
-                                >
-                                    Save
-                                </button>
-                                <button
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="bg-gray-800 hover:bg-red-800 text-white px-4 py-2 rounded"
-                                >
-                                    Close
-                                </button>
-                                <button
-                                    onClick={handleDelete}
-                                    className="bg-gray-800 hover:bg-red-800 text-white px-4 py-2 rounded ml-2"
-                                >
-                                    Delete
-                                </button>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={closeModal}>
+                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-xl font-bold mb-4">Manage KPI</h2>
+                        {Object.keys(metricState).map((metric) => (
+                            <div key={metric} className="mb-4">
+                                <h3 className="font-semibold">{metric}</h3>
+                                <label className="inline-flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        className="form-checkbox"
+                                        checked={metricState[metric].text}
+                                        onChange={() => handleCheckboxChange(metric, "text")}
+                                    />
+                                    <span className="ml-2">Text</span>
+                                </label>
+                                <label className="inline-flex items-center ml-4">
+                                    <input
+                                        type="checkbox"
+                                        className="form-checkbox"
+                                        checked={metricState[metric].image}
+                                        onChange={() => handleCheckboxChange(metric, "image")}
+                                    />
+                                    <span className="ml-2">Image</span>
+                                </label>
                             </div>
+                        ))}
+                        <div className="flex justify-end">
+                            <button
+                                onClick={handleSave}
+                                className="bg-gray-800 hover:bg-blue-800 text-white px-4 py-2 rounded mr-2"
+                            >
+                                Save
+                            </button>
+                            <button
+                                onClick={() => setSelectedKPI(null)}
+                                className="bg-gray-800 hover:bg-red-800 text-white px-4 py-2 rounded"
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="bg-gray-800 hover:bg-red-800 text-white px-4 py-2 rounded ml-2"
+                            >
+                                Delete
+                            </button>
                         </div>
                     </div>
-                </Modal>
+                </div>
             )}
         </div>
     );
