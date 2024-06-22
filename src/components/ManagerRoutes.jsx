@@ -63,8 +63,7 @@ const ManagerRoutes = () => {
     };
 
     const filterRoutesByMerchandiserName = (searchTerm) => {
-        const filtered = routes.filter(route => route.merchandiser_name.toLowerCase().includes(searchTerm.toLowerCase()));
-        return filtered;
+        return routes.filter(route => route.merchandiser_name.toLowerCase().includes(searchTerm.toLowerCase()));
     };
 
     const filteredRoutesByStatus = (routes) => {
@@ -208,23 +207,17 @@ const ManagerRoutes = () => {
                         </button>
                     )}
                     <button
-                        onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
-                        disabled={currentPage === 1}
                     >
                         <AiOutlineCaretLeft />
                     </button>
                 </div>
-                <div className="flex items-center">
-                    <span className="font-bold">{currentPage}</span>
-                    <span className="mx-1">of</span>
-                    <span className="font-bold">{totalPages}</span>
-                </div>
+                <span>{currentPage} of {totalPages}</span>
                 <div className="flex space-x-2">
                     <button
-                        onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
-                        disabled={currentPage === totalPages}
                     >
                         <AiOutlineCaretRight />
                     </button>
@@ -240,84 +233,35 @@ const ManagerRoutes = () => {
             </div>
 
             {modalData && (
-                <Modal
-                    route={modalData}
-                    onClose={() => setModalData(null)}
-                    updateRoute={updateRoute}
-                    token={token}
-                />
-            )}
-        </div>
-    );
-};
-
-const Modal = ({ route, onClose, updateRoute, token }) => {
-    const [updatedInstructions, setUpdatedInstructions] = useState(() => JSON.parse(route.instructions));
-
-    const handleChange = (index, field, value) => {
-        const updated = [...updatedInstructions];
-        updated[index][field] = value;
-        setUpdatedInstructions(updated);
-    };
-
-    const handleSave = async () => {
-        try {
-            const response = await fetch(`https://m-route-backend.onrender.com/users/modify-route/${route.id}`, {
-                method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ instructions: updatedInstructions })
-            });
-            const data = await response.json();
-
-            if (data.status_code === 200) {
-                updateRoute(route.id, updatedInstructions);
-                onClose();
-            } else {
-                console.error("Failed to update route instructions");
-            }
-        } catch (error) {
-            console.error("Error updating route instructions", error);
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg p-6 w-3/4 max-w-2xl">
-                <h2 className="text-xl font-bold mb-4">Route Details</h2>
-                <p><strong>Date Range:</strong> {route.date_range.start_date} to {route.date_range.end_date}</p>
-                <p><strong>Merchandiser:</strong> {route.merchandiser_name}</p>
-                <p><strong>Staff No:</strong> {route.staff_no}</p>
-                <p><strong>Status:</strong> {route.status}</p>
-                <h3 className="text-lg font-bold mt-4 mb-2">Instructions</h3>
-                <ul className="list-disc pl-5 space-y-2">
-                    {updatedInstructions.map((instruction, index) => (
-                        <li key={index} className="flex flex-col mb-2">
-                            <div className="flex flex-col sm:flex-row sm:items-center">
-                                <p className="flex-1">{instruction.details}</p>
-                                <input
-                                    type="time"
-                                    value={instruction.start_time}
-                                    onChange={(e) => handleChange(index, 'start_time', e.target.value)}
-                                    className="border border-gray-300 rounded px-2 py-1 ml-2 w-full sm:w-auto"
-                                />
-                                <input
-                                    type="time"
-                                    value={instruction.end_time}
-                                    onChange={(e) => handleChange(index, 'end_time', e.target.value)}
-                                    className="border border-gray-300 rounded px-2 py-1 ml-2 w-full sm:w-auto"
-                                />
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-                <div className="flex justify-end mt-4">
-                    <button onClick={onClose} className="mr-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-800">Cancel</button>
-                    <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-800">Save</button>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl relative overflow-auto max-h-[80vh]">
+                        <h2 className="text-xl font-bold mb-4">Route Details</h2>
+                        <p><span className="font-bold">Date Range:</span> {modalData.date_range.start_date} to {modalData.date_range.end_date}</p>
+                        <p><span className="font-bold">Merchandiser:</span> {modalData.merchandiser_name}</p>
+                        <p><span className="font-bold">Staff No:</span> {modalData.staff_no}</p>
+                        <p><span className="font-bold">Status:</span> {modalData.status}</p>
+                        <h3 className="font-bold mt-4">Instructions:</h3>
+                        {modalData.instructions ? (
+                            JSON.parse(modalData.instructions).map((instruction, index) => (
+                                <div key={index} className="border-b border-gray-200 pb-2 mb-2">
+                                    <p className="text-sm text-gray-700"><span className="font-semibold">Instruction:</span> {instruction.instruction}</p>
+                                    <p className="text-sm text-gray-700"><span className="font-semibold">Start Date:</span> {instruction.start_date}</p>
+                                    <p className="text-sm text-gray-700"><span className="font-semibold">End Date:</span> {instruction.end_date}</p>
+                                    <p className="text-sm text-gray-700"><span className="font-semibold">Status:</span> {instruction.status}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-gray-700">No instructions available.</p>
+                        )}
+                        <button
+                            onClick={() => setModalData(null)}
+                            className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+                        >
+                            &times;
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
