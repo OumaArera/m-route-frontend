@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 
 const KPIs_URL = "https://m-route-backend.onrender.com/users/all/kpis";
-const UPDATE_KPI_URL = "https://m-route-backend.onrender.com/users/update/kpi/";
+const UPDATE_KPI_URL = "https://m-route-backend.onrender.com/users/update/kp";
 
 Modal.setAppElement("#root");
 
@@ -66,8 +66,14 @@ const ManageKPI = () => {
     };
 
     const handleSave = async () => {
+        console.log("Data going to backend:");
+        for (const [metric, values] of Object.entries(metricState)) {
+            console.log(`Metric: ${metric}`);
+            console.log(`Text: ${values.text}`);
+            console.log(`Image: ${values.image}`);
+        }
         try {
-            const response = await fetch(`${UPDATE_KPI_URL}${selectedKPI.id}`, {
+            const response = await fetch(`${UPDATE_KPI_URL}/${selectedKPI.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
