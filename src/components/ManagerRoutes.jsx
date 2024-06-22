@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaSearch } from "react-icons/fa";
 import { AiOutlineCaretRight, AiOutlineCaretLeft } from "react-icons/ai";
 import { HiChevronDoubleRight, HiChevronDoubleLeft } from "react-icons/hi";
@@ -18,6 +18,7 @@ const ManagerRoutes = () => {
     const [filter, setFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const routesPerPage = 12;
+    const modalRef = useRef();
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -30,6 +31,18 @@ const ManagerRoutes = () => {
     useEffect(() => {
         if (token && userId) getManagerRoutes();
     }, [token, userId]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (modalRef.current && !modalRef.current.contains(event.target)) {
+                setModalData(null);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const getManagerRoutes = async () => {
         setIsLoading(true);
@@ -220,68 +233,101 @@ const ManagerRoutes = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                         {displayedRoutes.map((route) => (
                             <div key={route.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                                <p><span className="font-bold">Date Range:</span> {new Date(route.date_range.start_date).toLocaleString()} to {new Date(route.date_range.end_date).toLocaleString()}</p>
-                                <p><span className="font-bold">Merchandiser:</span> {route.merchandiser_name}</p>
-                                <p><span className="font-bold">Staff No:</span> {route.staff_no}</p>
-                                <p><span className="font-bold">Status:</span> {route.status}</p>
-                                <button onClick={() => toggleModal(route)} className="bg-blue-600 text-white px-2 py-1 rounded mt-2">View Instructions</button>
-                                <button onClick={() => handleComplete(route.id)} className="bg-green-600 text-white px-2 py-1 rounded mt-2">Complete</button>
-                                <button onClick={() => handleDeleteRoute(route.id)} className="bg-red-600 text-white px-2 py-1 rounded mt-2">Delete</button>
+                                <h2 className="text-xl font-semibold mb-2">{route.merchandiser_name}</h2>
+                                <p className="text-gray-600 mb-2">Status: {route.status}</p>
+                                <p className="text-gray-600 mb-2">ID: {route.id}</p>
+                                <button
+                                    onClick={() => toggleModal(route)}
+                                    className=" bg-gray-900 text-blue-500 hover:bg-blue-600 underline mb-2"
+                                >
+                                    View Instructions
+                                </button>
+                                <button
+                                    onClick={() => handleComplete(route.id)}
+                                    className="bg-gray-900 text-white py-1 px-3 rounded hover:bg-green-600 transition duration-300"
+                                >
+                                    Complete
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteRoute(route.id)}
+                                    className="bg-gray-900 text-white py-1 px-3 rounded hover:bg-red-600 transition duration-300"
+                                >
+                                    Delete
+                                </button>
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-between items-center mt-4">
-                        <div className="flex">
-                            <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className={`mr-1 ${currentPage === 1 ? 'text-gray-400' : 'text-gray-700'}`}><HiChevronDoubleLeft size={24} /></button>
-                            <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className={`mr-1 ${currentPage === 1 ? 'text-gray-400' : 'text-gray-700'}`}><AiOutlineCaretLeft size={24} /></button>
-                        </div>
-                        <p>Page {currentPage} of {totalPages}</p>
-                        <div className="flex">
-                            <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className={`ml-1 ${currentPage === totalPages ? 'text-gray-400' : 'text-gray-700'}`}><AiOutlineCaretRight size={24} /></button>
-                            <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className={`ml-1 ${currentPage === totalPages ? 'text-gray-400' : 'text-gray-700'}`}><HiChevronDoubleRight size={24} /></button>
-                        </div>
+
+                    <div className="flex justify-center mt-4">
+                        {currentPage > 1 && (
+                            <>
+                                <button onClick={() => setCurrentPage(1)} className="p-2 bg-gray-200 rounded-l-md hover:bg-gray-300">
+                                    <HiChevronDoubleLeft />
+                                </button>
+                                <button onClick={() => setCurrentPage(currentPage - 1)} className="p-2 bg-gray-200 hover:bg-gray-300">
+                                    <AiOutlineCaretLeft />
+                                </button>
+                            </>
+                        )}
+                        <span className="p-2">{currentPage} of {totalPages}</span>
+                        {currentPage < totalPages && (
+                            <>
+                                <button onClick={() => setCurrentPage(currentPage + 1)} className="p-2 bg-gray-200 hover:bg-gray-300">
+                                    <AiOutlineCaretRight />
+                                </button>
+                                <button onClick={() => setCurrentPage(totalPages)} className="p-2 bg-gray-200 rounded-r-md hover:bg-gray-300">
+                                    <HiChevronDoubleRight />
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
 
             {modalData && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white rounded-lg p-6 w-11/12 max-w-2xl">
-                        <h2 className="text-xl font-bold mb-4">Instructions for {modalData.merchandiser_name}</h2>
-                        <ul>
-                            {JSON.parse(modalData.instructions).map((instruction, index) => (
-                                <li key={instruction.id} className="mb-2">
-                                    <div className="flex justify-between items-center">
-                                        <div>
-                                            <p className="font-semibold">Task {index + 1}</p>
-                                            <p>Task Description: {instruction.task}</p>
-                                            <p>Facility: {instruction.facility}</p>
-                                            <p>Status: {instruction.status}</p>
-                                            <p>Instructions: {instruction.instructions.join(", ")}</p>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <input
-                                                type="datetime-local"
-                                                value={instruction.start}
-                                                onChange={(e) => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
-                                                className="border border-gray-300 rounded px-2 py-1 mr-2"
-                                            />
-                                            <span className="mx-2">to</span>
-                                            <input
-                                                type="datetime-local"
-                                                value={instruction.end}
-                                                onChange={(e) => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
-                                                className="border border-gray-300 rounded px-2 py-1"
-                                            />
-                                        </div>
-                                        <button onClick={() => handleSave(modalData.id, instruction.id, instruction.start, instruction.end)} className="bg-blue-600 text-white px-2 py-1 rounded ml-2">Save</button>
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                    <div ref={modalRef} className="bg-white p-8 rounded-lg shadow-lg max-h-full overflow-y-auto w-4/5">
+                        <h2 className="text-2xl font-bold mb-4">Instructions</h2>
+                        {JSON.parse(modalData.instructions).map((instruction) => (
+                            <div key={instruction.id} className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                                <p className="text-gray-600 mb-2">ID: {instruction.id}</p>
+                                <p className="text-gray-600 mb-2">Instruction: {instruction.instruction}</p>
+                                <div className="flex mb-2">
+                                    <div className="mr-2">
+                                        <label htmlFor={`start-${instruction.id}`} className="block text-gray-600 mb-1">Start:</label>
+                                        <input
+                                            type="datetime-local"
+                                            id={`start-${instruction.id}`}
+                                            value={instruction.start}
+                                            onChange={(e) => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
+                                            className="border border-gray-300 rounded px-2 py-1"
+                                        />
                                     </div>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="flex justify-end mt-4">
-                            <button onClick={() => setModalData(null)} className="bg-gray-600 text-white px-4 py-2 rounded">Close</button>
-                        </div>
+                                    <div>
+                                        <label htmlFor={`end-${instruction.id}`} className="block text-gray-600 mb-1">End:</label>
+                                        <input
+                                            type="datetime-local"
+                                            id={`end-${instruction.id}`}
+                                            value={instruction.end}
+                                            onChange={(e) => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
+                                            className="border border-gray-300 rounded px-2 py-1"
+                                        />
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => handleSave(modalData.id, instruction.id, instruction.start, instruction.end)}
+                                    className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition duration-300"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            onClick={() => setModalData(null)}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 transition duration-300"
+                        >
+                            &times;
+                        </button>
                     </div>
                 </div>
             )}
