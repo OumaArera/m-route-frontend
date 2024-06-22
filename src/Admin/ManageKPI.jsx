@@ -20,6 +20,7 @@ const ManageKPI = () => {
     const fetchKPIs = async () => {
         try {
             const response = await fetch(KPIs_URL, {
+                method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
