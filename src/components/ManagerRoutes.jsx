@@ -297,7 +297,9 @@ const ManagerRoutes = () => {
                             <div key={instruction.id} className="mb-4">
                                 <h3 className="text-md font-semibold mb-2">Instruction {index + 1}</h3>
                                 <ul className="list-disc list-inside mb-2">
-                                    <li>{instruction.instruction}</li>
+                                    {instruction.instructions.map((instr, idx) => (
+                                        <li key={idx}>{instr}</li>
+                                    ))}
                                 </ul>
                                 <div className="mb-2">
                                     <p><span className="font-bold">Facility:</span> {instruction.facility}</p>
@@ -340,6 +342,7 @@ const ManagerRoutes = () => {
                     </div>
                 </div>
             )}
+
         </div>
     );
 };
