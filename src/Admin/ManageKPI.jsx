@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 
 const KPIs_URL = "https://m-route-backend.onrender.com/users/all/kpis";
 const UPDATE_KPI_URL = "https://m-route-backend.onrender.com/users/update/kpi";
+const DELETE_KPI_URL = "https://m-route-backend.onrender.com/users/delete/kpi";
 
 const ManageKPI = () => {
     const [token, setToken] = useState("");
@@ -89,14 +90,38 @@ const ManageKPI = () => {
             }
         } catch (error) {
             console.error("Error updating KPI:", error);
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
 
-    const handleDelete = () => {
-        // Implement delete functionality if needed
-        console.log("Delete KPI functionality");
+    const handleDelete = async () => {
+        if (!selectedKPI) return;
+        setLoading(true);
+        try {
+            const response = await fetch(`${DELETE_KPI_URL}/${selectedKPI.id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to delete KPI: ${response.status} ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (data.status_code === 200) {
+                setPerformance((prevState) =>
+                    prevState.filter((kpi) => kpi.id !== selectedKPI.id)
+                );
+                setSelectedKPI(null);
+            } else {
+                console.error("Failed to delete KPI:", data.message);
+            }
+        } catch (error) {
+            console.error("Error deleting KPI:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const closeModal = (e) => {
