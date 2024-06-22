@@ -4,35 +4,29 @@ const KPIs_URL = "https://m-route-backend.onrender.com/users/all/kpis";
 
 const ManageKPI = () => {
     const [token, setToken] = useState("");
-    const [userId, setUserId] = useState("");
     const [performance, setPerformance] = useState([]);
-    const [isLoading, setIsLoading] = useState(true); // Loading state
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
-        const userData = localStorage.getItem("user_data");
+        if (accessToken) {
+            setToken(JSON.parse(accessToken));
+        }
 
-        if (accessToken) setToken(JSON.parse(accessToken));
-        if (userData) setUserId(JSON.parse(userData).id);
-
-         
+        fetchKPIs();
     }, []);
-
-    useEffect(() => fetchKPIs(), [])
 
     const fetchKPIs = async () => {
         try {
             const response = await fetch(KPIs_URL, {
                 method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { "Authorization": `Bearer ${token}` }
             });
             if (!response.ok) {
                 throw new Error(`Failed to fetch KPIs: ${response.status} ${response.statusText}`);
             }
             const data = await response.json();
-            if (data.successful) {
+            if (data.status_code === 200) {
                 setPerformance(data.message);
             } else {
                 console.error("Failed to fetch KPIs:", data.message);
@@ -40,12 +34,11 @@ const ManageKPI = () => {
         } catch (error) {
             console.error("Error fetching KPIs:", error);
         } finally {
-            setIsLoading(false); // Update loading state when fetch completes (success or error)
+            setIsLoading(false);
         }
     };
 
     const handleTextChange = async (kpiId, metric, newTextValue) => {
-        // Dummy endpoint for updating text value
         try {
             const response = await fetch(`/update/kpi/${kpiId}`, {
                 method: "PUT",
@@ -57,7 +50,6 @@ const ManageKPI = () => {
             });
             const data = await response.json();
             if (data.successful) {
-                // Update local state after successful update
                 setPerformance(prevPerformance =>
                     prevPerformance.map(kpi =>
                         kpi.id === kpiId
@@ -83,7 +75,6 @@ const ManageKPI = () => {
     };
 
     const handleDeleteKPI = async (kpiId) => {
-        // Dummy endpoint for deleting KPI
         try {
             const response = await fetch(`/delete/kpi/${kpiId}`, {
                 method: "DELETE",
@@ -93,7 +84,6 @@ const ManageKPI = () => {
             });
             const data = await response.json();
             if (data.successful) {
-                // Remove deleted KPI from local state
                 setPerformance(prevPerformance =>
                     prevPerformance.filter(kpi => kpi.id !== kpiId)
                 );
@@ -106,11 +96,7 @@ const ManageKPI = () => {
     };
 
     if (isLoading) {
-        return (
-            <div className="container mx-auto px-4 py-8 text-center">
-                <p className="text-lg font-semibold">Loading...</p>
-            </div>
-        );
+        return <div>Loading...</div>;
     }
 
     return (
@@ -134,11 +120,11 @@ const ManageKPI = () => {
                                 <td className="py-2 px-3">{kpi.company_name}</td>
                                 <td className="py-2 px-3">
                                     <select
-                                        value={kpi.performance_metric[kpi.company_name].text}
+                                        value={kpi.performance_metric[metric].text}
                                         onChange={(e) =>
                                             handleTextChange(
                                                 kpi.id,
-                                                kpi.company_name,
+                                                metric,
                                                 e.target.value
                                             )
                                         }
@@ -148,7 +134,7 @@ const ManageKPI = () => {
                                         <option value={false}>False</option>
                                     </select>
                                 </td>
-                                <td className="py-2 px-3">{kpi.performance_metric[kpi.company_name].image.toString()}</td>
+                                <td className="py-2 px-3">{kpi.performance_metric[metric].image.toString()}</td>
                                 <td className="py-2 px-3">
                                     <button
                                         onClick={() => handleDeleteKPI(kpi.id)}
