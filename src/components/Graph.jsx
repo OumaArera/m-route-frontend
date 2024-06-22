@@ -14,45 +14,27 @@ const DAY_URL = 'https://m-route-backend.onrender.com/users/get/performance';
 const MONTH_URL = 'https://m-route-backend.onrender.com/users/get/monthly/performance';
 const RANGE_URL = 'https://m-route-backend.onrender.com/users/get/range/performance';
 const YEAR_URL = 'https://m-route-backend.onrender.com/users/get/year/performance';
-const USER_URL = 'https://m-route-backend.onrender.com/users';
 
 const DynamicPerformanceChart = () => {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [token, setToken] = useState("");
-    const [averagePerformance, setAveragePerformance] = useState(0);
+    const [userId, setUserId] = useState("");
     const [viewType, setViewType] = useState('day');
     const [date, setDate] = useState('');
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [merchId, setMerchId] = useState('');
-    const [userInfo, setUserInfo] = useState({});
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
-        if (accessToken) setToken(JSON.parse(accessToken));
-    }, []);
+        const userData = localStorage.getItem("user_data");
 
-    const fetchUserInfo = async (userId) => {
-        try {
-            const response = await fetch(`${USER_URL}/${userId}`, {
-                method: "GET",
-                headers: { "Authorization": `Bearer ${token}` }
-            });
-            const result = await response.json();
-            if (result.status_code === 200) {
-                setUserInfo(result.message);
-            } else {
-                setErrorMessage(result.message);
-            }
-        } catch (error) {
-            console.error("Error fetching user info:", error);
-            setErrorMessage("Failed to fetch user information.");
-        }
-    };
+        if (accessToken) setToken(JSON.parse(accessToken));
+        if (userData) setUserId(JSON.parse(userData).id);
+    }, []);
 
     const fetchPerformanceData = async () => {
         setIsLoading(true);
@@ -60,25 +42,25 @@ const DynamicPerformanceChart = () => {
             let response;
             switch (viewType) {
                 case 'day':
-                    response = await fetch(`${DAY_URL}?date=${date}&merch_id=${merchId}`, {
+                    response = await fetch(`${DAY_URL}?date=${date}&merch_id=${userId}`, {
                         method: "GET",
                         headers: { "Authorization": `Bearer ${token}` }
                     });
                     break;
                 case 'month':
-                    response = await fetch(`${MONTH_URL}?month=${month}&year=${year}&merch_id=${merchId}`, {
+                    response = await fetch(`${MONTH_URL}?month=${month}&year=${year}&merch_id=${userId}`, {
                         method: "GET",
                         headers: { "Authorization": `Bearer ${token}` }
                     });
                     break;
                 case 'range':
-                    response = await fetch(`${RANGE_URL}?start_date=${startDate}&end_date=${endDate}&merch_id=${merchId}`, {
+                    response = await fetch(`${RANGE_URL}?start_date=${startDate}&end_date=${endDate}&merch_id=${userId}`, {
                         method: "GET",
                         headers: { "Authorization": `Bearer ${token}` }
                     });
                     break;
                 case 'year':
-                    response = await fetch(`${YEAR_URL}/${merchId}`, {
+                    response = await fetch(`${YEAR_URL}/${userId}`, {
                         method: "GET",
                         headers: { "Authorization": `Bearer ${token}` }
                     });
@@ -93,10 +75,6 @@ const DynamicPerformanceChart = () => {
                 const performanceData = result.message;
                 const aggregatedData = aggregatePerformanceData(performanceData, viewType);
                 setData(aggregatedData);
-                if (viewType === 'day' || viewType === 'month' || viewType === 'range') {
-                    calculateAveragePerformance(aggregatedData);
-                }
-                fetchUserInfo(merchId);
             } else {
                 setErrorMessage(result.message);
             }
@@ -128,21 +106,6 @@ const DynamicPerformanceChart = () => {
         }
     };
 
-    const calculateAveragePerformance = (performanceData) => {
-        if (performanceData.length === 0) {
-            setAveragePerformance(0);
-            return;
-        }
-
-        let totalScore = 0;
-        performanceData.forEach(metric => {
-            totalScore += metric.score;
-        });
-
-        const averageScore = totalScore / performanceData.length;
-        setAveragePerformance(averageScore);
-    };
-
     return (
         <div className="w-full h-[90vh] bg-white p-4 rounded-lg shadow-lg mt-5">
             <div className="mb-4">
@@ -167,13 +130,6 @@ const DynamicPerformanceChart = () => {
                             onChange={(e) => setDate(e.target.value)}
                             className="p-2 border rounded"
                         />
-                        <input
-                            type="text"
-                            placeholder="Merchandiser ID"
-                            value={merchId}
-                            onChange={(e) => setMerchId(e.target.value)}
-                            className="p-2 border rounded"
-                        />
                     </div>
                 )}
                 {viewType === 'month' && (
@@ -192,13 +148,6 @@ const DynamicPerformanceChart = () => {
                             onChange={(e) => setYear(e.target.value)}
                             className="p-2 border rounded"
                         />
-                        <input
-                            type="text"
-                            placeholder="Merchandiser ID"
-                            value={merchId}
-                            onChange={(e) => setMerchId(e.target.value)}
-                            className="p-2 border rounded"
-                        />
                     </div>
                 )}
                 {viewType === 'range' && (
@@ -215,24 +164,6 @@ const DynamicPerformanceChart = () => {
                             onChange={(e) => setEndDate(e.target.value)}
                             className="p-2 border rounded"
                         />
-                        <input
-                            type="text"
-                            placeholder="Merchandiser ID"
-                            value={merchId}
-                            onChange={(e) => setMerchId(e.target.value)}
-                            className="p-2 border rounded"
-                        />
-                    </div>
-                )}
-                {viewType === 'year' && (
-                    <div className="mb-4">
-                        <input
-                            type="text"
-                            placeholder="Merchandiser ID"
-                            value={merchId}
-                            onChange={(e) => setMerchId(e.target.value)}
-                            className="p-2 border rounded"
-                        />
                     </div>
                 )}
                 <button
@@ -241,19 +172,7 @@ const DynamicPerformanceChart = () => {
                 >
                     Search
                 </button>
-                {viewType !== 'year' && (
-                    <p className="text-gray-600">Average Total Performance: {averagePerformance.toFixed(2)}</p>
-                )}
             </div>
-
-            {userInfo && (
-                <div className="mb-4">
-                    <p className="text-lg font-bold">User Information:</p>
-                    <p>First Name: {userInfo.first_name}</p>
-                    <p>Last Name: {userInfo.last_name}</p>
-                    <p>Email: {userInfo.email}</p>
-                </div>
-            )}
 
             {isLoading ? (
                 <p className="text-center text-gray-600">Loading...</p>
