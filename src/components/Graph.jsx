@@ -14,6 +14,7 @@ const DAY_URL = 'https://m-route-backend.onrender.com/users/get/performance';
 const MONTH_URL = 'https://m-route-backend.onrender.com/users/get/monthly/performance';
 const RANGE_URL = 'https://m-route-backend.onrender.com/users/get/range/performance';
 const YEAR_URL = 'https://m-route-backend.onrender.com/users/get/year/performance';
+const USER_URL = 'https://m-route-backend.onrender.com/users';
 
 const DynamicPerformanceChart = () => {
     const [data, setData] = useState([]);
@@ -28,11 +29,30 @@ const DynamicPerformanceChart = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [merchId, setMerchId] = useState('');
+    const [userInfo, setUserInfo] = useState({});
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
         if (accessToken) setToken(JSON.parse(accessToken));
     }, []);
+
+    const fetchUserInfo = async (userId) => {
+        try {
+            const response = await fetch(`${USER_URL}/${userId}`, {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const result = await response.json();
+            if (result.status_code === 200) {
+                setUserInfo(result.message);
+            } else {
+                setErrorMessage(result.message);
+            }
+        } catch (error) {
+            console.error("Error fetching user info:", error);
+            setErrorMessage("Failed to fetch user information.");
+        }
+    };
 
     const fetchPerformanceData = async () => {
         setIsLoading(true);
@@ -76,6 +96,7 @@ const DynamicPerformanceChart = () => {
                 if (viewType === 'day' || viewType === 'month' || viewType === 'range') {
                     calculateAveragePerformance(aggregatedData);
                 }
+                fetchUserInfo(merchId);
             } else {
                 setErrorMessage(result.message);
             }
@@ -225,23 +246,28 @@ const DynamicPerformanceChart = () => {
                 )}
             </div>
 
+            {userInfo && (
+                <div className="mb-4">
+                    <p className="text-lg font-bold">User Information:</p>
+                    <p>First Name: {userInfo.first_name}</p>
+                    <p>Last Name: {userInfo.last_name}</p>
+                    <p>Email: {userInfo.email}</p>
+                </div>
+            )}
+
             {isLoading ? (
                 <p className="text-center text-gray-600">Loading...</p>
             ) : errorMessage ? (
                 <p className="text-center text-red-600">{errorMessage}</p>
             ) : (
                 <ResponsiveContainer width="100%" height="70%">
-                    <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
+                    <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
-                        <Tooltip cursor={{ fill: 'transparent' }} formatter={(value, name) => [value, name]} labelFormatter={(label) => `${label}:`} />
+                        <Tooltip />
                         <Legend />
-                        {viewType === 'year' ? (
-                            <Bar dataKey="total_performance" fill="#8884d8" name="Total Performance" />
-                        ) : (
-                            <Bar dataKey="score" fill="#8884d8" name="Score" />
-                        )}
+                        <Bar dataKey="score" fill="#8884d8" />
                     </BarChart>
                 </ResponsiveContainer>
             )}
