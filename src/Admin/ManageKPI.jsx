@@ -39,60 +39,11 @@ const ManageKPI = () => {
     };
 
     const handleTextChange = async (kpiId, metric, newTextValue) => {
-        try {
-            const response = await fetch(`/update/kpi/${kpiId}`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ metric, text: newTextValue }),
-            });
-            const data = await response.json();
-            if (data.successful) {
-                setPerformance(prevPerformance =>
-                    prevPerformance.map(kpi =>
-                        kpi.id === kpiId
-                            ? {
-                                  ...kpi,
-                                  performance_metric: {
-                                      ...kpi.performance_metric,
-                                      [metric]: {
-                                          ...kpi.performance_metric[metric],
-                                          text: newTextValue,
-                                      },
-                                  },
-                              }
-                            : kpi
-                    )
-                );
-            } else {
-                console.error("Failed to update text value:", data.message);
-            }
-        } catch (error) {
-            console.error("Error updating text value:", error);
-        }
+        console.log("Hello world");
     };
 
-    const handleDeleteKPI = async (kpiId) => {
-        try {
-            const response = await fetch(`/delete/kpi/${kpiId}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const data = await response.json();
-            if (data.successful) {
-                setPerformance(prevPerformance =>
-                    prevPerformance.filter(kpi => kpi.id !== kpiId)
-                );
-            } else {
-                console.error("Failed to delete KPI:", data.message);
-            }
-        } catch (error) {
-            console.error("Error deleting KPI:", error);
-        }
+    const handleManageKPI = async (kpiId) => {
+        console.log("Hello world");
     };
 
     if (isLoading) {
@@ -108,6 +59,7 @@ const ManageKPI = () => {
                         <tr className="bg-gray-100 border-b border-gray-200">
                             <th className="py-2 px-3 text-left">No</th>
                             <th className="py-2 px-3 text-left">Company Name</th>
+                            <th className="py-2 px-3 text-left">Sector Name</th>
                             <th className="py-2 px-3 text-left">Metric</th>
                             <th className="py-2 px-3 text-left">Text</th>
                             <th className="py-2 px-3 text-left">Image</th>
@@ -119,34 +71,19 @@ const ManageKPI = () => {
                             <tr key={kpi.id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                                 <td className="py-2 px-3">{index + 1}</td>
                                 <td className="py-2 px-3">{kpi.company_name}</td>
+                                <td className="py-2 px-3">{kpi.sector_name}</td>
                                 <td className="py-2 px-3">
                                     {Object.keys(kpi.performance_metric).map(metric => (
                                         <div key={metric}>
                                             <strong>{metric}</strong>
-                                            <br />
-                                            Text: {kpi.performance_metric[metric].text.toString()}
-                                            <br />
-                                            Image: {kpi.performance_metric[metric].image.toString()}
                                         </div>
                                     ))}
                                 </td>
                                 <td className="py-2 px-3">
                                     {Object.keys(kpi.performance_metric).map(metric => (
-                                        <select
-                                            key={metric}
-                                            value={kpi.performance_metric[metric].text.toString()}
-                                            onChange={(e) =>
-                                                handleTextChange(
-                                                    kpi.id,
-                                                    metric,
-                                                    e.target.value === "true"
-                                                )
-                                            }
-                                            className="border border-gray-300 rounded px-2 py-1 mb-2"
-                                        >
-                                            <option value="true">True</option>
-                                            <option value="false">False</option>
-                                        </select>
+                                        <div key={metric}>
+                                            {kpi.performance_metric[metric].text.toString()}
+                                        </div>
                                     ))}
                                 </td>
                                 <td className="py-2 px-3">
@@ -158,10 +95,10 @@ const ManageKPI = () => {
                                 </td>
                                 <td className="py-2 px-3">
                                     <button
-                                        onClick={() => handleDeleteKPI(kpi.id)}
-                                        className="bg-gray-800 hover:bg-red-600 text-white px-3 py-1 rounded"
+                                        onClick={() => handleManageKPI(kpi.id)}
+                                        className="bg-gray-800 hover:bg-blue-600 text-white px-3 py-1 rounded"
                                     >
-                                        Delete
+                                        Manage
                                     </button>
                                 </td>
                             </tr>
