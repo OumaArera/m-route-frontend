@@ -141,6 +141,50 @@ const ManagerRoutes = () => {
         setModalData(route);
     };
 
+    const handleSave = async (routeId, instructionId, start, end) => {
+        try {
+            const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    instruction_id: instructionId,
+                    start: start,
+                    end: end
+                })
+            });
+            const data = await response.json();
+
+            if (data.status_code === 200) {
+                getManagerRoutes();
+                setErrorMessage("Instruction updated successfully.");
+            } else {
+                setErrorMessage(data.message || "Failed to update the instruction.");
+            }
+        } catch (error) {
+            setErrorMessage("There was an issue updating the instruction.");
+        } finally {
+            setTimeout(() => setErrorMessage(""), 5000);
+        }
+    };
+
+    const handleDateChange = (routeId, instructionId, start, end) => {
+        setRoutes(prevRoutes => prevRoutes.map(route => {
+            if (route.id === routeId) {
+                const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
+                    if (instruction.id === instructionId) {
+                        return { ...instruction, start, end };
+                    }
+                    return instruction;
+                });
+                return { ...route, instructions: JSON.stringify(updatedInstructions) };
+            }
+            return route;
+        }));
+    };
+
     return (
         <div className="max-w-7xl mx-auto mt-5 p-5 rounded-lg shadow-lg bg-white flex flex-col min-h-screen">
             <div className="flex justify-between items-center mb-4">
@@ -180,85 +224,61 @@ const ManagerRoutes = () => {
                                 <p><span className="font-bold">Merchandiser:</span> {route.merchandiser_name}</p>
                                 <p><span className="font-bold">Staff No:</span> {route.staff_no}</p>
                                 <p><span className="font-bold">Status:</span> {route.status}</p>
-                                <button onClick={() => toggleModal(route)} className="mt-2 w-full p-2 bg-gray-800 text-white rounded hover:bg-blue-700">View More</button>
-                                <div className="flex mt-4 space-x-2">
-                                    {route.status.toLowerCase() !== 'complete' && (
-                                        <button onClick={() => handleComplete(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-green-500">Complete</button>
-                                    )}
-                                    {route.status.toLowerCase() === 'complete' && (
-                                        <button className="flex-1 p-2 bg-gray-400 text-white rounded cursor-not-allowed opacity-50">Complete</button>
-                                    )}
-                                    <button onClick={() => handleDeleteRoute(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-red-500">Delete</button>
-                                </div>
+                                <button onClick={() => toggleModal(route)} className="bg-blue-500 text-white px-2 py-1 rounded mt-2">View Instructions</button>
+                                <button onClick={() => handleComplete(route.id)} className="bg-green-500 text-white px-2 py-1 rounded mt-2">Complete</button>
+                                <button onClick={() => handleDeleteRoute(route.id)} className="bg-red-500 text-white px-2 py-1 rounded mt-2">Delete</button>
                             </div>
                         ))}
+                    </div>
+                    <div className="flex justify-between items-center mt-4">
+                        <div className="flex">
+                            <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1} className={`mr-1 ${currentPage === 1 ? 'text-gray-400' : 'text-gray-700'}`}><HiChevronDoubleLeft size={24} /></button>
+                            <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className={`mr-1 ${currentPage === 1 ? 'text-gray-400' : 'text-gray-700'}`}><AiOutlineCaretLeft size={24} /></button>
+                        </div>
+                        <p>Page {currentPage} of {totalPages}</p>
+                        <div className="flex">
+                            <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className={`ml-1 ${currentPage === totalPages ? 'text-gray-400' : 'text-gray-700'}`}><AiOutlineCaretRight size={24} /></button>
+                            <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} className={`ml-1 ${currentPage === totalPages ? 'text-gray-400' : 'text-gray-700'}`}><HiChevronDoubleRight size={24} /></button>
+                        </div>
                     </div>
                 </div>
             )}
 
-            <div className="flex justify-between items-center mt-4">
-                <div className="flex space-x-2">
-                    {totalPages > 2 && (
-                        <button
-                            onClick={() => setCurrentPage(1)}
-                            className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
-                        >
-                            <HiChevronDoubleLeft />
-                        </button>
-                    )}
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
-                    >
-                        <AiOutlineCaretLeft />
-                    </button>
-                </div>
-                <span>{currentPage} of {totalPages}</span>
-                <div className="flex space-x-2">
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
-                    >
-                        <AiOutlineCaretRight />
-                    </button>
-                    {totalPages > 2 && (
-                        <button
-                            onClick={() => setCurrentPage(totalPages)}
-                            className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
-                        >
-                            <HiChevronDoubleRight />
-                        </button>
-                    )}
-                </div>
-            </div>
-
             {modalData && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl relative overflow-auto max-h-[80vh]">
-                        <h2 className="text-xl font-bold mb-4">Route Details</h2>
-                        <p><span className="font-bold">Date Range:</span> {modalData.date_range.start_date} to {modalData.date_range.end_date}</p>
-                        <p><span className="font-bold">Merchandiser:</span> {modalData.merchandiser_name}</p>
-                        <p><span className="font-bold">Staff No:</span> {modalData.staff_no}</p>
-                        <p><span className="font-bold">Status:</span> {modalData.status}</p>
-                        <h3 className="font-bold mt-4">Instructions:</h3>
-                        {modalData.instructions ? (
-                            JSON.parse(modalData.instructions).map((instruction, index) => (
-                                <div key={index} className="border-b border-gray-200 pb-2 mb-2">
-                                    <p className="text-sm text-gray-700"><span className="font-semibold">Instruction:</span> {instruction.instruction}</p>
-                                    <p className="text-sm text-gray-700"><span className="font-semibold">Start Date:</span> {instruction.start_date}</p>
-                                    <p className="text-sm text-gray-700"><span className="font-semibold">End Date:</span> {instruction.end_date}</p>
-                                    <p className="text-sm text-gray-700"><span className="font-semibold">Status:</span> {instruction.status}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-sm text-gray-700">No instructions available.</p>
-                        )}
-                        <button
-                            onClick={() => setModalData(null)}
-                            className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-                        >
-                            &times;
-                        </button>
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white rounded-lg p-6 w-11/12 max-w-2xl">
+                        <h2 className="text-xl font-bold mb-4">Instructions for {modalData.merchandiser_name}</h2>
+                        <ul>
+                            {JSON.parse(modalData.instructions).map((instruction, index) => (
+                                <li key={instruction.id} className="mb-2">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <p className="font-semibold">Task {index + 1}</p>
+                                            <p>{instruction.task}</p>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input
+                                                type="date"
+                                                value={instruction.start}
+                                                onChange={(e) => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
+                                                className="border border-gray-300 rounded px-2 py-1 mr-2"
+                                            />
+                                            <span className="mx-2">to</span>
+                                            <input
+                                                type="date"
+                                                value={instruction.end}
+                                                onChange={(e) => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
+                                                className="border border-gray-300 rounded px-2 py-1"
+                                            />
+                                        </div>
+                                        <button onClick={() => handleSave(modalData.id, instruction.id, instruction.start, instruction.end)} className="bg-blue-500 text-white px-2 py-1 rounded ml-2">Save</button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="flex justify-end mt-4">
+                            <button onClick={() => setModalData(null)} className="bg-gray-500 text-white px-4 py-2 rounded">Close</button>
+                        </div>
                     </div>
                 </div>
             )}
