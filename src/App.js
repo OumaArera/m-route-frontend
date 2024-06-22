@@ -21,7 +21,7 @@ import AdminSideBar from "./components/AdminSideBar";
 import CreateOutlet from "./Manager/CreateOutlet";
 import AssignMerchandiser from "./Admin/AssignMerchandiser";
 import KeyPerformanceIndicators from "./Admin/KeyPerformanceIndicators";
-import SimpleLineChart from "./components/Graph";
+import DynamicPerformanceChart from "./components/Graph";
 import Responses from "./Manager/Responses";
 
 
@@ -84,7 +84,7 @@ function App() {
                   <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
                   <Route path="/reviews" element={<Reviews />} />
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/graph" element={<SimpleLineChart />} />
+                  <Route path="/graph" element={<DynamicPerformanceChart />} />
                   <Route path="/map" element={<GetLocations />} />
                   <Route path="/routes" element={<ManagerRoutes />} />
                   <Route path="/calendar" element={<CreateRoutes />} />
@@ -96,7 +96,7 @@ function App() {
               ) : (
                 <>
                   <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
-                  <Route path="/graph" element={<SimpleLineChart />} />
+                  <Route path="/graph" element={<DynamicPerformanceChart />} />
                   <Route path="/contactus" element={<ContactUs />} />
                   <Route path="/merch-calendar" element={<MerchCalendar  userData={userData} />} />
                   <Route path="/myroutes" element={<MerchRoutePlans userData={userData} />} />
@@ -106,7 +106,7 @@ function App() {
               {admin ? (
                 <>
                 <Route path="/map" element={<GetLocations />} />
-                <Route path="/graph" element={<SimpleLineChart />} />
+                <Route path="/graph" element={<DynamicPerformanceChart />} />
                 <Route path="/manageusers" element={<ManageUsers />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/resetuser" element={<ResetUser />} />
