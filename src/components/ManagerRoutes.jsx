@@ -171,18 +171,20 @@ const ManagerRoutes = () => {
     };
 
     const handleDateChange = (routeId, instructionId, start, end) => {
-        setRoutes(prevRoutes => prevRoutes.map(route => {
-            if (route.id === routeId) {
-                const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
-                    if (instruction.id === instructionId) {
-                        return { ...instruction, start, end };
-                    }
-                    return instruction;
-                });
-                return { ...route, instructions: JSON.stringify(updatedInstructions) };
-            }
-            return route;
-        }));
+        setRoutes(prevRoutes =>
+            prevRoutes.map(route => {
+                if (route.id === routeId) {
+                    const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
+                        if (instruction.id === instructionId) {
+                            return { ...instruction, start, end };
+                        }
+                        return instruction;
+                    });
+                    return { ...route, instructions: JSON.stringify(updatedInstructions) };
+                }
+                return route;
+            })
+        );
     };
 
     const closeModal = (e) => {
@@ -306,19 +308,19 @@ const ManagerRoutes = () => {
                                     <p><span className="font-bold">Status:</span> {instruction.status}</p>
                                 </div>
                                 <div className="mb-2">
-                                    <p><span className="font-bold">Start Date and Time:</span> {instruction.start}</p>
+                                    <p><span className="font-bold">Start Date and Time:</span></p>
                                     <input
                                         type="datetime-local"
-                                        value={instruction.start}
+                                        value={instruction.start || ""}
                                         onChange={e => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
                                         className="border border-gray-300 rounded p-1"
                                     />
                                 </div>
                                 <div className="mb-4">
-                                    <p><span className="font-bold">End Date and Time:</span> {instruction.end}</p>
+                                    <p><span className="font-bold">End Date and Time:</span></p>
                                     <input
                                         type="datetime-local"
-                                        value={instruction.end}
+                                        value={instruction.end || ""}
                                         onChange={e => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
                                         className="border border-gray-300 rounded p-1"
                                     />
@@ -338,10 +340,8 @@ const ManagerRoutes = () => {
                             Close
                         </button>
                     </div>
-            </div>
-            
+                </div>
             )}
-
         </div>
     );
 };
