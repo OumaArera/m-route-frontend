@@ -23,6 +23,7 @@ import AssignMerchandiser from "./Admin/AssignMerchandiser";
 import KeyPerformanceIndicators from "./Admin/KeyPerformanceIndicators";
 import DynamicPerformanceChart from "./components/Graph";
 import Responses from "./Manager/Responses";
+import ManageKPI from "./Admin/ManageKPI";
 
 
 
@@ -110,6 +111,7 @@ function App() {
                 <Route path="/resetuser" element={<ResetUser />} />
                 <Route path="/assign/merchandisers" element={<AssignMerchandiser />} />
                 <Route path="/new/kpi" element={<KeyPerformanceIndicators />} />
+                <Route path="/manage/kpi" element={<ManageKPI />} />
                 </>
               ): null}
             </Routes>

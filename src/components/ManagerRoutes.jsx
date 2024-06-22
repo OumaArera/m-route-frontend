@@ -17,6 +17,7 @@ const ManagerRoutes = () => {
     const [modalData, setModalData] = useState(null);
     const [filter, setFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(false);
     const routesPerPage = 12;
 
     useEffect(() => {
@@ -86,6 +87,7 @@ const ManagerRoutes = () => {
     const { displayedRoutes, totalPages, totalFilteredRoutes } = getDisplayedRoutes();
 
     const handleComplete = async (routeId) => {
+        setLoading(true);
         try {
             const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
                 method: "PUT",
@@ -103,10 +105,12 @@ const ManagerRoutes = () => {
             setErrorMessage("There was an error completing the task");
         } finally {
             setTimeout(() => setErrorMessage(""), 5000);
+            setLoading(false);
         }
     };
 
     const handleDeleteRoute = async (routeId) => {
+        setLoading(true);
         try {
             const response = await fetch(`${DELETE_ROUTE_URL}/${routeId}`, {
                 method: "DELETE",
@@ -124,6 +128,7 @@ const ManagerRoutes = () => {
             setErrorMessage("There was an issue deleting the route plan");
         } finally {
             setTimeout(() => setErrorMessage(""), 5000);
+            setLoading(false);
         }
     };
 
@@ -142,6 +147,7 @@ const ManagerRoutes = () => {
     };
 
     const handleSave = async (routeId, instructionId, start, end) => {
+        setLoading(true);
         try {
             const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
                 method: "PUT",
@@ -167,22 +173,25 @@ const ManagerRoutes = () => {
             setErrorMessage("There was an issue updating the instruction.");
         } finally {
             setTimeout(() => setErrorMessage(""), 5000);
+            setLoading(false);
         }
     };
 
     const handleDateChange = (routeId, instructionId, start, end) => {
-        setRoutes(prevRoutes => prevRoutes.map(route => {
-            if (route.id === routeId) {
-                const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
-                    if (instruction.id === instructionId) {
-                        return { ...instruction, start, end };
-                    }
-                    return instruction;
-                });
-                return { ...route, instructions: JSON.stringify(updatedInstructions) };
-            }
-            return route;
-        }));
+        setRoutes(prevRoutes =>
+            prevRoutes.map(route => {
+                if (route.id === routeId) {
+                    const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
+                        if (instruction.id === instructionId) {
+                            return { ...instruction, start, end };
+                        }
+                        return instruction;
+                    });
+                    return { ...route, instructions: JSON.stringify(updatedInstructions) };
+                }
+                return route;
+            })
+        );
     };
 
     const closeModal = (e) => {
@@ -297,28 +306,28 @@ const ManagerRoutes = () => {
                             <div key={instruction.id} className="mb-4">
                                 <h3 className="text-md font-semibold mb-2">Instruction {index + 1}</h3>
                                 <ul className="list-disc list-inside mb-2">
-                                    <li>{instruction.instruction}</li>
+                                    {instruction.instructions.map((instr, idx) => (
+                                        <li key={idx}>{instr}</li>
+                                    ))}
                                 </ul>
                                 <div className="mb-2">
                                     <p><span className="font-bold">Facility:</span> {instruction.facility}</p>
                                     <p><span className="font-bold">Status:</span> {instruction.status}</p>
                                 </div>
-                                <div className="flex items-center space-x-2 mb-2">
-                                    <label htmlFor={`start-date-${instruction.id}`} className="font-bold">Start Date and Time:</label>
+                                <div className="mb-2">
+                                    <p><span className="font-bold">Start Date and Time:</span></p>
                                     <input
                                         type="datetime-local"
-                                        id={`start-date-${instruction.id}`}
-                                        value={instruction.start}
+                                        value={instruction.start || ""}
                                         onChange={e => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
                                         className="border border-gray-300 rounded p-1"
                                     />
                                 </div>
-                                <div className="flex items-center space-x-2 mb-4">
-                                    <label htmlFor={`end-date-${instruction.id}`} className="font-bold">End Date and Time:</label>
+                                <div className="mb-4">
+                                    <p><span className="font-bold">End Date and Time:</span></p>
                                     <input
                                         type="datetime-local"
-                                        id={`end-date-${instruction.id}`}
-                                        value={instruction.end}
+                                        value={instruction.end || ""}
                                         onChange={e => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
                                         className="border border-gray-300 rounded p-1"
                                     />
@@ -338,6 +347,11 @@ const ManagerRoutes = () => {
                             Close
                         </button>
                     </div>
+                    {loading && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                        <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                    </div>
+                )}
                 </div>
             )}
         </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { RiHome2Line, RiSettings2Line } from "react-icons/ri";
 import { IoMenu } from "react-icons/io5";
-import { MdAssignmentInd } from "react-icons/md";
+import { MdAssignmentInd, MdManageHistory } from "react-icons/md";
 import { FaUserCheck } from "react-icons/fa";
 import { FaUserPlus } from "react-icons/fa";
 import { RiTaskLine } from "react-icons/ri";
@@ -60,6 +60,7 @@ const AdminSideBar = () => {
     { icon: <FaUserCheck className="h-6 w-6 text-gray-900" />, label: "Manage users", to: "/manageusers" },
     { icon: <MdAssignmentInd className="h-6 w-6 text-gray-900" />, label: "Assign Merchandisers", to: "/assign/merchandisers" },
     { icon: <GrDocumentPerformance className="h-6 w-6 text-gray-900" />, label: "New KPIs", to: "/new/kpi" },
+    { icon: <MdManageHistory className="h-6 w-6 text-gray-900" />, label: "Manage KPIs", to: "/manage/kpi" },
     { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" }
   ];
 
