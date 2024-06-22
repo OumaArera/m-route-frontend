@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
+import Modal from "react-modal";
 
 const KPIs_URL = "https://m-route-backend.onrender.com/users/all/kpis";
+const UPDATE_KPI_URL = "https://m-route-backend.onrender.com/users/update/kpi/";
+
+Modal.setAppElement("#root");
 
 const ManageKPI = () => {
     const [token, setToken] = useState("");
     const [performance, setPerformance] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedKPI, setSelectedKPI] = useState(null);
+    const [metricState, setMetricState] = useState({});
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -42,12 +49,56 @@ const ManageKPI = () => {
         }
     };
 
-    const handleTextChange = async (kpiId, metric, newTextValue) => {
-        console.log("Hello world");
+    const handleManageKPI = (kpi) => {
+        setSelectedKPI(kpi);
+        setMetricState(kpi.performance_metric);
+        setIsModalOpen(true);
     };
 
-    const handleManageKPI = async (kpiId) => {
-        console.log("Hello world");
+    const handleCheckboxChange = (metric, key) => {
+        setMetricState((prevState) => ({
+            ...prevState,
+            [metric]: {
+                ...prevState[metric],
+                [key]: !prevState[metric][key]
+            }
+        }));
+    };
+
+    const handleSave = async () => {
+        try {
+            const response = await fetch(`${UPDATE_KPI_URL}${selectedKPI.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ performance_metric: metricState })
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to update KPI: ${response.status} ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (data.status_code === 200) {
+                // Update the performance state with the new data
+                setPerformance((prevState) =>
+                    prevState.map((kpi) =>
+                        kpi.id === selectedKPI.id ? { ...kpi, performance_metric: metricState } : kpi
+                    )
+                );
+                setIsModalOpen(false);
+                fetchKPIs(); // Reload the data
+            } else {
+                console.error("Failed to update KPI:", data.message);
+            }
+        } catch (error) {
+            console.error("Error updating KPI:", error);
+        }
+    };
+
+    const handleDelete = () => {
+        // Implement delete functionality if needed
+        console.log("Delete KPI functionality");
     };
 
     if (isLoading) {
@@ -77,21 +128,21 @@ const ManageKPI = () => {
                                 <td className="py-2 px-3">{kpi.company_name}</td>
                                 <td className="py-2 px-3">{kpi.sector_name}</td>
                                 <td className="py-2 px-3">
-                                    {Object.keys(kpi.performance_metric).map(metric => (
+                                    {Object.keys(kpi.performance_metric).map((metric) => (
                                         <div key={metric}>
                                             <strong>{metric}</strong>
                                         </div>
                                     ))}
                                 </td>
                                 <td className="py-2 px-3">
-                                    {Object.keys(kpi.performance_metric).map(metric => (
+                                    {Object.keys(kpi.performance_metric).map((metric) => (
                                         <div key={metric}>
                                             {kpi.performance_metric[metric].text.toString()}
                                         </div>
                                     ))}
                                 </td>
                                 <td className="py-2 px-3">
-                                    {Object.keys(kpi.performance_metric).map(metric => (
+                                    {Object.keys(kpi.performance_metric).map((metric) => (
                                         <div key={metric}>
                                             {kpi.performance_metric[metric].image.toString()}
                                         </div>
@@ -99,7 +150,7 @@ const ManageKPI = () => {
                                 </td>
                                 <td className="py-2 px-3">
                                     <button
-                                        onClick={() => handleManageKPI(kpi.id)}
+                                        onClick={() => handleManageKPI(kpi)}
                                         className="bg-gray-800 hover:bg-blue-600 text-white px-3 py-1 rounded"
                                     >
                                         Manage
@@ -110,6 +161,57 @@ const ManageKPI = () => {
                     </tbody>
                 </table>
             </div>
+
+            {selectedKPI && (
+                <Modal
+                    isOpen={isModalOpen}
+                    onRequestClose={() => setIsModalOpen(false)}
+                    contentLabel="Manage KPI"
+                    className="modal-container"
+                    overlayClassName="modal-overlay"
+                >
+                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto">
+                        <h2 className="text-xl font-bold mb-4">Manage KPI</h2>
+                        {Object.keys(metricState).map((metric) => (
+                            <div key={metric} className="mb-4">
+                                <h3 className="font-semibold">{metric}</h3>
+                                <label className="inline-flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        className="form-checkbox"
+                                        checked={metricState[metric].text}
+                                        onChange={() => handleCheckboxChange(metric, "text")}
+                                    />
+                                    <span className="ml-2">Text</span>
+                                </label>
+                                <label className="inline-flex items-center ml-4">
+                                    <input
+                                        type="checkbox"
+                                        className="form-checkbox"
+                                        checked={metricState[metric].image}
+                                        onChange={() => handleCheckboxChange(metric, "image")}
+                                    />
+                                    <span className="ml-2">Image</span>
+                                </label>
+                            </div>
+                        ))}
+                        <div className="flex justify-end">
+                            <button
+                                onClick={handleSave}
+                                className="bg-gray-800 hover:bg-blue-800 text-white px-4 py-2 rounded mr-2"
+                            >
+                                Save
+                            </button>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="bg-gray-800 hover:bg-red-800 text-white px-4 py-2 rounded"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            )}
         </div>
     );
 };
