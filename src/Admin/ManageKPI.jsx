@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 
+const KPIs_URL = "https://m-route-backend.onrender.com/users/all/kpis"
+
 const ManageKPI = () => {
     const [token, setToken] = useState("");
     const [userId, setUserId] = useState("");
@@ -17,7 +19,7 @@ const ManageKPI = () => {
 
     const fetchKPIs = async () => {
         try {
-            const response = await fetch("/users/all/kpis", {
+            const response = await fetch(KPIs_URL, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
