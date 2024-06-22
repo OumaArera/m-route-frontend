@@ -105,18 +105,7 @@ const MerchRoutePlans = () => {
       
           formData.append('status', 'pending');
 
-          console.log('FormData to be sent:');
-          for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + pair[1]);
-          }
-
-          console.log('Responses:');
-          console.log(responses);
-          console.log(`Merchandiser ID: ${userId}`);
-          console.log(`Manager ID: ${selectedPlan.managerId}`);
-          console.log(`Route Plan ID: ${selectedPlan.planId}`);
-          console.log(`Instruction ID: ${selectedPlan.instructionId}`);
-          console.log(`Date: ${new Date().toString()}`);
+          
       
           const response = await fetch(RESPONSE_URL, {
             method: "POST",
@@ -221,7 +210,7 @@ const MerchRoutePlans = () => {
                                                 <td className="py-2 px-4 border-b">{instruction.status}</td>
                                                 <td className="py-2 px-4 border-b">
                                                     <button
-                                                        className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
+                                                        className="bg-gray-800 text-white py-1 px-3 rounded hover:bg-blue-600"
                                                         onClick={() => handleStatusChange(plan.id, instruction.id, instruction.status, instruction.facility_name, plan.manager_id)}
                                                     >
                                                         Respond

@@ -135,13 +135,13 @@ const KeyPerformanceIndicators = () => {
                             </div>
                         </div>
                     ))}
-                    <button type="button" onClick={addKPI} className="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                    <button type="button" onClick={addKPI} className="mt-2 bg-gray-800 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
                         Add KPI
                     </button>
                 </div>
                 {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
                 {message && <p className="text-green-500 text-xs italic mb-4">{message}</p>}
-                <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                <button type="submit" className="bg-gray-800 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
                     Submit
                 </button>
                 {loading && (
