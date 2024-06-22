@@ -73,6 +73,7 @@ const ManageKPI = () => {
             console.error("Error updating text value:", error);
         }
     };
+    
 
     const handleDeleteKPI = async (kpiId) => {
         try {
@@ -119,20 +120,20 @@ const ManageKPI = () => {
                                 <td className="py-2 px-3">{index + 1}</td>
                                 <td className="py-2 px-3">{kpi.company_name}</td>
                                 <td className="py-2 px-3">
-                                    <select
-                                        value={kpi.performance_metric[metric].text}
-                                        onChange={(e) =>
-                                            handleTextChange(
-                                                kpi.id,
-                                                metric,
-                                                e.target.value
-                                            )
-                                        }
-                                        className="border border-gray-300 rounded px-2 py-1"
-                                    >
-                                        <option value={true}>True</option>
-                                        <option value={false}>False</option>
-                                    </select>
+                                <select
+                                    value={kpi.performance_metric[metric].text}
+                                    onChange={(e) =>
+                                        handleTextChange(
+                                            kpi.id,
+                                            metric, // Pass metric here
+                                            e.target.value
+                                        )
+                                    }
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                >
+                                    <option value={true}>True</option>
+                                    <option value={false}>False</option>
+                                </select>
                                 </td>
                                 <td className="py-2 px-3">{kpi.performance_metric[metric].image.toString()}</td>
                                 <td className="py-2 px-3">
