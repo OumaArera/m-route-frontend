@@ -164,13 +164,13 @@ const Responses = () => {
                                 <div className="flex justify-end space-x-4">
                                     <button
                                         onClick={() => handleApprove(response.id, response.instruction_id, response.route_plan_id)}
-                                        className="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600"
+                                        className="bg-gray-900 text-white py-1 px-3 rounded hover:bg-green-600"
                                     >
                                         Approve
                                     </button>
                                     <button
                                         onClick={() => handleReject(response.id, response.instruction_id, response.route_plan_id)}
-                                        className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+                                        className="bg-gray-900 text-white py-1 px-3 rounded hover:bg-red-600"
                                     >
                                         Reject
                                     </button>
