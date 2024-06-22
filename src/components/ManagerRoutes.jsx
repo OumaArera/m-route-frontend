@@ -17,6 +17,7 @@ const ManagerRoutes = () => {
     const [modalData, setModalData] = useState(null);
     const [filter, setFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(false);
     const routesPerPage = 12;
 
     useEffect(() => {
@@ -86,6 +87,7 @@ const ManagerRoutes = () => {
     const { displayedRoutes, totalPages, totalFilteredRoutes } = getDisplayedRoutes();
 
     const handleComplete = async (routeId) => {
+        setLoading(true);
         try {
             const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
                 method: "PUT",
@@ -103,10 +105,12 @@ const ManagerRoutes = () => {
             setErrorMessage("There was an error completing the task");
         } finally {
             setTimeout(() => setErrorMessage(""), 5000);
+            setLoading(false);
         }
     };
 
     const handleDeleteRoute = async (routeId) => {
+        setLoading(true);
         try {
             const response = await fetch(`${DELETE_ROUTE_URL}/${routeId}`, {
                 method: "DELETE",
@@ -124,6 +128,7 @@ const ManagerRoutes = () => {
             setErrorMessage("There was an issue deleting the route plan");
         } finally {
             setTimeout(() => setErrorMessage(""), 5000);
+            setLoading(false);
         }
     };
 
@@ -142,6 +147,7 @@ const ManagerRoutes = () => {
     };
 
     const handleSave = async (routeId, instructionId, start, end) => {
+        setLoading(true);
         try {
             const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
                 method: "PUT",
@@ -167,6 +173,7 @@ const ManagerRoutes = () => {
             setErrorMessage("There was an issue updating the instruction.");
         } finally {
             setTimeout(() => setErrorMessage(""), 5000);
+            setLoading(false);
         }
     };
 
@@ -340,6 +347,11 @@ const ManagerRoutes = () => {
                             Close
                         </button>
                     </div>
+                    {loading && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                        <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                    </div>
+                )}
                 </div>
             )}
         </div>
