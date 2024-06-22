@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-const KPIs_URL = "https://m-route-backend.onrender.com/users/all/kpis"
+const KPIs_URL = "https://m-route-backend.onrender.com/users/all/kpis";
 
 const ManageKPI = () => {
     const [token, setToken] = useState("");
     const [userId, setUserId] = useState("");
     const [performance, setPerformance] = useState([]);
+    const [isLoading, setIsLoading] = useState(true); // Loading state
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -25,6 +26,9 @@ const ManageKPI = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch KPIs: ${response.status} ${response.statusText}`);
+            }
             const data = await response.json();
             if (data.successful) {
                 setPerformance(data.message);
@@ -33,6 +37,8 @@ const ManageKPI = () => {
             }
         } catch (error) {
             console.error("Error fetching KPIs:", error);
+        } finally {
+            setIsLoading(false); // Update loading state when fetch completes (success or error)
         }
     };
 
@@ -96,6 +102,14 @@ const ManageKPI = () => {
             console.error("Error deleting KPI:", error);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="container mx-auto px-4 py-8 text-center">
+                <p className="text-lg font-semibold">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto px-4 py-8">
