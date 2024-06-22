@@ -12,9 +12,13 @@ const ManageKPI = () => {
         if (accessToken) {
             setToken(JSON.parse(accessToken));
         }
-
-        fetchKPIs();
     }, []);
+
+    useEffect(() => {
+        if (token) {
+            fetchKPIs();
+        }
+    }, [token]);
 
     const fetchKPIs = async () => {
         try {
