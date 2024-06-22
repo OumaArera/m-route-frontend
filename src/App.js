@@ -85,7 +85,6 @@ function App() {
                   <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
                   <Route path="/reviews" element={<Reviews />} />
                   <Route path="/profile" element={<Profile />} />
-                  <Route path="/graph" element={<DynamicPerformanceChart />} />
                   <Route path="/map" element={<GetLocations />} />
                   <Route path="/routes" element={<ManagerRoutes />} />
                   <Route path="/calendar" element={<CreateRoutes />} />
@@ -107,7 +106,6 @@ function App() {
               {admin ? (
                 <>
                 <Route path="/map" element={<GetLocations />} />
-                <Route path="/graph" element={<DynamicPerformanceChart />} />
                 <Route path="/manageusers" element={<ManageUsers />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/resetuser" element={<ResetUser />} />

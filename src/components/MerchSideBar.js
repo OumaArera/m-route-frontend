@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { RiHome2Line, RiMapPinLine, RiSettings2Line } from "react-icons/ri";
-import { FaRegMessage } from "react-icons/fa6";
-// import { MdOutlineReviews } from "react-icons/md";
-// import { FaInfoCircle } from "react-icons/fa";
+import { RiMapPinLine, RiSettings2Line } from "react-icons/ri";
+import { GrDocumentPerformance } from "react-icons/gr";
 import { IoMenu } from "react-icons/io5";
 import { FaRegCalendarAlt } from "react-icons/fa";
 
@@ -53,17 +51,10 @@ const SideBar = () => {
   const menuText = showMenuText ? 'Menu' : '';
 
   const sidebarItems = [
-
-//     { icon: <RiMapPinLine className="h-6 w-6 text-gray-900" />, label: "My Routes", to: "/routes" },
-
-    // { icon: <RiHome2Line className="h-6 w-6 text-gray-900" />, label: "Home", to: "/map" },
     { icon: <RiMapPinLine className="h-6 w-6 text-gray-900" />, label: "My Routes", to: "/myroutes" },
-
-    { icon: <FaRegCalendarAlt className="h-6 w-6 text-gray-900" />, label: "MerchCalendar", to: "/merch-calendar" },
+    { icon: <FaRegCalendarAlt className="h-6 w-6 text-gray-900" />, label: "My Calendar", to: "/merch-calendar" },
+    { icon: <GrDocumentPerformance className="h-6 w-6 text-gray-900" />, label: "My Performance", to: "/graph" },
     { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" },
-    // { icon: <MdOutlineReviews className="h-6 w-6 text-gray-900" />, label: "Reviews", to: "/reviews" },
-    // { icon: <FaInfoCircle className="h-6 w-6 text-gray-900" />, label: "About us", to: "/aboutus" },
-    // { icon: <FaRegMessage className="h-6 w-6 text-gray-900" />, label: "Contact Us", to: "/contactus" },
   ];
 
   return (
