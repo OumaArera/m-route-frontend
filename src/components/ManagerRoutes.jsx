@@ -296,7 +296,9 @@ const ManagerRoutes = () => {
                         {JSON.parse(modalData.instructions).map((instruction, index) => (
                             <div key={instruction.id} className="mb-4">
                                 <h3 className="text-md font-semibold mb-2">Instruction {index + 1}</h3>
-                                <p className="mb-2">{instruction.instruction}</p>
+                                <ul className="list-disc list-inside mb-2">
+                                    <li>{instruction.instruction}</li>
+                                </ul>
                                 <div className="mb-2">
                                     <p><span className="font-bold">Facility:</span> {instruction.facility}</p>
                                     <p><span className="font-bold">Status:</span> {instruction.status}</p>
