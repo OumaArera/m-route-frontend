@@ -85,15 +85,14 @@ const ManageKPI = () => {
                 throw new Error(`Failed to update KPI: ${response.status} ${response.statusText}`);
             }
             const data = await response.json();
-            if (data.status_code === 200) {
-                // Update the performance state with the new data
+            if (data.status_code === 201) {
                 setPerformance((prevState) =>
                     prevState.map((kpi) =>
                         kpi.id === selectedKPI.id ? { ...kpi, performance_metric: metricState } : kpi
                     )
                 );
                 setIsModalOpen(false);
-                fetchKPIs(); // Reload the data
+                fetchKPIs(); 
             } else {
                 console.error("Failed to update KPI:", data.message);
             }
