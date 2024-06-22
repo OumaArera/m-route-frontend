@@ -9,6 +9,7 @@ const ManageKPI = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedKPI, setSelectedKPI] = useState(null);
     const [metricState, setMetricState] = useState({});
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -61,6 +62,7 @@ const ManageKPI = () => {
     };
 
     const handleSave = async () => {
+        setLoading(true);
         try {
             const response = await fetch(`${UPDATE_KPI_URL}/${selectedKPI.id}`, {
                 method: "PUT",
@@ -87,6 +89,8 @@ const ManageKPI = () => {
             }
         } catch (error) {
             console.error("Error updating KPI:", error);
+        }finally{
+            setLoading(false);
         }
     };
 
@@ -210,6 +214,11 @@ const ManageKPI = () => {
                             </button>
                         </div>
                     </div>
+                    {loading && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                            <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
