@@ -141,6 +141,54 @@ const ManagerRoutes = () => {
         setModalData(route);
     };
 
+    const handleSave = async (routeId, instructionId, start, end) => {
+        try {
+            const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    instruction_id: instructionId,
+                    start: start,
+                    end: end
+                })
+            });
+            const data = await response.json();
+
+            if (data.status_code === 200) {
+                getManagerRoutes();
+                setErrorMessage("Instruction updated successfully.");
+            } else {
+                setErrorMessage(data.message || "Failed to update the instruction.");
+            }
+        } catch (error) {
+            setErrorMessage("There was an issue updating the instruction.");
+        } finally {
+            setTimeout(() => setErrorMessage(""), 5000);
+        }
+    };
+
+    const handleDateChange = (routeId, instructionId, start, end) => {
+        setRoutes(prevRoutes => prevRoutes.map(route => {
+            if (route.id === routeId) {
+                const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
+                    if (instruction.id === instructionId) {
+                        return { ...instruction, start, end };
+                    }
+                    return instruction;
+                });
+                return { ...route, instructions: JSON.stringify(updatedInstructions) };
+            }
+            return route;
+        }));
+    };
+
+    const closeModal = (e) => {
+        if (e.target === e.currentTarget) setModalData(null);
+    };
+
     return (
         <div className="max-w-7xl mx-auto mt-5 p-5 rounded-lg shadow-lg bg-white flex flex-col min-h-screen">
             <div className="flex justify-between items-center mb-4">
@@ -176,88 +224,103 @@ const ManagerRoutes = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                         {displayedRoutes.map((route) => (
                             <div key={route.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                                <p><span className="font-bold">Date Range:</span> {route.date_range.start_date} to {route.date_range.end_date}</p>
+                                <p><span className="font-bold">Date Range:</span> {new Date(route.date_range.start_date).toLocaleString()} to {new Date(route.date_range.end_date).toLocaleString()}</p>
                                 <p><span className="font-bold">Merchandiser:</span> {route.merchandiser_name}</p>
-                                <p><span className="font-bold">Staff No:</span> {route.staff_no}</p>
                                 <p><span className="font-bold">Status:</span> {route.status}</p>
-                                <button onClick={() => toggleModal(route)} className="mt-2 w-full p-2 bg-gray-800 text-white rounded hover:bg-blue-700">View More</button>
-                                <div className="flex mt-4 space-x-2">
-                                    {route.status.toLowerCase() !== 'complete' && (
-                                        <button onClick={() => handleComplete(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-green-500">Complete</button>
-                                    )}
-                                    {route.status.toLowerCase() === 'complete' && (
-                                        <button className="flex-1 p-2 bg-gray-400 text-white rounded cursor-not-allowed opacity-50">Complete</button>
-                                    )}
-                                    <button onClick={() => handleDeleteRoute(route.id)} className="flex-1 p-2 bg-gray-800 text-white rounded hover:bg-red-500">Delete</button>
-                                </div>
+                                <button
+                                    onClick={() => handleComplete(route.id)}
+                                    className={`mt-2 px-4 py-1 rounded ${route.status === 'complete' ? 'bg-green-600 text-white' : 'bg-gray-500 text-white'}`}
+                                    disabled={route.status === 'complete'}
+                                >
+                                    {route.status === 'complete' ? 'Completed' : 'Complete'}
+                                </button>
+                                <button
+                                    onClick={() => toggleModal(route)}
+                                    className="mt-2 px-4 py-1 bg-blue-500 text-white rounded"
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteRoute(route.id)}
+                                    className="mt-2 px-4 py-1 bg-red-500 text-white rounded"
+                                >
+                                    Delete
+                                </button>
                             </div>
                         ))}
                     </div>
-                </div>
-            )}
-
-            <div className="flex justify-between items-center mt-4">
-                <div className="flex space-x-2">
-                    {totalPages > 2 && (
+                    <div className="flex justify-between items-center mt-4">
                         <button
                             onClick={() => setCurrentPage(1)}
-                            className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
+                            disabled={currentPage === 1}
+                            className={`px-2 py-1 rounded ${currentPage === 1 ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
                         >
                             <HiChevronDoubleLeft />
                         </button>
-                    )}
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
-                    >
-                        <AiOutlineCaretLeft />
-                    </button>
-                </div>
-                <span>{currentPage} of {totalPages}</span>
-                <div className="flex space-x-2">
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
-                    >
-                        <AiOutlineCaretRight />
-                    </button>
-                    {totalPages > 2 && (
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className={`px-2 py-1 rounded ${currentPage === 1 ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
+                        >
+                            <AiOutlineCaretLeft />
+                        </button>
+                        <span>Page {currentPage} of {totalPages}</span>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className={`px-2 py-1 rounded ${currentPage === totalPages ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
+                        >
+                            <AiOutlineCaretRight />
+                        </button>
                         <button
                             onClick={() => setCurrentPage(totalPages)}
-                            className="p-2 bg-gray-800 hover:bg-blue-700 text-white rounded"
+                            disabled={currentPage === totalPages}
+                            className={`px-2 py-1 rounded ${currentPage === totalPages ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
                         >
                             <HiChevronDoubleRight />
                         </button>
-                    )}
+                    </div>
                 </div>
-            </div>
-
+            )}
             {modalData && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl relative overflow-auto max-h-[80vh]">
-                        <h2 className="text-xl font-bold mb-4">Route Details</h2>
-                        <p><span className="font-bold">Date Range:</span> {modalData.date_range.start_date} to {modalData.date_range.end_date}</p>
-                        <p><span className="font-bold">Merchandiser:</span> {modalData.merchandiser_name}</p>
-                        <p><span className="font-bold">Staff No:</span> {modalData.staff_no}</p>
-                        <p><span className="font-bold">Status:</span> {modalData.status}</p>
-                        <h3 className="font-bold mt-4">Instructions:</h3>
-                        {modalData.instructions ? (
-                            JSON.parse(modalData.instructions).map((instruction, index) => (
-                                <div key={index} className="border-b border-gray-200 pb-2 mb-2">
-                                    <p className="text-sm text-gray-700"><span className="font-semibold">Instruction:</span> {instruction.instruction}</p>
-                                    <p className="text-sm text-gray-700"><span className="font-semibold">Start Date:</span> {instruction.start_date}</p>
-                                    <p className="text-sm text-gray-700"><span className="font-semibold">End Date:</span> {instruction.end_date}</p>
-                                    <p className="text-sm text-gray-700"><span className="font-semibold">Status:</span> {instruction.status}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-sm text-gray-700">No instructions available.</p>
-                        )}
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" onClick={closeModal}>
+                    <div className="bg-white p-8 rounded-lg max-w-lg mx-auto">
+                        <h2 className="text-xl font-bold mb-4">Edit Instructions for {modalData.merchandiser_name}</h2>
+                        {JSON.parse(modalData.instructions).map((instruction, index) => (
+                            <div key={instruction.id} className="mb-4">
+                                <p className="font-bold">Instruction {index + 1}</p>
+                                <p>Location: {instruction.location}</p>
+                                <label className="block mt-2">
+                                    Start Date:
+                                    <input
+                                        type="datetime-local"
+                                        value={instruction.start}
+                                        onChange={(e) => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
+                                        className="mt-1 p-2 border rounded w-full"
+                                    />
+                                </label>
+                                <label className="block mt-2">
+                                    End Date:
+                                    <input
+                                        type="datetime-local"
+                                        value={instruction.end}
+                                        onChange={(e) => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
+                                        className="mt-1 p-2 border rounded w-full"
+                                    />
+                                </label>
+                                <button
+                                    onClick={() => handleSave(modalData.id, instruction.id, instruction.start, instruction.end)}
+                                    className="mt-2 px-4 py-2 bg-green-500 text-white rounded"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        ))}
                         <button
                             onClick={() => setModalData(null)}
-                            className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+                            className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
                         >
-                            &times;
+                            Close
                         </button>
                     </div>
                 </div>
