@@ -73,7 +73,6 @@ const ManageKPI = () => {
             console.error("Error updating text value:", error);
         }
     };
-    
 
     const handleDeleteKPI = async (kpiId) => {
         try {
@@ -108,6 +107,7 @@ const ManageKPI = () => {
                     <thead>
                         <tr className="bg-gray-100 border-b border-gray-200">
                             <th className="py-2 px-3 text-left">No</th>
+                            <th className="py-2 px-3 text-left">Company Name</th>
                             <th className="py-2 px-3 text-left">Metric</th>
                             <th className="py-2 px-3 text-left">Text</th>
                             <th className="py-2 px-3 text-left">Image</th>
@@ -120,22 +120,42 @@ const ManageKPI = () => {
                                 <td className="py-2 px-3">{index + 1}</td>
                                 <td className="py-2 px-3">{kpi.company_name}</td>
                                 <td className="py-2 px-3">
-                                <select
-                                    value={kpi.performance_metric[metric].text}
-                                    onChange={(e) =>
-                                        handleTextChange(
-                                            kpi.id,
-                                            metric, // Pass metric here
-                                            e.target.value
-                                        )
-                                    }
-                                    className="border border-gray-300 rounded px-2 py-1"
-                                >
-                                    <option value={true}>True</option>
-                                    <option value={false}>False</option>
-                                </select>
+                                    {Object.keys(kpi.performance_metric).map(metric => (
+                                        <div key={metric}>
+                                            <strong>{metric}</strong>
+                                            <br />
+                                            Text: {kpi.performance_metric[metric].text.toString()}
+                                            <br />
+                                            Image: {kpi.performance_metric[metric].image.toString()}
+                                        </div>
+                                    ))}
                                 </td>
-                                <td className="py-2 px-3">{kpi.performance_metric[metric].image.toString()}</td>
+                                <td className="py-2 px-3">
+                                    {Object.keys(kpi.performance_metric).map(metric => (
+                                        <select
+                                            key={metric}
+                                            value={kpi.performance_metric[metric].text.toString()}
+                                            onChange={(e) =>
+                                                handleTextChange(
+                                                    kpi.id,
+                                                    metric,
+                                                    e.target.value === "true"
+                                                )
+                                            }
+                                            className="border border-gray-300 rounded px-2 py-1 mb-2"
+                                        >
+                                            <option value="true">True</option>
+                                            <option value="false">False</option>
+                                        </select>
+                                    ))}
+                                </td>
+                                <td className="py-2 px-3">
+                                    {Object.keys(kpi.performance_metric).map(metric => (
+                                        <div key={metric}>
+                                            {kpi.performance_metric[metric].image.toString()}
+                                        </div>
+                                    ))}
+                                </td>
                                 <td className="py-2 px-3">
                                     <button
                                         onClick={() => handleDeleteKPI(kpi.id)}
