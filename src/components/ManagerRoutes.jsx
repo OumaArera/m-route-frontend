@@ -220,13 +220,13 @@ const ManagerRoutes = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                         {displayedRoutes.map((route) => (
                             <div key={route.id} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                                <p><span className="font-bold">Date Range:</span> {route.date_range.start_date} to {route.date_range.end_date}</p>
+                                <p><span className="font-bold">Date Range:</span> {new Date(route.date_range.start_date).toLocaleString()} to {new Date(route.date_range.end_date).toLocaleString()}</p>
                                 <p><span className="font-bold">Merchandiser:</span> {route.merchandiser_name}</p>
                                 <p><span className="font-bold">Staff No:</span> {route.staff_no}</p>
                                 <p><span className="font-bold">Status:</span> {route.status}</p>
-                                <button onClick={() => toggleModal(route)} className="bg-blue-500 text-white px-2 py-1 rounded mt-2">View Instructions</button>
-                                <button onClick={() => handleComplete(route.id)} className="bg-green-500 text-white px-2 py-1 rounded mt-2">Complete</button>
-                                <button onClick={() => handleDeleteRoute(route.id)} className="bg-red-500 text-white px-2 py-1 rounded mt-2">Delete</button>
+                                <button onClick={() => toggleModal(route)} className="bg-blue-600 text-white px-2 py-1 rounded mt-2">View Instructions</button>
+                                <button onClick={() => handleComplete(route.id)} className="bg-green-600 text-white px-2 py-1 rounded mt-2">Complete</button>
+                                <button onClick={() => handleDeleteRoute(route.id)} className="bg-red-600 text-white px-2 py-1 rounded mt-2">Delete</button>
                             </div>
                         ))}
                     </div>
@@ -254,30 +254,33 @@ const ManagerRoutes = () => {
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <p className="font-semibold">Task {index + 1}</p>
-                                            <p>{instruction.task}</p>
+                                            <p>Task Description: {instruction.task}</p>
+                                            <p>Facility: {instruction.facility}</p>
+                                            <p>Status: {instruction.status}</p>
+                                            <p>Instructions: {instruction.instructions.join(", ")}</p>
                                         </div>
                                         <div className="flex items-center">
                                             <input
-                                                type="date"
+                                                type="datetime-local"
                                                 value={instruction.start}
                                                 onChange={(e) => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
                                                 className="border border-gray-300 rounded px-2 py-1 mr-2"
                                             />
                                             <span className="mx-2">to</span>
                                             <input
-                                                type="date"
+                                                type="datetime-local"
                                                 value={instruction.end}
                                                 onChange={(e) => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
                                                 className="border border-gray-300 rounded px-2 py-1"
                                             />
                                         </div>
-                                        <button onClick={() => handleSave(modalData.id, instruction.id, instruction.start, instruction.end)} className="bg-blue-500 text-white px-2 py-1 rounded ml-2">Save</button>
+                                        <button onClick={() => handleSave(modalData.id, instruction.id, instruction.start, instruction.end)} className="bg-blue-600 text-white px-2 py-1 rounded ml-2">Save</button>
                                     </div>
                                 </li>
                             ))}
                         </ul>
                         <div className="flex justify-end mt-4">
-                            <button onClick={() => setModalData(null)} className="bg-gray-500 text-white px-4 py-2 rounded">Close</button>
+                            <button onClick={() => setModalData(null)} className="bg-gray-600 text-white px-4 py-2 rounded">Close</button>
                         </div>
                     </div>
                 </div>
