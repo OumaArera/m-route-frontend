@@ -25,19 +25,30 @@ const DynamicPerformanceChart = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [token, setToken] = useState("");
     const [userId, setUserId] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [viewType, setViewType] = useState('today');
     const [date, setDate] = useState('');
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [totalAggregate, setTotalAggregate] = useState(0);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
         const userData = localStorage.getItem("user_data");
 
         if (accessToken) setToken(JSON.parse(accessToken));
-        if (userData) setUserId(JSON.parse(userData).id);
+        if (userData) {
+            const user = JSON.parse(userData);
+            setUserId(user.id);
+            if (user.username) {
+                const capitalizedUsername = user.username.charAt(0).toUpperCase() + user.username.slice(1);
+                setFirstName(capitalizedUsername);
+            }
+            if (user.last_name) setLastName(user.last_name);
+        }
     }, []);
 
     const fetchPerformanceData = async () => {
@@ -98,6 +109,8 @@ const DynamicPerformanceChart = () => {
                 const performanceData = result.message;
                 const aggregatedData = aggregatePerformanceData(performanceData, viewType);
                 setData(aggregatedData);
+                const total = calculateTotalAggregate(aggregatedData);
+                setTotalAggregate(total);
             } else {
                 setErrorMessage(result.message);
             }
@@ -147,6 +160,12 @@ const DynamicPerformanceChart = () => {
         }
     };
 
+    const calculateTotalAggregate = (aggregatedData) => {
+        return aggregatedData
+            .filter(item => item.name !== 'total_performance')
+            .reduce((acc, item) => acc + item.score, 0);
+    };
+
     const renderCustomTooltip = ({ payload, label }) => {
         if (payload && payload.length) {
             return (
@@ -163,6 +182,8 @@ const DynamicPerformanceChart = () => {
         <div className="w-full h-[90vh] bg-white p-4 rounded-lg shadow-lg mt-5">
             <div className="mb-4">
                 <h2 className="text-xl font-bold mb-2">Performance Metrics</h2>
+                <h3>Name: {firstName} {lastName} - Total Aggregate: {totalAggregate}</h3>
+                <br />
                 <div className="mb-4">
                     <select
                         value={viewType}
@@ -208,12 +229,14 @@ const DynamicPerformanceChart = () => {
                 )}
                 {viewType === 'range' && (
                     <div className="mb-4">
+                        <h1>From: </h1>
                         <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             className="p-2 border rounded"
                         />
+                        <h1>To: </h1>
                         <input
                             type="date"
                             value={endDate}
