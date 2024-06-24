@@ -18,6 +18,10 @@ const ManagerRoutes = () => {
     const [filter, setFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editStartTime, setEditStartTime] = useState("");
+    const [editEndTime, setEditEndTime] = useState("");
+    const [editInstructionId, setEditInstructionId] = useState(null);
     const routesPerPage = 12;
 
     useEffect(() => {
@@ -198,6 +202,31 @@ const ManagerRoutes = () => {
         if (e.target === e.currentTarget) setModalData(null);
     };
 
+    const openEditModal = (instructionId) => {
+        setEditInstructionId(instructionId);
+        setEditStartTime("");
+        setEditEndTime("");
+        setIsEditModalOpen(true);
+    };
+
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
+        setEditInstructionId(null);
+    };
+
+    const handleEditSave = () => {
+        const startDate = new Date(editStartTime);
+        const endDate = new Date(editEndTime);
+        
+        if (startDate.toDateString() === endDate.toDateString()) {
+            handleSave(modalData.id, editInstructionId, editStartTime, editEndTime);
+            closeEditModal();
+        } else {
+            setErrorMessage("Start and end times must be on the same day.");
+            setTimeout(() => setErrorMessage(""), 5000);
+        }
+    };
+
     return (
         <div className="max-w-7xl mx-auto mt-5 p-5 rounded-lg shadow-lg bg-white flex flex-col min-h-screen">
             <div className="flex justify-between items-center mb-4">
@@ -315,28 +344,16 @@ const ManagerRoutes = () => {
                                     <p><span className="font-bold">Status:</span> {instruction.status}</p>
                                 </div>
                                 <div className="mb-2">
-                                    <p><span className="font-bold">Start Date and Time:</span></p>
-                                    <input
-                                        type="datetime-local"
-                                        value={instruction.start || ""}
-                                        onChange={e => handleDateChange(modalData.id, instruction.id, e.target.value, instruction.end)}
-                                        className="border border-gray-300 rounded p-1"
-                                    />
+                                    <p><span className="font-bold">Start Date and Time:</span> {instruction.start}</p>
                                 </div>
                                 <div className="mb-4">
-                                    <p><span className="font-bold">End Date and Time:</span></p>
-                                    <input
-                                        type="datetime-local"
-                                        value={instruction.end || ""}
-                                        onChange={e => handleDateChange(modalData.id, instruction.id, instruction.start, e.target.value)}
-                                        className="border border-gray-300 rounded p-1"
-                                    />
+                                    <p><span className="font-bold">End Date and Time:</span> {instruction.end}</p>
                                 </div>
                                 <button
                                     className="px-3 py-1 bg-blue-500 hover:bg-blue-700 text-white rounded"
-                                    onClick={() => handleSave(modalData.id, instruction.id, instruction.start, instruction.end)}
+                                    onClick={() => openEditModal(instruction.id)}
                                 >
-                                    Save
+                                    Edit
                                 </button>
                             </div>
                         ))}
@@ -347,11 +364,50 @@ const ManagerRoutes = () => {
                             Close
                         </button>
                     </div>
-                    {loading && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-                        <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                </div>
+            )}
+
+            {isEditModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={closeEditModal}>
+                    <div className="bg-white p-4 rounded-lg w-1/3" onClick={e => e.stopPropagation()}>
+                        <h2 className="text-lg font-bold mb-4">Edit Dates</h2>
+                        <div className="mb-4">
+                            <label className="block mb-2 font-bold">Start Date and Time</label>
+                            <input
+                                type="datetime-local"
+                                value={editStartTime}
+                                onChange={(e) => setEditStartTime(e.target.value)}
+                                className="border border-gray-300 rounded p-1 w-full"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block mb-2 font-bold">End Date and Time</label>
+                            <input
+                                type="datetime-local"
+                                value={editEndTime}
+                                onChange={(e) => setEditEndTime(e.target.value)}
+                                className="border border-gray-300 rounded p-1 w-full"
+                            />
+                        </div>
+                        <button
+                            className="px-3 py-1 bg-blue-500 hover:bg-blue-700 text-white rounded"
+                            onClick={handleEditSave}
+                        >
+                            Save
+                        </button>
+                        <button
+                            className="ml-2 px-3 py-1 bg-gray-500 text-white rounded"
+                            onClick={closeEditModal}
+                        >
+                            Cancel
+                        </button>
                     </div>
-                )}
+                </div>
+            )}
+
+            {loading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                    <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
                 </div>
             )}
         </div>
