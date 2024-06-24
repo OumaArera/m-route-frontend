@@ -6,6 +6,7 @@ import { HiChevronDoubleRight, HiChevronDoubleLeft } from "react-icons/hi";
 const MANAGER_ROUTES_URL = "https://m-route-backend.onrender.com/users/manager-routes";
 const MODIFY_ROUTE = "https://m-route-backend.onrender.com/users/modify-route";
 const DELETE_ROUTE_URL = "https://m-route-backend.onrender.com/users/delete-route-plans";
+const COMPLETE_ROUTE_URL = "https://m-route-backend.onrender.com/users/complete/route/plan"
 
 const ManagerRoutes = () => {
     const [routes, setRoutes] = useState([]);
@@ -58,14 +59,6 @@ const ManagerRoutes = () => {
         }
     };
 
-    const updateRoute = (routeId, updatedInstructions) => {
-        setRoutes(prevRoutes => prevRoutes.map(route => {
-            if (route.id === routeId) {
-                return { ...route, instructions: JSON.stringify(updatedInstructions) };
-            }
-            return route;
-        }));
-    };
 
     const filterRoutesByMerchandiserName = (searchTerm) => {
         return routes.filter(route => route.merchandiser_name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -93,7 +86,7 @@ const ManagerRoutes = () => {
     const handleComplete = async (routeId) => {
         setLoading(true);
         try {
-            const response = await fetch(`${MODIFY_ROUTE}/${routeId}`, {
+            const response = await fetch(`${COMPLETE_ROUTE_URL}/${routeId}`, {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -104,7 +97,7 @@ const ManagerRoutes = () => {
             const data = await response.json();
 
             setErrorMessage(data.message);
-            if (data.status_code === 200) getManagerRoutes();
+            if (data.status_code === 201) getManagerRoutes();
         } catch (error) {
             setErrorMessage("There was an error completing the task");
         } finally {
@@ -179,23 +172,6 @@ const ManagerRoutes = () => {
             setTimeout(() => setErrorMessage(""), 5000);
             setLoading(false);
         }
-    };
-
-    const handleDateChange = (routeId, instructionId, start, end) => {
-        setRoutes(prevRoutes =>
-            prevRoutes.map(route => {
-                if (route.id === routeId) {
-                    const updatedInstructions = JSON.parse(route.instructions).map(instruction => {
-                        if (instruction.id === instructionId) {
-                            return { ...instruction, start, end };
-                        }
-                        return instruction;
-                    });
-                    return { ...route, instructions: JSON.stringify(updatedInstructions) };
-                }
-                return route;
-            })
-        );
     };
 
     const closeModal = (e) => {
@@ -350,7 +326,7 @@ const ManagerRoutes = () => {
                                     <p><span className="font-bold">End Date and Time:</span> {instruction.end}</p>
                                 </div>
                                 <button
-                                    className="px-3 py-1 bg-blue-500 hover:bg-blue-700 text-white rounded"
+                                    className="px-3 py-1 bg-gray-800 hover:bg-blue-700 text-white rounded"
                                     onClick={() => openEditModal(instruction.id)}
                                 >
                                     Edit
@@ -358,7 +334,7 @@ const ManagerRoutes = () => {
                             </div>
                         ))}
                         <button
-                            className="mt-4 px-3 py-1 bg-gray-500 text-white rounded"
+                            className="mt-4 px-3 py-1 bg-gray-500 hover:bg-blue-600 text-white rounded"
                             onClick={() => setModalData(null)}
                         >
                             Close
@@ -390,13 +366,13 @@ const ManagerRoutes = () => {
                             />
                         </div>
                         <button
-                            className="px-3 py-1 bg-blue-500 hover:bg-blue-700 text-white rounded"
+                            className="px-3 py-1 bg-gray-800 hover:bg-blue-700 text-white rounded"
                             onClick={handleEditSave}
                         >
                             Save
                         </button>
                         <button
-                            className="ml-2 px-3 py-1 bg-gray-500 text-white rounded"
+                            className="ml-2 px-3 py-1 bg-gray-500 hover:bg-blue-500 text-white rounded"
                             onClick={closeEditModal}
                         >
                             Cancel
