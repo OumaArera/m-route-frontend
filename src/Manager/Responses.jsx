@@ -13,7 +13,7 @@ const Responses = () => {
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
-    const [rejectData, setRejectData] = useState({ id: "", instruction_id: "", route_plan_id: "", message: "" });
+    const [rejectData, setRejectData] = useState({ id: "", instruction_id: "", route_plan_id: "", message: "", merchandiser_id: "" });
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -95,21 +95,14 @@ const Responses = () => {
     const handleReject = async () => {
         setIsLoading(true);
     
-        const { id, instruction_id, route_plan_id, message } = rejectData;
-    
-        const responseToReject = responses.find(response => response.id === id);
-        if (!responseToReject) {
-            setError("Response not found");
-            setIsLoading(false);
-            return;
-        }
+        const { id, instruction_id, route_plan_id, message, merchandiser_id } = rejectData;
     
         const rejectPayload = {
             instruction_id,
             route_plan_id,
             message,
             manager_id: userId,
-            merchandiser_id: responseToReject.merchandiser_id
+            merchandiser_id
         };
     
         try {
@@ -140,10 +133,9 @@ const Responses = () => {
             setShowRejectModal(false);
         }
     };
-    
 
-    const openRejectModal = (id, instruction_id, route_plan_id) => {
-        setRejectData({ id, instruction_id, route_plan_id, message: "" });
+    const openRejectModal = (id, instruction_id, route_plan_id, merchandiser_id) => {
+        setRejectData({ id, instruction_id, route_plan_id, message: "", merchandiser_id });
         setShowRejectModal(true);
     };
 
@@ -192,7 +184,7 @@ const Responses = () => {
                                         Approve
                                     </button>
                                     <button
-                                        onClick={() => openRejectModal(response.id, response.instruction_id, response.route_plan_id)}
+                                        onClick={() => openRejectModal(response.id, response.instruction_id, response.route_plan_id, response.merchandiser_id)}
                                         className="bg-gray-900 text-white py-1 px-3 rounded hover:bg-red-600"
                                     >
                                         Reject
