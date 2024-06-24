@@ -13,7 +13,7 @@ const Responses = () => {
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
-    const [rejectData, setRejectData] = useState({ id: "", instruction_id: "", route_plan_id: "", message: "", merchandiser_id: "" });
+    const [rejectData, setRejectData] = useState({ id: "", instruction_id: "", route_plan_id: "", merchandiser_id: "", message: "" });
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -95,7 +95,7 @@ const Responses = () => {
     const handleReject = async () => {
         setIsLoading(true);
     
-        const { id, instruction_id, route_plan_id, message, merchandiser_id } = rejectData;
+        const { id, instruction_id, route_plan_id, merchandiser_id, message } = rejectData;
     
         const rejectPayload = {
             instruction_id,
@@ -133,9 +133,9 @@ const Responses = () => {
             setShowRejectModal(false);
         }
     };
-    
+
     const openRejectModal = (id, instruction_id, route_plan_id, merchandiser_id) => {
-        setRejectData({ id, instruction_id, route_plan_id, message: "", merchandiser_id });
+        setRejectData({ id, instruction_id, route_plan_id, merchandiser_id, message: "" });
         setShowRejectModal(true);
     };
 
