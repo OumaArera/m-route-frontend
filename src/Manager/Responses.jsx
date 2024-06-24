@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 const RESPONSES_URL = "https://m-route-backend.onrender.com/users/get-responses";
 const REJECT_URL = "https://m-route-backend.onrender.com/users/reject/response";
@@ -12,6 +12,8 @@ const Responses = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectData, setRejectData] = useState({ id: "", instruction_id: "", route_plan_id: "", message: "" });
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -61,13 +63,7 @@ const Responses = () => {
             instruction_id: instruction_id,
             route_plan_id: route_plan_id
         };
-        console.log(`Response body: ${approveResponse}`)
-        for (let key in approveResponse) {
-            if (approveResponse.hasOwnProperty(key)) {
-                console.log(`${key}: ${approveResponse[key]}`);
-            }
-        }
-        
+
         try {
             const response = await fetch(APPROVE_RESPONSE_URL, {
                 method: "PUT",
@@ -77,9 +73,9 @@ const Responses = () => {
                 },
                 body: JSON.stringify(approveResponse)
             });
-    
+
             const data = await response.json();
-    
+
             if (data.successful) {
                 setMessage(data.message);
                 setTimeout(() => setMessage(""), 5000);
@@ -95,14 +91,18 @@ const Responses = () => {
             setIsLoading(false);
         }
     };
-        
 
-    const handleReject = async (id, instruction_id, route_plan_id) => {
+    const handleReject = async () => {
         setIsLoading(true);
 
-        const rejectData = {
-            "instruction_id": instruction_id,
-            "route_plan_id": route_plan_id
+        const { id, instruction_id, route_plan_id, message } = rejectData;
+
+        const rejectPayload = {
+            instruction_id,
+            route_plan_id,
+            message,
+            manager_id: userId,
+            merchandiser_id: responses.find(response => response.id === id).merchandiser_id
         };
 
         try {
@@ -112,7 +112,7 @@ const Responses = () => {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(rejectData)
+                body: JSON.stringify(rejectPayload)
             });
             const data = await response.json();
 
@@ -130,7 +130,22 @@ const Responses = () => {
             setTimeout(() => setError(""), 5000);
         } finally {
             setIsLoading(false);
+            setShowRejectModal(false);
         }
+    };
+
+    const openRejectModal = (id, instruction_id, route_plan_id) => {
+        setRejectData({ id, instruction_id, route_plan_id, message: "" });
+        setShowRejectModal(true);
+    };
+
+    const closeRejectModal = () => {
+        setShowRejectModal(false);
+    };
+
+    const handleRejectInputChange = (e) => {
+        const { name, value } = e.target;
+        setRejectData((prevData) => ({ ...prevData, [name]: value }));
     };
 
     return (
@@ -153,7 +168,7 @@ const Responses = () => {
                                             <p>{details.text}</p>
                                             {details.image && details.image !== "null" && (
                                                 <img
-                                                    src={details.image}  
+                                                    src={details.image}
                                                     alt={`${kpi} image`}
                                                     className="mt-2 max-w-full h-auto rounded"
                                                 />
@@ -169,7 +184,7 @@ const Responses = () => {
                                         Approve
                                     </button>
                                     <button
-                                        onClick={() => handleReject(response.id, response.instruction_id, response.route_plan_id)}
+                                        onClick={() => openRejectModal(response.id, response.instruction_id, response.route_plan_id)}
                                         className="bg-gray-900 text-white py-1 px-3 rounded hover:bg-red-600"
                                     >
                                         Reject
@@ -186,6 +201,35 @@ const Responses = () => {
                 </>
             )}
             {message && <p className="text-green-500 text-xs italic mt-4">{message}</p>}
+
+            {showRejectModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={closeRejectModal}>
+                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-xl font-bold mb-4">Provide Reason</h2>
+                        <textarea
+                            name="message"
+                            value={rejectData.message}
+                            onChange={handleRejectInputChange}
+                            className="w-full p-2 border border-gray-300 rounded mb-4"
+                            placeholder="Enter rejection reason"
+                        />
+                        <div className="flex justify-end">
+                            <button
+                                onClick={handleReject}
+                                className="bg-gray-800 hover:bg-red-800 text-white px-4 py-2 rounded mr-2"
+                            >
+                                Send
+                            </button>
+                            <button
+                                onClick={closeRejectModal}
+                                className="bg-gray-800 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
