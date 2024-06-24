@@ -94,17 +94,24 @@ const Responses = () => {
 
     const handleReject = async () => {
         setIsLoading(true);
-
+    
         const { id, instruction_id, route_plan_id, message } = rejectData;
-
+    
+        const responseToReject = responses.find(response => response.id === id);
+        if (!responseToReject) {
+            setError("Response not found");
+            setIsLoading(false);
+            return;
+        }
+    
         const rejectPayload = {
             instruction_id,
             route_plan_id,
             message,
             manager_id: userId,
-            merchandiser_id: responses.find(response => response.id === id).merchandiser_id
+            merchandiser_id: responseToReject.merchandiser_id
         };
-
+    
         try {
             const response = await fetch(`${REJECT_URL}/${id}`, {
                 method: "PUT",
@@ -115,7 +122,7 @@ const Responses = () => {
                 body: JSON.stringify(rejectPayload)
             });
             const data = await response.json();
-
+    
             if (data.successful) {
                 setMessage(data.message);
                 setResponses((prevResponses) => prevResponses.filter((response) => response.id !== id));
@@ -133,6 +140,7 @@ const Responses = () => {
             setShowRejectModal(false);
         }
     };
+    
 
     const openRejectModal = (id, instruction_id, route_plan_id) => {
         setRejectData({ id, instruction_id, route_plan_id, message: "" });
