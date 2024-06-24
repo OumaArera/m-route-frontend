@@ -133,7 +133,7 @@ const Responses = () => {
             setShowRejectModal(false);
         }
     };
-
+    
     const openRejectModal = (id, instruction_id, route_plan_id, merchandiser_id) => {
         setRejectData({ id, instruction_id, route_plan_id, message: "", merchandiser_id });
         setShowRejectModal(true);
