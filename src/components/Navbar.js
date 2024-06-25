@@ -2,23 +2,29 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { RiNotification2Line } from "react-icons/ri";
 import { MdAccountCircle } from "react-icons/md";
+import { IoMdSend } from "react-icons/io";
 
 const NOTIFICATIONS_URL = "https://m-route-backend.onrender.com/users/notifications/unread";
 const EDIT_NOTIFICATION_URL = "https://m-route-backend.onrender.com/users/notifications/edit-status";
+const REPLY_URL = "https://m-route-backend.onrender.com/users/reply/to/notification";
 
 const Navbar = ({ userData }) => {
   const [showModal, setShowModal] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [token, setToken] = useState("");
   const [userId, setUserId] = useState("");
-  const [loadingNotifications, setLoadingNotifications] = useState(false); // New state for loading notifications
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [role, setRole] = useState("");
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
     const userData = localStorage.getItem("user_data");
 
     if (accessToken) setToken(JSON.parse(accessToken));
-    if (userData) setUserId(JSON.parse(userData).id);
+    if (userData) {
+      setUserId(JSON.parse(userData).id);
+      setRole(JSON.parse(userData).role)
+    }
   }, []);
 
   useEffect(() => {
@@ -26,7 +32,7 @@ const Navbar = ({ userData }) => {
   }, [token, userId]);
 
   const getNotifications = async () => {
-    setLoadingNotifications(true); // Start loading
+    setLoadingNotifications(true);
 
     try {
       const response = await fetch(`${NOTIFICATIONS_URL}/${userId}`, {
@@ -44,7 +50,7 @@ const Navbar = ({ userData }) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoadingNotifications(false); // Stop loading
+      setLoadingNotifications(false);
     }
   };
 
@@ -62,6 +68,30 @@ const Navbar = ({ userData }) => {
       const data = await response.json();
       if (data.successful) {
         setNotifications(notifications.filter(notification => notification.id !== notificationId));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const sendReply = async (messageId, reply) => {
+    try {
+      const response = await fetch(REPLY_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message_id: messageId,
+          reply: reply,
+          sender: role,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.successful) {
+        getNotifications();
       }
     } catch (error) {
       console.error(error);
@@ -140,18 +170,29 @@ const Navbar = ({ userData }) => {
                                 type="button"
                                 onClick={() => {
                                   markNotificationAsRead(notification.id);
-                                  setShowModal(false); // Close modal after marking as read
                                 }}
                               >
                                 Close
                               </button>
                             </div>
-                            <textarea
-                              id={`reply-${notification.id}`}
-                              className="mt-2 w-full p-2 border rounded"
-                              style={{ display: "none" }}
-                              placeholder="Type your reply here..."
-                            />
+                            <div id={`reply-${notification.id}`} style={{ display: "none" }}>
+                              <textarea
+                                className="mt-2 w-full p-2 border rounded"
+                                placeholder="Type your reply here..."
+                              />
+                              <button
+                                className="mt-2 text-blue-500 background-transparent font-bold uppercase px-3 py-1 text-sm outline-none focus:outline-none ease-linear transition-all duration-150"
+                                type="button"
+                                onClick={() => {
+                                  const reply = document.querySelector(`#reply-${notification.id} textarea`).value;
+                                  if (reply) {
+                                    sendReply(notification.id, reply);
+                                  }
+                                }}
+                              >
+                                <IoMdSend className="inline" />
+                              </button>
+                            </div>
                           </div>
                         ))
                       ) : (
