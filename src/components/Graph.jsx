@@ -182,7 +182,8 @@ const DynamicPerformanceChart = () => {
         <div className="w-full h-[90vh] bg-white p-4 rounded-lg shadow-lg mt-5">
             <div className="mb-4">
                 <h2 className="text-xl font-bold mb-2">Performance Metrics</h2>
-                <h3>Name: {firstName} {lastName} - Total Aggregate: {totalAggregate}</h3>
+                <h3>Name: {firstName} {lastName}</h3>
+                <h3>Total Aggregate: {totalAggregate}</h3>
                 <br />
                 <div className="mb-4">
                     <select
