@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ThreeDots } from 'react-loader-spinner';
+import { FaSearch } from "react-icons/fa";
+import { AiOutlineCaretRight, AiOutlineCaretLeft } from "react-icons/ai";
+import { HiChevronDoubleRight, HiChevronDoubleLeft } from "react-icons/hi";
 
 const LEADERBOARD_URL = 'https://m-route-backend.onrender.com/users/leaderboard/performance';
 
@@ -8,6 +11,9 @@ const LeaderBoard = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [token, setToken] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 15;
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -27,7 +33,8 @@ const LeaderBoard = () => {
                 const result = await response.json();
 
                 if (result.status_code === 200) {
-                    setData(result.leaderboard);
+                    const sortedData = result.leaderboard.sort((a, b) => b.score - a.score);
+                    setData(sortedData);
                 } else {
                     setErrorMessage(result.message);
                 }
@@ -42,9 +49,38 @@ const LeaderBoard = () => {
         fetchLeaderBoardData();
     }, [token]);
 
+    const filteredData = data.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const displayedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1); // Reset to the first page on search
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
+
     return (
         <div className="w-full h-[90vh] bg-white p-4 rounded-lg shadow-lg mt-5">
             <h2 className="text-xl font-bold mb-4">Leaderboard</h2>
+
+            <div className="flex items-center mb-4">
+                <FaSearch className="ml-2 text-gray-500" />
+                <input
+                    type="text"
+                    placeholder="Search by name"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="p-2 border rounded w-64"
+                /> 
+            </div>
 
             {isLoading ? (
                 <div className="flex justify-center items-center h-full">
@@ -64,9 +100,9 @@ const LeaderBoard = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {data.map((item, index) => (
+                            {displayedData.map((item, index) => (
                                 <tr key={index}>
-                                    <td className="border border-gray-200 px-4 py-2">{index + 1}</td>
+                                    <td className="border border-gray-200 px-4 py-2">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                     <td className="border border-gray-200 px-4 py-2">{item.name}</td>
                                     <td className="border border-gray-200 px-4 py-2">{item.score.toFixed(2)}</td>
                                     <td className="border border-gray-200 px-4 py-2">{item.month}</td>
@@ -76,6 +112,38 @@ const LeaderBoard = () => {
                     </table>
                 </div>
             )}
+
+            <div className="flex justify-between items-center mt-4">
+                <button
+                    onClick={() => handlePageChange(1)}
+                    disabled={currentPage === 1}
+                    className={`p-2 ${currentPage === 1 ? "text-gray-400" : "text-blue-500"}`}
+                >
+                    <HiChevronDoubleLeft size={20} />
+                </button>
+                <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`p-2 ${currentPage === 1 ? "text-gray-400" : "text-blue-500"}`}
+                >
+                    <AiOutlineCaretLeft size={20} />
+                </button>
+                <span>Page {currentPage} of {totalPages}</span>
+                <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`p-2 ${currentPage === totalPages ? "text-gray-400" : "text-blue-500"}`}
+                >
+                    <AiOutlineCaretRight size={20} />
+                </button>
+                <button
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className={`p-2 ${currentPage === totalPages ? "text-gray-400" : "text-blue-500"}`}
+                >
+                    <HiChevronDoubleRight size={20} />
+                </button>
+            </div>
         </div>
     );
 };
