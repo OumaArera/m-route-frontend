@@ -3,6 +3,7 @@ import { ThreeDots } from 'react-loader-spinner';
 import { FaSearch } from "react-icons/fa";
 import { AiOutlineCaretRight, AiOutlineCaretLeft } from "react-icons/ai";
 import { HiChevronDoubleRight, HiChevronDoubleLeft } from "react-icons/hi";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const LEADERBOARD_URL = 'https://m-route-backend.onrender.com/users/leaderboard/performance';
 
@@ -13,6 +14,7 @@ const LeaderBoard = () => {
     const [token, setToken] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [showGraph, setShowGraph] = useState(false);
     const itemsPerPage = 15;
 
     useEffect(() => {
@@ -67,6 +69,10 @@ const LeaderBoard = () => {
         }
     };
 
+    const toggleGraphView = () => {
+        setShowGraph(!showGraph);
+    };
+
     return (
         <div className="w-full h-[90vh] bg-white p-4 rounded-lg shadow-lg mt-5">
             <h2 className="text-xl font-bold mb-4">Leaderboard</h2>
@@ -82,12 +88,31 @@ const LeaderBoard = () => {
                 /> 
             </div>
 
+            <div className="mb-4">
+                <button
+                    onClick={toggleGraphView}
+                    className="bg-blue-500 text-white p-2 rounded"
+                >
+                    {showGraph ? "See Leaderboard" : "See Graph"}
+                </button>
+            </div>
+
             {isLoading ? (
                 <div className="flex justify-center items-center h-full">
                     <ThreeDots color="#00BFFF" height={80} width={80} />
                 </div>
             ) : errorMessage ? (
                 <p className="text-center text-red-600">{errorMessage}</p>
+            ) : showGraph ? (
+                <ResponsiveContainer width="100%" height={500}>
+                    <BarChart data={displayedData.slice(0, 10)}>
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="score" fill="#8884d8" />
+                    </BarChart>
+                </ResponsiveContainer>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="min-w-full border-collapse border border-gray-200">
