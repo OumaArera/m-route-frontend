@@ -24,6 +24,7 @@ import KeyPerformanceIndicators from "./Admin/KeyPerformanceIndicators";
 import DynamicPerformanceChart from "./components/Graph";
 import Responses from "./Manager/Responses";
 import ManageKPI from "./Admin/ManageKPI";
+import LeaderBoard from "./components/LeaderBoard";
 
 
 
@@ -84,6 +85,7 @@ function App() {
                   
                   <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
                   <Route path="/reviews" element={<Reviews />} />
+                  <Route path="/leaderboard" element={<LeaderBoard />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/map" element={<GetLocations />} />
                   <Route path="/routes" element={<ManagerRoutes />} />
