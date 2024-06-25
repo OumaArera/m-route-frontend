@@ -154,6 +154,23 @@ const Navbar = ({ userData }) => {
                             <p className="text-blueGray-500 text-lg leading-relaxed">
                               {notification.message}
                             </p>
+                            {notification.replies.map(reply => (
+                              <div
+                                key={reply.id}
+                                className={`mt-2 p-2 rounded ${
+                                  reply.sender === "merchandiser"
+                                    ? "bg-blue-100 text-right"
+                                    : "bg-green-100 text-left"
+                                }`}
+                                style={{
+                                  maxWidth: "75%",
+                                  marginLeft: reply.sender === "manager" ? "0" : "auto",
+                                  marginRight: reply.sender === "merchandiser" ? "0" : "auto",
+                                }}
+                              >
+                                {reply.reply}
+                              </div>
+                            ))}
                             <div className="flex gap-4 mt-2">
                               <button
                                 className="text-blue-500 background-transparent font-bold uppercase px-3 py-1 text-sm outline-none focus:outline-none ease-linear transition-all duration-150"
@@ -165,15 +182,17 @@ const Navbar = ({ userData }) => {
                               >
                                 Reply
                               </button>
-                              <button
-                                className="text-red-500 background-transparent font-bold uppercase px-3 py-1 text-sm outline-none focus:outline-none ease-linear transition-all duration-150"
-                                type="button"
-                                onClick={() => {
-                                  markNotificationAsRead(notification.id);
-                                }}
-                              >
-                                Close
-                              </button>
+                              {role === "merchandiser" && (
+                                <button
+                                  className="text-red-500 background-transparent font-bold uppercase px-3 py-1 text-sm outline-none focus:outline-none ease-linear transition-all duration-150"
+                                  type="button"
+                                  onClick={() => {
+                                    markNotificationAsRead(notification.id);
+                                  }}
+                                >
+                                  Close
+                                </button>
+                              )}
                             </div>
                             <div id={`reply-${notification.id}`} style={{ display: "none" }}>
                               <textarea
