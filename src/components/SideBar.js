@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { RiHome2Line, RiMapPinLine, RiSettings2Line } from "react-icons/ri";
-import { MdOutlineAddLocation } from "react-icons/md";
+import { MdOutlineAddLocation, MdLeaderboard } from "react-icons/md";
 import { IoMenu } from "react-icons/io5";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { GrDocumentPerformance } from "react-icons/gr";
@@ -58,6 +58,7 @@ const SideBar = () => {
     { icon: <RiMapPinLine className="h-6 w-6 text-gray-900" />, label: "Routes", to: "/routes" },
     { icon: <FaRegCalendarAlt className="h-6 w-6 text-gray-900" />, label: "Create Routes", to: "/calendar" },
     { icon: <MdOutlineAddLocation className="h-6 w-6 text-gray-900" />, label: "Create Outlet", to: "/outlet" },
+    { icon: <MdLeaderboard className="h-6 w-6 text-gray-900" />, label: "Leader Board", to: "/leaderboard" },
     { icon: <GrDocumentPerformance className="h-6 w-6 text-gray-900" />, label: "Response", to: "/response" },
     { icon: <RiSettings2Line className="h-6 w-6 text-gray-900" />, label: "Settings", to: "/settings" },
     
