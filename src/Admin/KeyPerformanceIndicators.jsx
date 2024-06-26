@@ -87,6 +87,7 @@ const KeyPerformanceIndicators = () => {
                     <input
                         type="text"
                         value={sectorName}
+                        required
                         placeholder="Sector Name e.g Consumer Packaging Goods"
                         onChange={(e) => setSectorName(e.target.value)}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-2"
@@ -97,6 +98,7 @@ const KeyPerformanceIndicators = () => {
                     <input
                         type="text"
                         value={companyName}
+                        required
                         placeholder="Company Name e.g Mash Industries"
                         onChange={(e) => setCompanyName(e.target.value)}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-2"
@@ -109,6 +111,7 @@ const KeyPerformanceIndicators = () => {
                             <input
                                 type="text"
                                 placeholder="KPI Metric e.g Shelf Space"
+                                required
                                 value={metric.metric}
                                 onChange={(e) => handleKPIMetricChange(index, "metric", e.target.value)}
                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 p-2"
@@ -117,6 +120,7 @@ const KeyPerformanceIndicators = () => {
                                 <label className="flex items-center">
                                     <input
                                         type="checkbox"
+                                        required
                                         checked={metric.text}
                                         onChange={(e) => handleKPIMetricChange(index, "text", e.target.checked)}
                                         className="mr-2"

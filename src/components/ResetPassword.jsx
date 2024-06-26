@@ -100,7 +100,7 @@ const ResetUser = () => {
                 <p className="text-green-500 mb-4">{message}</p>
                 <button 
                     type="submit"
-                    className="w-full bg-gray-700 text-white p-2 rounded hover:bg-green-500 transition-colors duration-300"
+                    className="w-full bg-gray-800 hover:bg-blue-600 text-white p-2 rounded  transition-colors duration-300"
                 >
                     Submit
                 </button>
