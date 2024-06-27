@@ -33,7 +33,7 @@ const DynamicPerformanceChart = () => {
     const [year, setYear] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [totalAggregate, setTotalAggregate] = useState(0);
+    const [totalPerformance, setTotalPerformance] = useState(0);
 
     useEffect(() => {
         const accessToken = localStorage.getItem("access_token");
@@ -108,9 +108,8 @@ const DynamicPerformanceChart = () => {
             if (result.status_code === 200) {
                 const performanceData = result.message;
                 const aggregatedData = aggregatePerformanceData(performanceData, viewType);
-                setData(aggregatedData);
-                const total = calculateTotalAggregate(aggregatedData);
-                setTotalAggregate(total);
+                setData(aggregatedData.data);
+                setTotalPerformance(aggregatedData.totalPerformance);
             } else {
                 setErrorMessage(result.message);
             }
@@ -123,47 +122,54 @@ const DynamicPerformanceChart = () => {
     };
 
     const aggregatePerformanceData = (performanceData, viewType) => {
+        let totalPerformance = 0;
+        let aggregatedData = [];
+
         switch (viewType) {
             case 'today':
             case 'day':
                 if (performanceData && performanceData.performance) {
-                    return Object.keys(performanceData.performance).map(metric => ({
+                    aggregatedData = Object.keys(performanceData.performance).map(metric => ({
                         name: metric,
                         score: performanceData.performance[metric]
                     }));
+                    totalPerformance = performanceData.performance.total_performance || 0;
                 } else {
                     throw new Error("Invalid data structure for today/day view");
                 }
+                break;
             case 'thisweek':
             case 'thismonth':
             case 'monthly':
             case 'range':
                 if (performanceData) {
-                    return Object.keys(performanceData).map(metric => ({
+                    aggregatedData = Object.keys(performanceData).map(metric => ({
                         name: metric,
                         score: performanceData[metric]
                     }));
+                    totalPerformance = performanceData.total_performance || 0;
                 } else {
                     throw new Error("Invalid data structure for thisweek/thismonth/monthly/range view");
                 }
+                break;
             case 'year':
                 if (performanceData) {
-                    return Object.keys(performanceData).map(month => ({
+                    aggregatedData = Object.keys(performanceData).map(month => ({
                         name: month,
                         score: performanceData[month].total_performance
                     }));
+                    totalPerformance = aggregatedData.reduce((acc, item) => acc + item.score, 0);
                 } else {
                     throw new Error("Invalid data structure for year view");
                 }
+                break;
             default:
                 throw new Error("Invalid view type");
         }
-    };
 
-    const calculateTotalAggregate = (aggregatedData) => {
-        return aggregatedData
-            .filter(item => item.name !== 'total_performance')
-            .reduce((acc, item) => acc + item.score, 0);
+        aggregatedData = aggregatedData.filter(item => item.name !== 'total_performance');
+
+        return { data: aggregatedData, totalPerformance };
     };
 
     const renderCustomTooltip = ({ payload, label }) => {
@@ -183,7 +189,7 @@ const DynamicPerformanceChart = () => {
             <div className="mb-4">
                 <h2 className="text-xl font-bold mb-2">Performance Metrics</h2>
                 <h3>Name: {firstName} {lastName}</h3>
-                <h3>Total Aggregate: {totalAggregate}</h3>
+                <h3>Total Performance: {totalPerformance}</h3>
                 <br />
                 <div className="mb-4">
                     <select
