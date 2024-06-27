@@ -35,7 +35,7 @@ const LeaderBoard = () => {
                 const result = await response.json();
 
                 if (result.status_code === 200) {
-                    const sortedData = result.leaderboard.sort((a, b) => b.score - a.score);
+                    const sortedData = result.message.sort((a, b) => b.score - a.score);
                     setData(sortedData);
                 } else {
                     setErrorMessage(result.message);

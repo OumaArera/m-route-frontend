@@ -68,7 +68,7 @@ const Settings = ({ setAuthorized }) => {
     if (locateMerchandiser) {
       intervalId = setInterval(() => {
         getGeolocation();
-      }, 5000); // 5 minutes
+      }, 60000); 
     }
 
     return () => {
