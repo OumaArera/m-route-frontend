@@ -40,6 +40,14 @@ const routeConfig = {
   "/myroutes": { title: "", metaDescription: "" },
 };
 
+const safeJSONParse = (value, defaultValue) => {
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return defaultValue;
+  }
+};
+
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -71,23 +79,15 @@ function App() {
   }, [currentPath]);
 
   useEffect(() => {
-    const storedAuthorized = localStorage.getItem("authorized");
-    const storedRoleCheck = localStorage.getItem("roleCheck");
-    const storedAdmin = localStorage.getItem("admin");
-    const storedUserData = localStorage.getItem("userData");
+    const storedAuthorized = safeJSONParse(localStorage.getItem("authorized"), false);
+    const storedRoleCheck = safeJSONParse(localStorage.getItem("roleCheck"), 0);
+    const storedAdmin = safeJSONParse(localStorage.getItem("admin"), 0);
+    const storedUserData = safeJSONParse(localStorage.getItem("userData"), "");
 
-    if (storedAuthorized) {
-      setAuthorized(JSON.parse(storedAuthorized));
-    }
-    if (storedRoleCheck) {
-      setRoleCheck(JSON.parse(storedRoleCheck));
-    }
-    if (storedAdmin) {
-      setAdmin(JSON.parse(storedAdmin));
-    }
-    if (storedUserData) {
-      setUserData(JSON.parse(storedUserData));
-    }
+    setAuthorized(storedAuthorized);
+    setRoleCheck(storedRoleCheck);
+    setAdmin(storedAdmin);
+    setUserData(storedUserData);
   }, []);
 
   const handleLogin = (authStatus, roleStatus, adminStatus, userInfo) => {
