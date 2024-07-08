@@ -267,6 +267,7 @@ const Settings = ({ setAuthorized }) => {
               type={passwordVisibility.oldPassword ? 'text' : 'password'}
               className="input-field"
               placeholder="Old Password"
+              required
               name="oldPassword"
               value={passwordChange.oldPassword}
               onChange={handlePasswordChange}
@@ -284,6 +285,7 @@ const Settings = ({ setAuthorized }) => {
               type={passwordVisibility.newPassword ? 'text' : 'password'}
               className="input-field"
               placeholder="New Password"
+              required
               name="newPassword"
               value={passwordChange.newPassword}
               onChange={handlePasswordChange}
@@ -301,6 +303,7 @@ const Settings = ({ setAuthorized }) => {
               type={passwordVisibility.confirmPassword ? 'text' : 'password'}
               className="input-field"
               placeholder="Confirm New Password"
+              required
               name="confirmPassword"
               value={passwordChange.confirmPassword}
               onChange={handlePasswordChange}
