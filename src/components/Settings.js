@@ -315,11 +315,6 @@ const Settings = ({ setAuthorized }) => {
           </button>
           {error && <p className="error-message" style={{ color: "red", fontWeight: "bold", margin: "10px 0" }}>{error}</p>}
         </form>
-        {loading && (
-          <div className="fixed inset-0 flex items-center justify-center py-36  bg-gray-900 bg-opacity-50 z-50">
-            <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
-          </div>
-        )}
         <div className="flex flex-col items-center lg:items-start justify-start gap-8 py-6 px-8 text-lg text-black font-poppins shadow-[0px_4px_4px_rgba(0,_0,_0,_0.25)] rounded-xl">
           <b className="text-xl text-darkslateblue-300">Notification Preferences</b>
           <div className="flex flex-col gap-3">
@@ -398,6 +393,11 @@ const Settings = ({ setAuthorized }) => {
         <button className="text-white bg-gray-900 hover:bg-gray-800 px-8 py-3 rounded-full mr-4" onClick={logoutUser}>
           Logout
         </button>
+        {loading && (
+          <div className="fixed inset-0 flex items-center justify-center py-36  bg-gray-900 bg-opacity-50 z-50">
+            <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+          </div>
+        )}
       </div>
     </>
   );
