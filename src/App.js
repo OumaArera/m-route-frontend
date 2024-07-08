@@ -88,7 +88,14 @@ function App() {
     setRoleCheck(storedRoleCheck);
     setAdmin(storedAdmin);
     setUserData(storedUserData);
-  }, []);
+
+    if (storedAuthorized) {
+      const previousRoute = localStorage.getItem("previous_route");
+      if (previousRoute) {
+        navigate(JSON.parse(previousRoute));
+      }
+    }
+  }, [navigate]);
 
   const handleLogin = (authStatus, roleStatus, adminStatus, userInfo) => {
     setAuthorized(authStatus);
