@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SideBar from "./components/SideBar";
 import Settings from "./components/Settings";
@@ -26,8 +26,6 @@ import Responses from "./Manager/Responses";
 import ManageKPI from "./Admin/ManageKPI";
 import LeaderBoard from "./components/LeaderBoard";
 
-
-
 const routeConfig = {
   "/": { title: "", metaDescription: "" },
   "/dashboardmanager": { title: "", metaDescription: "" },
@@ -38,12 +36,13 @@ const routeConfig = {
   "/reviews": { title: "", metaDescription: "" },
   "/routesplan": { title: "", metaDescription: "" },
   "/contactus": { title: "", metaDescription: "" },
-  "/calendar": {title: "", metaDescription: ""},
-  "/myroutes": {title: "", metaDescription: ""},
+  "/calendar": { title: "", metaDescription: "" },
+  "/myroutes": { title: "", metaDescription: "" },
 };
 
 function App() {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
   const [authorized, setAuthorized] = useState(false);
   const [roleCheck, setRoleCheck] = useState(0);
@@ -71,19 +70,59 @@ function App() {
     }
   }, [currentPath]);
 
+  useEffect(() => {
+    const storedAuthorized = localStorage.getItem("authorized");
+    const storedRoleCheck = localStorage.getItem("roleCheck");
+    const storedAdmin = localStorage.getItem("admin");
+    const storedUserData = localStorage.getItem("userData");
+
+    if (storedAuthorized) {
+      setAuthorized(JSON.parse(storedAuthorized));
+    }
+    if (storedRoleCheck) {
+      setRoleCheck(JSON.parse(storedRoleCheck));
+    }
+    if (storedAdmin) {
+      setAdmin(JSON.parse(storedAdmin));
+    }
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
+  }, []);
+
+  const handleLogin = (authStatus, roleStatus, adminStatus, userInfo) => {
+    setAuthorized(authStatus);
+    setRoleCheck(roleStatus);
+    setAdmin(adminStatus);
+    setUserData(userInfo);
+
+    localStorage.setItem("authorized", JSON.stringify(authStatus));
+    localStorage.setItem("roleCheck", JSON.stringify(roleStatus));
+    localStorage.setItem("admin", JSON.stringify(adminStatus));
+    localStorage.setItem("userData", JSON.stringify(userInfo));
+
+    navigate(currentPath);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {authorized ? (
         <>
-          <Navbar userData ={userData} />
+          <Navbar userData={userData} />
           <div className="flex flex-1">
-            {(roleCheck && !admin) ? <SideBar /> : (!roleCheck && !admin) ? <MerchSideBar />  : null }
+            {roleCheck && !admin ? (
+              <SideBar />
+            ) : !roleCheck && !admin ? (
+              <MerchSideBar />
+            ) : null}
             {admin ? <AdminSideBar /> : null}
             <Routes className="flex-1 ml-4">
               {roleCheck ? (
                 <>
-                  
-                  <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
+                  <Route
+                    path="/settings"
+                    element={<Settings setAuthorized={setAuthorized} />}
+                  />
                   <Route path="/reviews" element={<Reviews />} />
                   <Route path="/leaderboard" element={<LeaderBoard />} />
                   <Route path="/profile" element={<Profile />} />
@@ -92,32 +131,47 @@ function App() {
                   <Route path="/calendar" element={<CreateRoutes />} />
                   <Route path="/outlet" element={<CreateOutlet />} />
                   <Route path="/response" element={<Responses />} />
-                  <Route path="/assign/merchandisers" element={<CreateOutlet />} />
-                  
+                  <Route
+                    path="/assign/merchandisers"
+                    element={<CreateOutlet />}
+                  />
                 </>
               ) : (
                 <>
-                  <Route path="/settings" element={<Settings setAuthorized={setAuthorized} />} />
+                  <Route
+                    path="/settings"
+                    element={<Settings setAuthorized={setAuthorized} />}
+                  />
                   <Route path="/graph" element={<DynamicPerformanceChart />} />
                   <Route path="/contactus" element={<ContactUs />} />
-                  <Route path="/merch-calendar" element={<MerchCalendar  userData={userData} />} />
-                  <Route path="/myroutes" element={<MerchRoutePlans userData={userData} />} />
-                  
+                  <Route
+                    path="/merch-calendar"
+                    element={<MerchCalendar userData={userData} />}
+                  />
+                  <Route
+                    path="/myroutes"
+                    element={<MerchRoutePlans userData={userData} />}
+                  />
                 </>
               )}
               {admin ? (
                 <>
-                <Route path="/map" element={<GetLocations />} />
-                <Route path="/manageusers" element={<ManageUsers />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/resetuser" element={<ResetUser />} />
-                <Route path="/assign/merchandisers" element={<AssignMerchandiser />} />
-                <Route path="/new/kpi" element={<KeyPerformanceIndicators />} />
-                <Route path="/manage/kpi" element={<ManageKPI />} />
+                  <Route path="/map" element={<GetLocations />} />
+                  <Route path="/manageusers" element={<ManageUsers />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/resetuser" element={<ResetUser />} />
+                  <Route
+                    path="/assign/merchandisers"
+                    element={<AssignMerchandiser />}
+                  />
+                  <Route
+                    path="/new/kpi"
+                    element={<KeyPerformanceIndicators />}
+                  />
+                  <Route path="/manage/kpi" element={<ManageKPI />} />
                 </>
-              ): null}
+              ) : null}
             </Routes>
-
           </div>
         </>
       ) : (
@@ -125,7 +179,14 @@ function App() {
           <Route path="/" element={<Home authorized={authorized} />} />
           <Route
             path="/login"
-            element={<Login setAdmin={setAdmin} setRoleCheck={setRoleCheck} setAuthorized={setAuthorized} setUserData={setUserData} />}
+            element={
+              <Login
+                setAdmin={setAdmin}
+                setRoleCheck={setRoleCheck}
+                setAuthorized={handleLogin}
+                setUserData={setUserData}
+              />
+            }
           />
           <Route path="/contactus" element={<ContactUs />} />
         </Routes>
@@ -135,7 +196,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
