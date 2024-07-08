@@ -26,6 +26,7 @@ const ResetUser = () => {
     const [userData, setUserData] = useState({ email: '' });
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const accessToken = localStorage.getItem('access_token');
@@ -45,6 +46,7 @@ const ResetUser = () => {
 
     const resetPassword = async event => {
         event.preventDefault();
+        setLoading(true);
 
         const user = {
             email: userData.email,
@@ -80,6 +82,8 @@ const ResetUser = () => {
             setTimeout(() => {
                 setError("")
             }, 5000);
+        }finally{
+            setLoading(false);
         }
     };
 
@@ -105,6 +109,11 @@ const ResetUser = () => {
                     Submit
                 </button>
             </form>
+            {loading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                    <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+                </div>
+            )}
         </div>
     )
 }
