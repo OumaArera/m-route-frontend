@@ -81,8 +81,9 @@ const Responses = () => {
 
             if (data.successful) {
                 setMessage(data.message);
+                // Remove the approved response from the state
+                setResponses((prevResponses) => prevResponses.filter((response) => response.id !== id));
                 setTimeout(() => setMessage(""), 5000);
-                getResponses();
             } else {
                 setError(data.message);
                 setTimeout(() => setError(""), 5000);
@@ -97,9 +98,9 @@ const Responses = () => {
 
     const handleReject = async () => {
         setIsLoading(true);
-    
+
         const { id, instruction_id, route_plan_id, merchandiser_id, message } = rejectData;
-    
+
         const rejectPayload = {
             instruction_id,
             route_plan_id,
@@ -107,7 +108,7 @@ const Responses = () => {
             manager_id: userId,
             merchandiser_id
         };
-    
+
         try {
             const response = await fetch(`${REJECT_URL}/${id}`, {
                 method: "PUT",
@@ -118,7 +119,7 @@ const Responses = () => {
                 body: JSON.stringify(rejectPayload)
             });
             const data = await response.json();
-    
+
             if (data.successful) {
                 setMessage(data.message);
                 setResponses((prevResponses) => prevResponses.filter((response) => response.id !== id));
@@ -238,5 +239,3 @@ const Responses = () => {
 };
 
 export default Responses;
-
-
