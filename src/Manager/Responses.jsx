@@ -63,6 +63,9 @@ const Responses = () => {
             instruction_id: instruction_id,
             route_plan_id: route_plan_id
         };
+        console.log(`Response ID: ${id}`);
+        console.log(`Instructions ID: ${instruction_id}`);
+        console.log(`Route Plan ID: ${route_plan_id}`);
 
         try {
             const response = await fetch(APPROVE_RESPONSE_URL, {
@@ -235,3 +238,5 @@ const Responses = () => {
 };
 
 export default Responses;
+
+
