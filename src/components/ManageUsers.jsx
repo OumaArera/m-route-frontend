@@ -16,12 +16,16 @@ const ManageUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [userId, setUserId] = useState("");
   const usersPerPage = 12;
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const accessToken = localStorage.getItem('access_token');
+    const userData = localStorage.getItem("user_data");
+
+    if (userData) setUserId(JSON.parse(userData).id);
     if (accessToken) {
       setToken(JSON.parse(accessToken));
     } else {
@@ -121,6 +125,7 @@ const ManageUsers = () => {
 
   const filterUsers = (users) => {
     return users.filter(user => {
+      if (user.id === userId) return false; // Exclude the logged-in user
       const username = user.username.toLowerCase();
       const staffNo = String(user.staff_no).toLowerCase();
       const matchesSearch = username.includes(searchTerm.toLowerCase()) ||
