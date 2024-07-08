@@ -250,13 +250,7 @@ const Settings = ({ setAuthorized }) => {
 
   return (
     <>
-      {loading && (
-        <div className="fixed inset-0 flex items-center justify-center py-36  bg-gray-900 bg-opacity-50 z-50">
-          <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
-        </div>
-      )}
-
-      <div className="flex flex-col lg:flex-row justify-center items-center lg:items-start min-h-screen py-16 mb-36 gap-8 lg:gap-36">
+        <div className="flex flex-col lg:flex-row justify-center items-center lg:items-start min-h-screen py-16 mb-36 gap-8 lg:gap-36">
         <form className="flex flex-col items-center justify-start gap-8 p-6 md:p-10 lg:p-16 xl:p-20 max-w-[90%] sm:max-w-[80%] md:max-w-[70%] lg:max-w-[50%] xl:max-w-[40%] shadow-[0px_4px_4px_rgba(0,_0,_0,_0.25)] bg-white rounded-xl">
           <h1 className="text-2xl md:text-2xl lg:text-2xl  text-center font-bold text-darkslateblue-300 mb-4">Profile settings</h1>
           <div className="w-[120px] h-[120px] rounded-full flex items-center justify-center pt-[84px] pb-2 bg-[url('/public/39@2x.png')] bg-cover bg-no-repeat bg-[top]"></div>
@@ -321,6 +315,11 @@ const Settings = ({ setAuthorized }) => {
           </button>
           {error && <p className="error-message" style={{ color: "red", fontWeight: "bold", margin: "10px 0" }}>{error}</p>}
         </form>
+        {loading && (
+          <div className="fixed inset-0 flex items-center justify-center py-36  bg-gray-900 bg-opacity-50 z-50">
+            <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-white"></div>
+          </div>
+        )}
         <div className="flex flex-col items-center lg:items-start justify-start gap-8 py-6 px-8 text-lg text-black font-poppins shadow-[0px_4px_4px_rgba(0,_0,_0,_0.25)] rounded-xl">
           <b className="text-xl text-darkslateblue-300">Notification Preferences</b>
           <div className="flex flex-col gap-3">
