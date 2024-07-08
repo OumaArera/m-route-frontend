@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import SideBar from "./components/SideBar";
 import Settings from "./components/Settings";
@@ -26,8 +26,6 @@ import Responses from "./Manager/Responses";
 import ManageKPI from "./Admin/ManageKPI";
 import LeaderBoard from "./components/LeaderBoard";
 
-
-
 const routeConfig = {
   "/": { title: "", metaDescription: "" },
   "/dashboardmanager": { title: "", metaDescription: "" },
@@ -42,7 +40,7 @@ const routeConfig = {
   "/myroutes": {title: "", metaDescription: ""},
 };
 
-function App() {
+const App =() => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [authorized, setAuthorized] = useState(false);
@@ -116,8 +114,8 @@ function App() {
                 <Route path="/manage/kpi" element={<ManageKPI />} />
                 </>
               ): null}
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
-
           </div>
         </>
       ) : (
@@ -128,6 +126,7 @@ function App() {
             element={<Login setAdmin={setAdmin} setRoleCheck={setRoleCheck} setAuthorized={setAuthorized} setUserData={setUserData} />}
           />
           <Route path="/contactus" element={<ContactUs />} />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       )}
     </div>
@@ -135,7 +134,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
